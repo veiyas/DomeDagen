@@ -1,7 +1,31 @@
-/*****************************************************************************************
+﻿/*****************************************************************************************
+ *                                                                                       *
  * WebSocket Handler                                                                     *
  *                                                                                       *
- * Copyright (c) Alexander Bock 2020                                                     *
+ * Copyright (c) Alexander Bock, 2020                                                    *
+ *                                                                                       *
+ * All rights reserved.                                                                  *
+ *                                                                                       *
+ * Redistribution and use in source and binary forms, with or without modification, are  *
+ * permitted provided that the following conditions are met:                             *
+ *                                                                                       *
+ * 1. Redistributions of source code must retain the above copyright notice, this list   *
+ *    of conditions and the following disclaimer.                                        *
+ *                                                                                       *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this     *
+ *    list of conditions and the following disclaimer in the documentation and/or other  *
+ *    materials provided with the distribution.                                          *
+ *                                                                                       *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY   *
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES  *
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT   *
+ * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,        *
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED  *
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR    *
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN      *
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN    *
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH   *
+ * DAMAGE.                                                                               *
  ****************************************************************************************/
 
 #include "websockethandler.h"
@@ -13,50 +37,75 @@
 #include <string_view>
 #include <vector>
 
+/// Private implementation (=pimpl) of the WebSocketHandler to hide all details in here
 struct WebSocketHandlerImpl {
+    /// Address that we want to connect to
     std::string address;
+    /// Port at which to connect
     int port = 0;
 
+    /// Mutex that protects simulteanoues access to the messageQueue
     std::mutex messageMutex;
-    std::vector<std::string> messageQueue;
+    /// The queued list of messages that will be sent one-by-one, whenever the sockets
+    /// reports that it is ready to be written to
+    std::vector<std::vector<std::byte>> messageQueue;
 
+    /// The user's function pointer that is called when a connection is established
     std::function<void()> connectionEstablished;
-    std::function<void(const void*, size_t)> messageReceived;
+    /// The user's function pointer that is called when the connection is terminated
     std::function<void()> connectionClosed;
+    /// The user's function pointer that is called when a message was received, which
+    /// includes the data of the message
+    std::function<void(const void*, size_t)> messageReceived;
 
-    lws_context* context;
+    /// The disconnect method sets this to \c true.  We can't disconnect the socket
+    /// directly, but have to wait for a round-trip through the callback method, which
+    /// needs to return -1 in order to signal to libwebsocket that it should close it.
+    /// ¯\_(ツ)_/¯
+
+    bool wantsToDisconnect = false;
+
+    /// A pointer to the context that contains our protocol and connection
+    lws_context* context = nullptr;
 };
 
 int callback(lws* wsi, lws_callback_reasons reason, void*, void* in, size_t len) {
+    // We need this extra check as in some of the early callbacks the protocol doesn't
+    // seem to be fully initialized and will return a nullptr.  But we don't handle any of
+    // these early callbacks in our switch, so the pImpl being nullptr won't be a problem.
+    //
+    // If you find this message because your program crashed:  I'm sorry and please open
+    // an issue on https://github.com/alexanderbock/SGCT-Networked-Application so that I
+    // can fix this
+    void* usr = lws_get_protocol(wsi) ? lws_get_protocol(wsi)->user : nullptr;
+    WebSocketHandlerImpl* pImpl = reinterpret_cast<WebSocketHandlerImpl*>(usr);
+
+    if (pImpl && pImpl->wantsToDisconnect) {
+        pImpl->wantsToDisconnect = false;
+        pImpl->context = nullptr;
+        return -1;
+    }
+
     switch (reason) {
         case LWS_CALLBACK_CLIENT_ESTABLISHED:
-        {
-            WebSocketHandlerImpl* pImpl = reinterpret_cast<WebSocketHandlerImpl*>(
-                lws_get_protocol(wsi)->user
-            );
+            assert(pImpl);
             pImpl->connectionEstablished();
             break;
-        }
         case LWS_CALLBACK_CLIENT_RECEIVE:
-        {
-            WebSocketHandlerImpl* pImpl = reinterpret_cast<WebSocketHandlerImpl*>(
-                lws_get_protocol(wsi)->user
-            );
+            assert(pImpl);
             pImpl->messageReceived(in, len);
             break;
-        }
         case LWS_CALLBACK_CLIENT_WRITEABLE:
         {
-            WebSocketHandlerImpl* pImpl = reinterpret_cast<WebSocketHandlerImpl*>(
-                lws_get_protocol(wsi)->user
-            );
+            assert(pImpl);
             std::lock_guard lock(pImpl->messageMutex);
             if (pImpl->messageQueue.empty()) {
                 break;
             }
 
-            // Get a copy of first message from the queue
-            std::string msg = pImpl->messageQueue.front();
+            // Get a copy of first message from the queue.  Don't change this into a
+            // reference or we will have a dangling reference after the following erase
+            std::vector<std::byte> msg = pImpl->messageQueue.front();
             pImpl->messageQueue.erase(pImpl->messageQueue.begin());
 
             // Send the message
@@ -70,14 +119,10 @@ int callback(lws* wsi, lws_callback_reasons reason, void*, void* in, size_t len)
         }
         case LWS_CALLBACK_CLOSED:
         case LWS_CALLBACK_CLIENT_CONNECTION_ERROR:
-        {
-            WebSocketHandlerImpl* pImpl = reinterpret_cast<WebSocketHandlerImpl*>(
-                lws_get_protocol(wsi)->user
-            );
+            assert(pImpl);
             pImpl->connectionClosed();
             pImpl->context = nullptr;
             return -1; // close the connection
-        }
         default:
             break;
     }
@@ -100,6 +145,7 @@ WebSocketHandler::WebSocketHandler(std::string address, int port,
     assert(connectionEstablished);
     assert(msgReceived);
 
+    // Create our private implementation
     _pImpl = std::make_unique<WebSocketHandlerImpl>();
     _pImpl->address = std::move(address);
     _pImpl->port = port;
@@ -108,7 +154,10 @@ WebSocketHandler::WebSocketHandler(std::string address, int port,
     _pImpl->messageReceived = std::move(msgReceived);
 }
 
-WebSocketHandler::~WebSocketHandler() {}
+WebSocketHandler::~WebSocketHandler() {
+    disconnect();
+    tick();
+}
 
 bool WebSocketHandler::connect(std::string protocolName, int bufferSize) {
     assert(bufferSize >= 0);
@@ -146,11 +195,15 @@ bool WebSocketHandler::connect(std::string protocolName, int bufferSize) {
     return connection != nullptr;
 }
 
+void WebSocketHandler::disconnect() {
+    _pImpl->wantsToDisconnect = true;
+}
+
 void WebSocketHandler::tick() {
     lws_service(_pImpl->context, 0);
 }
 
-void WebSocketHandler::queueMessage(std::string message) {
+void WebSocketHandler::queueMessage(std::vector<std::byte> message) {
     std::lock_guard lock(_pImpl->messageMutex);
     _pImpl->messageQueue.push_back(std::move(message));
 }
