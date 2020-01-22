@@ -76,8 +76,10 @@ public:
 
     bool connect(std::string protocolName, int bufferSize);
     void disconnect();
+    bool isConnected() const;
     void tick();
 
+    void queueMessage(std::string message);
     void queueMessage(std::vector<std::byte> message);
     int queueSize() const;
 
