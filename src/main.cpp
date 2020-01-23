@@ -136,7 +136,7 @@ int main(int argc, char** argv) {
     callbacks.decode = decode;
     callbacks.postSyncPreDraw = postSyncPreDraw;
     callbacks.draw = draw;
-    callbacks.cleanUp = cleanup;
+    callbacks.cleanup = cleanup;
     callbacks.keyboard = keyboard;
 
     try {
