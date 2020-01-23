@@ -58,10 +58,9 @@ std::vector<std::byte> encode() {
 }
 
 
-void decode(const std::vector<std::byte>& data) {
+void decode(const std::vector<std::byte>& data, unsigned int pos) {
     // These are just two examples;  remove them and replace them with the logic of your
     // application that you need to synchronize
-    unsigned int pos = 0;
     deserializeObject(data, pos, exampleInt);
     deserializeObject(data, pos, exampleString);
 
