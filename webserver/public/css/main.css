@@ -35,11 +35,23 @@ body{
 input{
     background-color: var(--guiLight);
     color: var(--guiDark);
+    opacity: 65%;
+    border: none;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+input:focus {
+    opacity: 85%;
 }
 
 button{
     background-color: var(--guiLight);
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25), inset 0px -4px 4px #AFAFAF, inset 2px 2px 4px rgba(255, 255, 255, 0.25);
     color: var(--guiDark);
+    border: none;
+    border-radius: 20px;
+    font-size: 1.5rem;
 }
 
 button:not(.disabled):hover{
