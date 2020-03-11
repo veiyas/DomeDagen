@@ -32,3 +32,10 @@ function initialize() {
   var waitingPage = document.querySelector('#waitingScreen')
   waitingPage.style.display = "flex";
 }
+
+function handleTextInputChange() {
+  var connectButton = document.querySelector('#connect');
+  var inputTextForm = document.querySelector('#lname');
+  
+  connectButton.disabled = inputTextForm.value === '';
+}
