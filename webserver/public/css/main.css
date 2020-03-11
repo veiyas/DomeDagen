@@ -42,8 +42,12 @@ button{
     color: var(--guiDark);
 }
 
-button:hover{
+button:not(.disabled):hover{
     background-color: var(--guiAccent);
+}
+
+.disabled{
+    opacity: 50%;
 }
 
 /* FONTS AND HEADLINES */

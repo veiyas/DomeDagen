@@ -37,5 +37,11 @@ function handleTextInputChange() {
   var connectButton = document.querySelector('#connect');
   var inputTextForm = document.querySelector('#lname');
   
-  connectButton.disabled = inputTextForm.value === '';
+  if (inputTextForm.value === '') {
+    connectButton.disabled = true;
+    connectButton.classList.add('disabled');
+  } else {
+    connectButton.disabled = false;
+    connectButton.classList.remove('disabled');
+  }
 }
