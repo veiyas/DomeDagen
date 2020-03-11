@@ -1,9 +1,37 @@
 <html>
+
 <head>
-  <script type="text/javascript" src="script.js"></script>
+  <script type="text/javascript" src="./js/script.js"></script>
+  <link rel="stylesheet" type="text/css" href="./css/main.css">
+  <link rel="stylesheet" type="text/css" href="./css/welcomeScreen.css">
+  <link rel="stylesheet" type="text/css" href="./css/waitingScreen.css">
 </head>
+
 <body>
-  <button id="connect" onclick="initialize();">Connect</button>
-  <div id="debug-output">Debug info</div>
+
+  <div id="container">
+
+    <div id="welcomeScreen">
+      <h1>Welcome</h1>
+      <input type="text" id="lname" name="lname" placeholder="Enter your name...">
+      <button id="connect" onclick="initialize();">Connect</button>
+      <!-- Add connection to get name in input, in initialize() function -->
+      <div id="debug-output">Debug info</div>
+    </div>
+
+    <div id="waitingScreen">
+      <div class="card">
+        <h1>This is you</h1>
+        <img width="80%" src="https://www.jing.fm/clipimg/detail/69-694479_diver-png-joseph-annamkutty-jose-quotes.png"/>
+      </div>
+
+      <div class="card">
+        <p>Waiting page information....</p>
+      </div>
+
+    </div>
+  </div>
+
 </body>
+
 </html>

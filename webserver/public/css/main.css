@@ -1,0 +1,59 @@
+
+/* COLORS */
+:root{
+    --oceanDark: #1476a1; 
+    --oceanLight: #92cedd;
+    --guiDark: #242331;
+    --guiBlue: #1476a1;
+    --guiAccent: #f4c15a;
+    --guiLightAccent: #14deca;
+    --guiLight: #eff5f7;
+}
+
+/* MAIN ELEMENTS */
+
+body{
+    background: radial-gradient(92.53% 92.53% at 50.07% 0%, var(--oceanLight) 0%, var(--oceanDark) 100%);
+    overflow: hidden;
+    margin: 0;
+}
+
+#container{
+    width: 100vw;
+    display: flex;
+}
+
+.card{
+    width: 50vw;
+    display: inline-flex;
+    flex-direction: column;
+    padding: 30px;
+}
+
+/* GUI ELEMENTS */
+
+input{
+    background-color: var(--guiLight);
+    color: var(--guiDark);
+}
+
+button{
+    background-color: var(--guiLight);
+    color: var(--guiDark);
+}
+
+button:hover{
+    background-color: var(--guiAccent);
+}
+
+/* FONTS AND HEADLINES */
+
+p{
+    color: var(--guiLight);
+}
+
+h1{
+    font-size: 4rem;
+    text-transform: uppercase;
+    color: var(--guiLight);
+}

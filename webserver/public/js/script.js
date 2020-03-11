@@ -23,4 +23,12 @@ function initialize() {
   socket.onmessage = function() {
     log(event.data);
   }
+
+  //Hide welcome screen
+  var welcomePage = document.querySelector('#welcomeScreen')
+  welcomePage.style.display = "none";
+
+  //Display waiting to connect
+  var waitingPage = document.querySelector('#waitingScreen')
+  waitingPage.style.display = "flex";
 }

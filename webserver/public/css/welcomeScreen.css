@@ -1,0 +1,22 @@
+#welcomeScreen{
+    width: 100vw;
+    height: 100vh;
+    margin: auto;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}
+
+input{
+    width: 50%;
+    height: 10vh;
+    padding: 20px;
+    margin: auto;
+    margin-bottom: 0;
+}
+
+button{
+    width: 200px;
+    padding: 20px;
+    margin: auto;
+}
