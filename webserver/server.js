@@ -13,7 +13,7 @@ const WebSocketServer = require('websocket').server;
 
 //
 // 
-const port = 80;
+const port = 81;
 const gameAddress = '::ffff:127.0.0.1';
 
 app.use(express.static(__dirname + '/public'));

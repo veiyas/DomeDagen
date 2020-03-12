@@ -7,24 +7,88 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <iostream>
+#include <filesystem>
 
 namespace {
     std::unique_ptr<WebSocketHandler> wsHandler;
 
-
     int64_t exampleInt = 0;
-    std::string exampleString;
+	std::string exampleString;
+
+	double currentTime = 0.0;
+
+	GLuint vertexArray = 0;
+	GLuint vertexPositionBuffer = 0;
+	GLuint vertexColorBuffer = 0;
+
+	GLint matrixLoc = -1;
+
+	constexpr const char* vertexShader = R"(
+		#version 330 core
+		layout(location = 0) in vec3 vertPosition;
+		layout(location = 1) in vec3 vertColor;
+		uniform mat4 mvp;	
+		out vec3 fragColor;
+		void main() {
+		gl_Position = mvp * vec4(vertPosition, 1.0);
+		fragColor = vertColor;
+})";
+
+	constexpr const char* fragmentShader = R"(
+		#version 330 core
+		in vec3 fragColor;
+		out vec4 color;
+		void main() { color = vec4(fragColor, 1.0); }
+)";
 } // namespace
 
 using namespace sgct;
 
 void initOGL(GLFWwindow*) {
-    // Perform OpenGL initialization here, loading textures, shaders, etc that are static
-    // throughout the application lifetime
 
+	GLfloat size_mult = 1.f;
+	const GLfloat positionData[] = {
+		-1.f* size_mult, 0.f* size_mult, -1.f,
+		 0.f* size_mult, 2.f* size_mult, -1.f,
+		 1.f* size_mult, 0.f* size_mult, -1.f
+	};
+
+	const GLfloat colorData[] = {
+		1.f, 0.f, 0.f,
+		0.f, 1.f, 0.f,
+		0.f, 0.f, 1.f
+	};
+
+	// Generate one vertex array object (VAO) and bind it
+	glGenVertexArrays(1, &(vertexArray));
+	glBindVertexArray(vertexArray);
+
+	// generate VBO for vertex positions
+	glGenBuffers(1, &vertexPositionBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexPositionBuffer);
+	// upload data to GPU
+	glBufferData(GL_ARRAY_BUFFER, sizeof(positionData), positionData, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+	// generate VBO for vertex colors
+	glGenBuffers(1, &vertexColorBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexColorBuffer);
+	// upload data to GPU
+	glBufferData(GL_ARRAY_BUFFER, sizeof(colorData), colorData, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+	glBindVertexArray(0);
+
+	ShaderManager::instance().addShaderProgram("xform", vertexShader, fragmentShader);
+	const ShaderProgram& prg = ShaderManager::instance().shaderProgram("xform");
+	prg.bind();
+	matrixLoc = glGetUniformLocation(prg.id(), "mvp");
+	prg.unbind();
 
 }
-
 
 void preSync() {
     // Do the application simulation step on the server node in here and make sure that
@@ -63,8 +127,6 @@ void decode(const std::vector<std::byte>& data, unsigned int pos) {
     // application that you need to synchronize
     deserializeObject(data, pos, exampleInt);
     deserializeObject(data, pos, exampleString);
-
-
 }
 
 
@@ -74,11 +136,24 @@ void postSyncPreDraw() {
 
 
 void draw(const RenderData& data) {
-    // Do the rendering in here using the provided projection matrix
 
-    const glm::mat4 projectionMatrix = data.modelViewProjectionMatrix;
+	const glm::mat4 mvp = data.modelViewProjectionMatrix;
 
+	//Vars if you need to debug each MVP matrix
+	//auto t1 = data.modelMatrix;
+	//auto t2 = data.viewMatrix;
+	//auto t3 = data.projectionMatrix;
+	//auto t4 = data.modelViewProjectionMatrix;
 
+	ShaderManager::instance().shaderProgram("xform").bind();
+
+	glUniformMatrix4fv(matrixLoc, 1, GL_FALSE, glm::value_ptr(mvp));
+
+	glBindVertexArray(vertexArray);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glBindVertexArray(0);
+
+	ShaderManager::instance().shaderProgram("xform").unbind();
 }
 
 
@@ -99,6 +174,10 @@ void keyboard(Key key, Modifier modifier, Action action, int) {
         Log::Info("Released space key");
         wsHandler->disconnect();
     }
+
+	if (key == Key::S && action == Action::Press) {
+
+	}
 }
 
 
@@ -127,6 +206,14 @@ void messageReceived(const void* data, size_t length) {
 int main(int argc, char** argv) {
     std::vector<std::string> arg(argv + 1, argv + argc);
     Configuration config = sgct::parseArguments(arg);
+
+	std::filesystem::path dir = "../fisheye_testing.xml";
+	if (!std::filesystem::exists(dir))
+	{
+		dir = "../../fisheye_testing.xml";
+	}
+
+	config.configFilename = dir.string();
     config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
     Engine::Callbacks callbacks;
@@ -138,6 +225,7 @@ int main(int argc, char** argv) {
     callbacks.draw = draw;
     callbacks.cleanup = cleanup;
     callbacks.keyboard = keyboard;
+
 
     try {
         Engine::create(cluster, callbacks, config);
