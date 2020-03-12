@@ -24,14 +24,19 @@ namespace {
 
 	GLint matrixLoc = -1;
 
+	GLint transMatrixLoc = -1;
+	glm::mat3 transMatrx{ 1.f };
+
 	constexpr const char* vertexShader = R"(
 		#version 330 core
 		layout(location = 0) in vec3 vertPosition;
 		layout(location = 1) in vec3 vertColor;
-		uniform mat4 mvp;	
+		uniform mat4 mvp;
+		uniform mat3 transformation;
 		out vec3 fragColor;
 		void main() {
-		gl_Position = mvp * vec4(vertPosition, 1.0);
+		vec3 tPosition = transformation * vertPosition;
+		gl_Position = mvp * vec4(tPosition, 1.0);
 		fragColor = vertColor;
 })";
 
@@ -86,6 +91,7 @@ void initOGL(GLFWwindow*) {
 	const ShaderProgram& prg = ShaderManager::instance().shaderProgram("xform");
 	prg.bind();
 	matrixLoc = glGetUniformLocation(prg.id(), "mvp");
+	transMatrixLoc = glGetUniformLocation(prg.id(), "transformation");
 	prg.unbind();
 
 }
@@ -95,11 +101,11 @@ void preSync() {
     // the computed state is serialized and deserialized in the encode/decode calls
 
 
-    if (Engine::instance().isMaster() && wsHandler->isConnected() &&
+ /*   if (Engine::instance().isMaster() && wsHandler->isConnected() &&
         Engine::instance().currentFrameNumber() % 100 == 0)
     {
         wsHandler->queueMessage("ping");
-    }
+    }*/
 
 
 
@@ -148,6 +154,7 @@ void draw(const RenderData& data) {
 	ShaderManager::instance().shaderProgram("xform").bind();
 
 	glUniformMatrix4fv(matrixLoc, 1, GL_FALSE, glm::value_ptr(mvp));
+	glUniformMatrix3fv(transMatrixLoc, 1, GL_FALSE, glm::value_ptr(transMatrx));
 
 	glBindVertexArray(vertexArray);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -198,6 +205,16 @@ void connectionClosed() {
 void messageReceived(const void* data, size_t length) {
     std::string_view msg = std::string_view(reinterpret_cast<const char*>(data), length);
     Log::Info("Message received: %s", msg.data());
+
+	//Feedback testing with ugly matrix handling
+	std::string temp = msg.data();
+	if (temp == "transform")
+	{
+		glm::mat3 tempM{ 0.1f };
+		transMatrx *= tempM;
+		glUniformMatrix3fv(transMatrixLoc, 1, GL_FALSE, glm::value_ptr(transMatrx));
+		std::cout << "Tranformation requested";
+	}
 
 
 }

@@ -12,7 +12,7 @@ const server = require('http').Server(app);
 const WebSocketServer = require('websocket').server;
 
 //
-// 
+//
 const port = 81;
 const gameAddress = '::ffff:127.0.0.1';
 
@@ -60,7 +60,7 @@ wsServer.on('request', function (req) {
     });
   }
   else {
-    console.log(`Other connection from ${req.remoteAddress}`);
+    console.log(`Other connection from ${req.remoteAddress}`);    
 
     const addresses = connectionArray.map(c => c.socket.remoteAddress);
     if (addresses.indexOf(req.remoteAddress) === -1 || connectionArray.length === 0) {
@@ -73,8 +73,10 @@ wsServer.on('request', function (req) {
       // Do something with the connection
       connection.on('message', function(msg) {
         if (msg.type === 'utf8') {
-        	gameSocket.send("MOBILE CONNECTION");
-        	console.log("MOBILECOONECTION");
+        	if(msg.utf8Data === "transform") {
+            console.log("Sending transformation request");
+            gameSocket.send("transform");
+          }
         }
       });
 
@@ -89,7 +91,7 @@ wsServer.on('request', function (req) {
     }
 
     if (gameSocket) {
-      gameSocket.send(req.remoteAddress);
+      gameSocket.send("Remote connection from: " + req.remoteAddress);
     }
   }
 });
