@@ -1,4 +1,4 @@
-const serverAddress = 'ws://192.168.43.138/';
+const serverAddress = 'ws://192.168.43.19:81/';
 var socket;
 
 function log(msg) {
@@ -23,4 +23,9 @@ function initialize() {
   socket.onmessage = function() {
     log(event.data);
   }
+}
+
+function message() {
+  if (socket)
+    socket.send("hejhej");
 }
