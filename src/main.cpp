@@ -9,6 +9,7 @@
 #include <vector>
 #include <iostream>
 #include <filesystem>
+#include <fstream>
 
 namespace {
     std::unique_ptr<WebSocketHandler> wsHandler;
@@ -24,6 +25,7 @@ namespace {
 
 	GLint matrixLoc = -1;
 
+	//FOR TESTING PURPOSES ONLY
 	GLint transMatrixLoc = -1;
 	glm::mat3 transMatrx{ 1.f };
 
@@ -35,8 +37,7 @@ namespace {
 		uniform mat3 transformation;
 		out vec3 fragColor;
 		void main() {
-		vec3 tPosition = transformation * vertPosition;
-		gl_Position = mvp * vec4(tPosition, 1.0);
+		gl_Position = mvp * vec4(transformation * vertPosition, 1.0);
 		fragColor = vertColor;
 })";
 
@@ -87,11 +88,29 @@ void initOGL(GLFWwindow*) {
 
 	glBindVertexArray(0);
 
-	ShaderManager::instance().addShaderProgram("xform", vertexShader, fragmentShader);
+	//Read shaders into strings
+	std::ifstream in_vert{ "../src/shaders/testing_vertex.glsl" };
+	std::ifstream in_frag{ "../src/shaders/testing_fragment.glsl" };
+	std::string vert;
+	std::string frag;
+	if (in_vert && in_frag) {
+		vert = std::string(std::istreambuf_iterator<char>(in_vert), {});
+		frag = std::string(std::istreambuf_iterator<char>(in_frag), {});
+	}
+	else
+	{
+		std::cout << "Error reading shaders";
+	}
+	in_vert.close(); in_frag.close();
+
+	ShaderManager::instance().addShaderProgram("xform", vert, frag);
 	const ShaderProgram& prg = ShaderManager::instance().shaderProgram("xform");
 	prg.bind();
 	matrixLoc = glGetUniformLocation(prg.id(), "mvp");
+	
+	//Ugly testing
 	transMatrixLoc = glGetUniformLocation(prg.id(), "transformation");
+
 	prg.unbind();
 
 }
@@ -101,11 +120,11 @@ void preSync() {
     // the computed state is serialized and deserialized in the encode/decode calls
 
 
- /*   if (Engine::instance().isMaster() && wsHandler->isConnected() &&
-        Engine::instance().currentFrameNumber() % 100 == 0)
-    {
-        wsHandler->queueMessage("ping");
-    }*/
+    //if (Engine::instance().isMaster() && wsHandler->isConnected() &&
+    //    Engine::instance().currentFrameNumber() % 100 == 0)
+    //{
+    //    wsHandler->queueMessage("ping");
+    //}
 
 
 
@@ -114,7 +133,6 @@ void preSync() {
         wsHandler->tick();
     }
 }
-
 
 std::vector<std::byte> encode() {
     // These are just two examples;  remove them and replace them with the logic of your
@@ -127,7 +145,6 @@ std::vector<std::byte> encode() {
     return data;
 }
 
-
 void decode(const std::vector<std::byte>& data, unsigned int pos) {
     // These are just two examples;  remove them and replace them with the logic of your
     // application that you need to synchronize
@@ -135,14 +152,11 @@ void decode(const std::vector<std::byte>& data, unsigned int pos) {
     deserializeObject(data, pos, exampleString);
 }
 
-
 void postSyncPreDraw() {
     // Apply the (now synchronized) application state before the rendering will start
 }
 
-
 void draw(const RenderData& data) {
-
 	const glm::mat4 mvp = data.modelViewProjectionMatrix;
 
 	//Vars if you need to debug each MVP matrix
@@ -210,20 +224,21 @@ void messageReceived(const void* data, size_t length) {
 	std::string temp = msg.data();
 	if (temp == "transform")
 	{
-		glm::mat3 tempM{ 0.1f };
-		transMatrx *= tempM;
-		glUniformMatrix3fv(transMatrixLoc, 1, GL_FALSE, glm::value_ptr(transMatrx));
-		std::cout << "Tranformation requested";
+		transMatrx *= glm::mat3{ 0.1f };
+		Log::Info("Transformation feedback");
 	}
-
-
 }
 
 
 int main(int argc, char** argv) {
+	////Finding where output is
+	//std::ofstream fout("destinationdir.txt");
+	//fout << "this is where C++ starts searching for files";
+
     std::vector<std::string> arg(argv + 1, argv + argc);
     Configuration config = sgct::parseArguments(arg);
 
+	//Stupid solution to finding the config files with differing paths, TODO some general solution
 	std::filesystem::path dir = "../fisheye_testing.xml";
 	if (!std::filesystem::exists(dir))
 	{
@@ -242,7 +257,6 @@ int main(int argc, char** argv) {
     callbacks.draw = draw;
     callbacks.cleanup = cleanup;
     callbacks.keyboard = keyboard;
-
 
     try {
         Engine::create(cluster, callbacks, config);

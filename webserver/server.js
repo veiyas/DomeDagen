@@ -48,8 +48,6 @@ wsServer.on('request', function (req) {
       if (msg.type === 'utf8') {
         if (msg.utf8Data === 'game_connect') {
           gameSocket.send('Game connection established');
-          const buftest = Buffer.alloc(10);
-          gameSocket.sendBytes(buftest);
         }
       }
     });
@@ -86,10 +84,11 @@ wsServer.on('request', function (req) {
         connectionArray.splice(addresses.indexOf(connection.socket.remoteAddress), 1);
       });
     }
+    // More connections form same device
     else {
       console.log('Same IP address connected twice');
     }
-
+    // First connection message with game online
     if (gameSocket) {
       gameSocket.send("Remote connection from: " + req.remoteAddress);
     }

@@ -1,4 +1,4 @@
-const serverAddress = 'ws://192.168.43.138:81/';
+const serverAddress = 'ws://192.168.10.217:00081/';
 var socket;
 
 function log(msg) {
@@ -25,6 +25,7 @@ function initialize() {
   }
 }
 
+//Testing purposes to change transform matrix
 function message() {
   if (socket)
     socket.send("transform");
