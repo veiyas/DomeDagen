@@ -1,4 +1,4 @@
-const serverAddress = 'ws://127.0.0.1/';
+const serverAddress = 'ws://192.168.43.138/';
 var socket;
 
 function log(msg) {

@@ -32,7 +32,7 @@ var connectionArray = [];
 var wsServer = new WebSocketServer({ httpServer: server });
 wsServer.on('request', function (req) {
   if (req.remoteAddress === gameAddress) {
-    console.log('Game connection');
+    console.log('Game connection established');
 
     gameSocket = req.accept("example-protocol", req.origin);
 
@@ -40,6 +40,16 @@ wsServer.on('request', function (req) {
       if (msg.type === 'utf8') {
         if (msg.utf8Data === 'ping') {
           gameSocket.send('pong');
+        }
+      }
+    });
+
+    gameSocket.on('message', function(msg) {
+      if (msg.type === 'utf8') {
+        if (msg.utf8Data === 'game_connect') {
+          gameSocket.send('Game connection established');
+          const buftest = Buffer.alloc(10);
+          gameSocket.sendBytes(buftest);
         }
       }
     });
@@ -63,7 +73,8 @@ wsServer.on('request', function (req) {
       // Do something with the connection
       connection.on('message', function(msg) {
         if (msg.type === 'utf8') {
-
+        	gameSocket.send("MOBILE CONNECTION");
+        	console.log("MOBILECOONECTION");
         }
       });
 

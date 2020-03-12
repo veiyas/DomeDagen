@@ -248,6 +248,8 @@ int main(int argc, char** argv) {
         wsHandler->connect("example-protocol", MessageSize);
     }
 
+	wsHandler->queueMessage("game_connect");
+
     Engine::instance().render();
 
     Engine::destroy();
