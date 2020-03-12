@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <filesystem>
 
 namespace {
     std::unique_ptr<WebSocketHandler> wsHandler;
@@ -46,11 +47,11 @@ using namespace sgct;
 
 void initOGL(GLFWwindow*) {
 
-	GLfloat mult = 1.f;
+	GLfloat size_mult = 1.f;
 	const GLfloat positionData[] = {
-		-1.f* mult, 0.f* mult, -1.f,
-		 0.f* mult, 2.f* mult, -1.f,
-		 1.f* mult, 0.f* mult, -1.f
+		-1.f* size_mult, 0.f* size_mult, -1.f,
+		 0.f* size_mult, 2.f* size_mult, -1.f,
+		 1.f* size_mult, 0.f* size_mult, -1.f
 	};
 
 	const GLfloat colorData[] = {
@@ -135,25 +136,18 @@ void postSyncPreDraw() {
 
 
 void draw(const RenderData& data) {
-	constexpr const float Speed = 0.8f;
 
-	/*glm::mat4 scene = glm::rotate(
-		glm::mat4(1.f),
-		static_cast<float>(currentTime) * Speed,
-		glm::vec3(0.f, 1.f, 0.f)
-	);*/
+	const glm::mat4 mvp = data.modelViewProjectionMatrix;
 
-	//const glm::mat4 mvp = data.modelViewProjectionMatrix;
-	auto t1 = data.modelMatrix;
-	auto t2 = data.viewMatrix;
-	auto t3 = data.projectionMatrix;
-	auto t4 = data.modelViewProjectionMatrix;
-
-	const glm::mat4 mvp(1.f);
+	//Vars if you need to debug each MVP matrix
+	//auto t1 = data.modelMatrix;
+	//auto t2 = data.viewMatrix;
+	//auto t3 = data.projectionMatrix;
+	//auto t4 = data.modelViewProjectionMatrix;
 
 	ShaderManager::instance().shaderProgram("xform").bind();
 
-	glUniformMatrix4fv(matrixLoc, 1, GL_FALSE, glm::value_ptr(t4));
+	glUniformMatrix4fv(matrixLoc, 1, GL_FALSE, glm::value_ptr(mvp));
 
 	glBindVertexArray(vertexArray);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -208,19 +202,18 @@ void messageReceived(const void* data, size_t length) {
 
 }
 
-void drawFun(const RenderData& data){
-	const glm::mat4 mvp = data.modelViewProjectionMatrix;
-
-	glBindVertexArray(vertexArray);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glBindVertexArray(0);
-	
-}
 
 int main(int argc, char** argv) {
     std::vector<std::string> arg(argv + 1, argv + argc);
     Configuration config = sgct::parseArguments(arg);
-	config.configFilename = "../fisheye_testing.xml";
+
+	std::filesystem::path dir = "../fisheye_testing.xml";
+	if (!std::filesystem::exists(dir))
+	{
+		dir = "../../fisheye_testing.xml";
+	}
+
+	config.configFilename = dir.string();
     config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
     Engine::Callbacks callbacks;
