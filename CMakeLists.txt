@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 # @TODO: Change this project to the name of your project
 #
 #
-project("sgct-networked-example")
+project("domedagen")
 
 #
 # Add the libraries that this application depends on,
