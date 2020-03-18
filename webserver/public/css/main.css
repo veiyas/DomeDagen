@@ -1,66 +1,62 @@
-
 /* COLORS */
-:root{
+:root {
+    --guiAccent: #f4c15a;
+    --guiBlue: #1476a1;
+    --guiDark: #242331;
+    --guiLight: #eff5f7;
+    --guiLightAccent: #14deca;
     --oceanDark: #1476a1; 
     --oceanLight: #92cedd;
-    --guiDark: #242331;
-    --guiBlue: #1476a1;
-    --guiAccent: #f4c15a;
-    --guiLightAccent: #14deca;
-    --guiLight: #eff5f7;
 }
 
 /* MAIN ELEMENTS */
-
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-body{
+body {
     background: radial-gradient(92.53% 92.53% at 50.07% 0%, var(--oceanLight) 0%, var(--oceanDark) 100%);
     overflow: hidden;
 }
 
 .screen {
-    width: 100vw;
-    height: 100vh;
     display: flex;
+    height: 100vh;
+    width: 100vw;
 }
 
 .row {
-    width: 100%;
-    height: 100%;
+    align-items: center;
     display: flex;
     flex-direction: row;
+    height: 100%;
     justify-content: center;
-    align-items: center;
+    width: 100%;
 }
 
 .col {
-    width: 100%;
-    height: 100%;
+    align-items: center;
     display: flex;
     flex-direction: column;
+    height: 100%;
     justify-content: center;
-    align-items: center;
+    width: 100%;
 }
 
 /* UTILITY CLASSES */
-
 .padded {
     padding: 30px;
 }
 
 /* GUI ELEMENTS */
-
-input{
+input {
     background-color: var(--guiLight);
-    color: var(--guiDark);
-    opacity: 65%;
     border: none;
+    color: var(--guiDark);
     font-size: 1.5rem;
+    opacity: 65%;
     text-align: center;
 }
 
@@ -68,31 +64,30 @@ input:focus {
     opacity: 85%;
 }
 
-button{
+button {
     background-color: var(--guiLight);
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25), inset 0px -4px 4px #AFAFAF, inset 2px 2px 4px rgba(255, 255, 255, 0.25);
-    color: var(--guiDark);
     border: none;
     border-radius: 20px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25), inset 0px -4px 4px #AFAFAF, inset 2px 2px 4px rgba(255, 255, 255, 0.25);
+    color: var(--guiDark);
     font-size: 1.5rem;
 }
 
-button:not(.disabled):hover{
+button:not(.disabled):hover {
     background-color: var(--guiAccent);
 }
 
-.disabled{
+.disabled {
     opacity: 50%;
 }
 
 /* FONTS AND HEADLINES */
-
-p{
+p {
     color: var(--guiLight);
 }
 
-h1{
+h1 {
+    color: var(--guiLight);
     font-size: 4rem;
     text-transform: uppercase;
-    color: var(--guiLight);
 }

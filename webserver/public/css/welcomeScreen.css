@@ -1,19 +1,19 @@
-#welcomeScreen{
+#welcomeScreen {
+    flex-direction: column;
     margin: auto;
     text-align: center;
-    flex-direction: column;
 }
 
-input{
-    width: 50%;
+input {
     height: 10vh;
-    padding: 20px;
     margin: auto;
     margin-bottom: 0;
+    padding: 20px;
+    width: 50%;
 }
 
-button{
-    width: 200px;
-    padding: 20px;
+button {
     margin: auto;
+    padding: 20px;
+    width: 200px;
 }
