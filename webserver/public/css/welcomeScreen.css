@@ -4,7 +4,7 @@
     text-align: center;
 }
 
-input {
+#welcomeScreen input {
     height: 10vh;
     margin: auto;
     margin-bottom: 0;
@@ -12,7 +12,7 @@ input {
     width: 50%;
 }
 
-button {
+#welcomeScreen button {
     margin: auto;
     padding: 20px;
     width: 200px;
