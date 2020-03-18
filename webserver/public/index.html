@@ -9,26 +9,32 @@
 
 <body>
 
-  <div id="container">
-
-    <div id="welcomeScreen">
+  <div id="welcomeScreen" class="screen">
+    <div class="row">
       <h1>Welcome</h1>
-      <input type="text" id="lname" name="lname" placeholder="Enter your name..." oninput="handleTextInputChange()">
-      <button id="connect" class="disabled" onclick="initialize();" disabled="true">Connect</button>
-      <!-- Add connection to get name in input, in initialize() function -->
-      <div id="debug-output">Debug info</div>
     </div>
+    <div class="row">
+      <div class="col">
+        <input type="text" id="lname" name="lname" placeholder="Enter your name..." oninput="handleTextInputChange()">
+        <button id="connect" class="disabled" onclick="initialize();" disabled="true">Connect</button>
+      </div>
+    </div>
+    <!-- Add connection to get name in input, in initialize() function -->
+    <div id="debug-output">Debug info</div>
+  </div>
 
-    <div id="waitingScreen">
-      <div class="card">
+  <div id="waitingScreen" class="screen">
+    <div class="col">
+      <div class="row padded">
         <h1>This is you</h1>
+      </div>
+      <div class="row padded">
         <img width="80%" src="https://www.jing.fm/clipimg/detail/69-694479_diver-png-joseph-annamkutty-jose-quotes.png"/>
       </div>
+    </div>
 
-      <div class="card">
-        <p>Waiting page information....</p>
-      </div>
-
+    <div class="col">
+      <p>Waiting page information....</p>
     </div>
   </div>
 
