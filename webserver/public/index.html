@@ -5,12 +5,13 @@
   <link rel="stylesheet" type="text/css" href="./css/main.css">
   <link rel="stylesheet" type="text/css" href="./css/welcomeScreen.css">
   <link rel="stylesheet" type="text/css" href="./css/waitingScreen.css">
+  <link rel="stylesheet" type="text/css" href="./css/gameRunningScreen.css">
 </head>
 
 <body>
 
   <div id="welcomeScreen" class="screen">
-    <div class="row">
+    <div class="row centered">
       <h1>Welcome</h1>
     </div>
     <div class="row">
@@ -33,8 +34,19 @@
       </div>
     </div>
 
-    <div class="col">
+    <div class="col centered">
       <p>Waiting page information....</p>
+    </div>
+  </div>
+
+  <div class="screen centered" id="gameRunningScreen">
+    <div class="row centered">
+      <p>Score: <span id="currentScore">100</span></p>
+      <div id="steeringInstruction">
+        <!-- TODO: Animation or similar graphic to show steering controls -->
+        <p>Tilt to steer</p>         
+      </div>
+      <button>Hold to swim</button>
     </div>
   </div>
 
