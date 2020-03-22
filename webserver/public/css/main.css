@@ -28,24 +28,25 @@ body {
 }
 
 .row {
-    align-items: center;
     display: flex;
     flex-direction: row;
     height: 100%;
-    justify-content: center;
     width: 100%;
 }
 
 .col {
-    align-items: center;
     display: flex;
     flex-direction: column;
     height: 100%;
-    justify-content: center;
     width: 100%;
 }
 
 /* UTILITY CLASSES */
+.centered {
+    align-items: center;
+    justify-content: center;
+}
+
 .padded {
     padding: 30px;
 }
