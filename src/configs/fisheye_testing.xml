@@ -4,7 +4,7 @@
     <Window fullScreen="false">
       <Stereo type="none" />
       <!-- 16:9 aspect ratio -->
-      <Size x="1024" y="1024" />
+      <Size x="1300" y="1300" />
       <!-- Frame buffer resolution
 			<Res x="4096" y="4096" /> -->
       <!--
