@@ -27,14 +27,10 @@ namespace {
 	GLuint indexBuffer = 0;
 	GLuint vertexColorBuffer = 0;
 
-	GLint matrixLoc = -1;
+	GLint mvpMatrixLoc = -1;
 
-	//FOR TESTING PURPOSES ONLY
 	GLint transMatrixLoc = -1;
-	glm::mat3 transMatrix{ 1.f };
-
-	GLint transMatrixLoc2 = -1;
-	glm::mat4 transMatrix2{ 1.f };
+	glm::mat4 transMatrix{ 1.f };
 } // namespace
 
 using namespace sgct;
@@ -129,9 +125,8 @@ void draw(const RenderData& data) {
 
 	ShaderManager::instance().shaderProgram("xform").bind();
 
-	glUniformMatrix4fv(matrixLoc, 1, GL_FALSE, glm::value_ptr(mvp));
-	glUniformMatrix4fv(transMatrixLoc2, 1, GL_FALSE, glm::value_ptr(transMatrix2));
-	glUniformMatrix3fv(transMatrixLoc, 1, GL_FALSE, glm::value_ptr(transMatrix));
+	glUniformMatrix4fv(mvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(mvp));
+	glUniformMatrix4fv(transMatrixLoc, 1, GL_FALSE, glm::value_ptr(transMatrix));
 
 	glBindVertexArray(vertexArray);
 	glDrawElements(GL_TRIANGLES, vertArrayDataSize, GL_UNSIGNED_INT, nullptr);
@@ -235,26 +230,26 @@ void initOGL(GLFWwindow*) {
 	//Save size of vertex array for later rendering
 	vertArrayDataSize = sizeof(positionData);
 
-    //Generate one vertex array object (VAO) and bind it
+    // Generate one vertex array object (VAO) and bind it
 	glGenVertexArrays(1, &(vertexArray));
 	glBindVertexArray(vertexArray);
 
-	//Generate VBO for vertex positions
+	// generate VBO for vertex positions
 	glGenBuffers(1, &vertexPositionBuffer);
 	glGenBuffers(1, &indexBuffer);
 
-	//Activate the vertex buffer
+	// Activate the vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, vertexPositionBuffer);
 
 	//Define layout position and activate current attribute array (0 = vertex coords)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(0); // Vertices
 
-	//Upload data to GPU	
+	// upload data to GPU	
 	glBufferData(GL_ARRAY_BUFFER, sizeof(positionData), positionData, GL_STATIC_DRAW);	
 	
 
-	//Generate VBO for vertex colors and bind it
+	//generate VBO for vertex colors and bind it
 	glGenBuffers(1, &vertexColorBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexColorBuffer);
 
@@ -262,7 +257,7 @@ void initOGL(GLFWwindow*) {
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(1);
 
-	//Upload data to GPU
+	// upload data to GPU
 	glBufferData(GL_ARRAY_BUFFER, sizeof(colorData), colorData, GL_STATIC_DRAW);
 
 	//Activate and present vertex index to OpenGL
@@ -297,80 +292,12 @@ void initOGL(GLFWwindow*) {
 	ShaderManager::instance().addShaderProgram("xform", vert, frag);
 	const ShaderProgram& prg = ShaderManager::instance().shaderProgram("xform");
 	prg.bind();
-	matrixLoc = glGetUniformLocation(prg.id(), "mvp");
-
-	//Ugly testing
+	mvpMatrixLoc = glGetUniformLocation(prg.id(), "mvp");
 	transMatrixLoc = glGetUniformLocation(prg.id(), "transformation");
-	transMatrixLoc2 = glGetUniformLocation(prg.id(), "transformation2");
 
 	prg.unbind();
         
 }
-
-//Original
-//void initOGL(GLFWwindow*) {
-//
-//	GLfloat size_mult = 1.f;
-//	const GLfloat positionData[] = {
-//		-1.f * size_mult, 0.f * size_mult, -1.f,
-//		 0.f * size_mult, 2.f * size_mult, -1.f,
-//		 1.f * size_mult, 0.f * size_mult, -1.f
-//	};
-//
-//	const GLfloat colorData[] = {
-//		1.f, 0.f, 0.f,
-//		0.f, 1.f, 0.f,
-//		0.f, 0.f, 1.f
-//	};
-//
-//	// Generate one vertex array object (VAO) and bind it
-//	glGenVertexArrays(1, &(vertexArray));
-//	glBindVertexArray(vertexArray);
-//
-//	// generate VBO for vertex positions
-//	glGenBuffers(1, &vertexPositionBuffer);
-//	glBindBuffer(GL_ARRAY_BUFFER, vertexPositionBuffer);
-//	// upload data to GPU
-//	glBufferData(GL_ARRAY_BUFFER, sizeof(positionData), positionData, GL_STATIC_DRAW);
-//	glEnableVertexAttribArray(0);
-//	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-//
-//	// generate VBO for vertex colors
-//	glGenBuffers(1, &vertexColorBuffer);
-//	glBindBuffer(GL_ARRAY_BUFFER, vertexColorBuffer);
-//	// upload data to GPU
-//	glBufferData(GL_ARRAY_BUFFER, sizeof(colorData), colorData, GL_STATIC_DRAW);
-//	glEnableVertexAttribArray(1);
-//	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-//
-//	glBindVertexArray(0);
-//
-//	//Read shaders into strings
-//	std::ifstream in_vert{ "../src/shaders/testing_vertex.glsl" };
-//	std::ifstream in_frag{ "../src/shaders/testing_fragment.glsl" };
-//	std::string vert;
-//	std::string frag;
-//	if (in_vert.good() && in_frag.good()) {
-//		vert = std::string(std::istreambuf_iterator<char>(in_vert), {});
-//		frag = std::string(std::istreambuf_iterator<char>(in_frag), {});
-//	}
-//	else
-//	{
-//		std::cout << "ERROR OPENING SHADER FILES";
-//	}
-//	in_vert.close(); in_frag.close();
-//
-//	ShaderManager::instance().addShaderProgram("xform", vert, frag);
-//	const ShaderProgram& prg = ShaderManager::instance().shaderProgram("xform");
-//	prg.bind();
-//	matrixLoc = glGetUniformLocation(prg.id(), "mvp");
-//
-//	//Ugly testing
-//	transMatrixLoc = glGetUniformLocation(prg.id(), "transformation");
-//
-//	prg.unbind();
-//
-//}
 
 void keyboard(Key key, Modifier modifier, Action action, int) {
 	if (key == Key::Esc && action == Action::Press) {
@@ -383,27 +310,27 @@ void keyboard(Key key, Modifier modifier, Action action, int) {
 	}
 	//Left
 	if (key == Key::A && (action == Action::Press || action == Action::Repeat)) {
-		transMatrix2 = glm::translate(transMatrix2, glm::vec3(-1.f, 0.f, 0.f));
+		transMatrix = glm::translate(transMatrix, glm::vec3(-1.f, 0.f, 0.f));
 	}
 	//Right
 	if (key == Key::D && (action == Action::Press || action == Action::Repeat)) {
-		transMatrix2 = glm::translate(transMatrix2, glm::vec3(1.f, 0.f, 0.f));
+		transMatrix = glm::translate(transMatrix, glm::vec3(1.f, 0.f, 0.f));
 	}
 	//Up
 	if (key == Key::W && (action == Action::Press || action == Action::Repeat)) {
-		transMatrix2 = glm::translate(transMatrix2, glm::vec3(0.f, 0.f, 1.f));
+		transMatrix = glm::translate(transMatrix, glm::vec3(0.f, 0.f, 1.f));
 	}
 	//Down
 	if (key == Key::S && (action == Action::Press || action == Action::Repeat)) {
-		transMatrix2 = glm::translate(transMatrix2, glm::vec3(0.f, 0.f, -1.f));
+		transMatrix = glm::translate(transMatrix, glm::vec3(0.f, 0.f, -1.f));
 	}
 	//In
 	if (key == Key::Space && (action == Action::Press || action == Action::Repeat)) {
-		transMatrix2 = glm::translate(transMatrix2, glm::vec3(0.f, -1.f, 0.f));
+		transMatrix = glm::translate(transMatrix, glm::vec3(0.f, -1.f, 0.f));
 	}
 	//Out
 	if (key == Key::LeftControl && (action == Action::Press || action == Action::Repeat)) {
-		transMatrix2 = glm::translate(transMatrix2, glm::vec3(0.f, 1.f, 0.f));
+		transMatrix = glm::translate(transMatrix, glm::vec3(0.f, 1.f, 0.f));
 	}
 
 }
@@ -476,7 +403,6 @@ void messageReceived(const void* data, size_t length) {
 	std::string temp = msg.data();
 	if (temp == "transform")
 	{
-		transMatrix *= glm::mat3{ 0.1f };
 		Log::Info("Transformation feedback");
 	}
 }
