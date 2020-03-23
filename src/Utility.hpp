@@ -1,5 +1,6 @@
 #include <string>
 #include <filesystem>
+#include <iostream>
 
 class Utility
 {
@@ -9,7 +10,7 @@ public:
 		auto searcher = std::filesystem::current_path();
 		while (searcher.has_parent_path())
 		{
-			if (searcher.filename() == "DomeDagen")
+			if (searcher.filename() == "DomeDagen" || searcher.filename() == "Domedagen")
 				return searcher.string();
 			else
 				searcher = searcher.parent_path();
