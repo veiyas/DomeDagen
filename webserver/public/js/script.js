@@ -1,5 +1,6 @@
 const serverAddress = 'ws://127.0.0.1/';
 var socket;
+var screens = new Map();
 
 function log(msg) {
     document.getElementById('debug-output').innerHTML = msg;
@@ -24,13 +25,28 @@ function initialize() {
     log(event.data);
   }
 
-  //Hide welcome screen
-  var welcomePage = document.querySelector('#welcomeScreen')
-  welcomePage.style.display = "none";
+  // Push all screens into a map of [screen ID, screen]
+  document.querySelectorAll('.screen').forEach(screen => {
+    screens.set(screen.id, screen)
+  });
 
-  //Display waiting to connect
-  var waitingPage = document.querySelector('#waitingScreen')
-  waitingPage.style.display = "flex";
+  var connectButton = document.querySelector('#connect');
+  connectButton.addEventListener('click', () => setCurrentScreen('waitingScreen'))
+}
+
+// Set the currently visible screen to the matching screenID argument
+// If no screen exists matching that argument, do nothing
+function setCurrentScreen(screenID) {
+  if (screens.has(screenID)) {
+    screens.forEach(screen => {
+      if (screen.id === screenID) {
+        screen.style.display = 'flex';
+      }
+      else {
+        screen.style.display = 'none';
+      }
+    });
+  }
 }
 
 function handleTextInputChange() {
