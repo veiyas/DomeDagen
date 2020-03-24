@@ -13,11 +13,11 @@ Player::~Player() {
 	sgct::Log::Info("Player with name=\"%s\" removed", mName.c_str());
 }
 
-void Player::update(float delta_time) {
+//void Player::update(float delta_time) const {
 	//velocity_ = delta_time * acceleration_;  // funkar nog ej bra just f�r v�rt spel
 
-	GameObject::update(delta_time);
-}
+	//GameObject::update(delta_time);
+//}
 
 void Player::render() const
 {
