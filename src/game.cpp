@@ -1,19 +1,28 @@
 #include "game.hpp"
 #include "utility.hpp"
+#include "sgct/log.h"
 
+//Define instance
 Game* Game::mInstance = nullptr;
 
 Game& Game::getInstance()
 {
+	//If Game doesnt exist, create one. Return it.
 	if (!mInstance) {
 		mInstance = new Game{};
 	}
 	return *mInstance;
 }
 
-void Game::printShaderPrograms()
+void Game::destroy()
 {
-	std::cout << sgct::ShaderManager::instance().shaderProgram("player").name();
+	delete mInstance;
+}
+
+void Game::printShaderPrograms() const
+{
+	sgct::Log::Info(sgct::ShaderManager::instance().shaderProgram("player").name().c_str());
+	sgct::Log::Info(sgct::ShaderManager::instance().shaderProgram("player").name().c_str());
 }
 
 Game::Game()
@@ -29,17 +38,18 @@ void Game::readShader(const std::string& shader_name)
 	std::string vert = "";
 	std::string frag = "";
 
-	//Read shaders into strings
+	//Open streams to shader files
 	std::ifstream in_vert{ path + "vert.glsl" };
 	std::ifstream in_frag{ path + "frag.glsl" };
 	
+	//Read shaders into strings
 	if (in_vert.good() && in_frag.good()) {
 		vert = std::string(std::istreambuf_iterator<char>(in_vert), {});
 		frag = std::string(std::istreambuf_iterator<char>(in_frag), {});
 	}
 	else
 	{
-		std::cout << "ERROR OPENING SHADER FILE" + shader_name;
+		std::cout << "ERROR OPENING SHADER FILE: " + shader_name;
 	}
 	in_vert.close(); in_frag.close();
 
