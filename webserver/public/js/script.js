@@ -66,3 +66,9 @@ function handleTextInputChange() {
     connectButton.classList.remove('disabled');
   }
 }
+
+//Testing purposes to change transform matrix
+function message() {
+  if (socket)
+    socket.send("transform");
+}

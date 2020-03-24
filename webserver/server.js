@@ -12,8 +12,8 @@ const server = require('http').Server(app);
 const WebSocketServer = require('websocket').server;
 
 //
-// 
-const port = 80;
+//
+const port = 81;
 const gameAddress = '::ffff:127.0.0.1';
 
 app.use(express.static(__dirname + '/public'));
@@ -32,7 +32,7 @@ var connectionArray = [];
 var wsServer = new WebSocketServer({ httpServer: server });
 wsServer.on('request', function (req) {
   if (req.remoteAddress === gameAddress) {
-    console.log('Game connection');
+    console.log('Game connection established');
 
     gameSocket = req.accept("example-protocol", req.origin);
 
@@ -44,13 +44,21 @@ wsServer.on('request', function (req) {
       }
     });
 
+    gameSocket.on('message', function(msg) {
+      if (msg.type === 'utf8') {
+        if (msg.utf8Data === 'game_connect') {
+          gameSocket.send('Game connection established');
+        }
+      }
+    });
+
     gameSocket.on('close', function(reason, desc) {
       console.log(`Game connection lost. Reason: ${reason}.  Description: ${desc}`);
       gameSocket = null;
     });
   }
   else {
-    console.log(`Other connection from ${req.remoteAddress}`);
+    console.log(`Other connection from ${req.remoteAddress}`);    
 
     const addresses = connectionArray.map(c => c.socket.remoteAddress);
     if (addresses.indexOf(req.remoteAddress) === -1 || connectionArray.length === 0) {
@@ -63,7 +71,10 @@ wsServer.on('request', function (req) {
       // Do something with the connection
       connection.on('message', function(msg) {
         if (msg.type === 'utf8') {
-
+        	if(msg.utf8Data === "transform") {
+            console.log("Sending transformation request");
+            gameSocket.send("transform");
+          }
         }
       });
 
@@ -73,12 +84,13 @@ wsServer.on('request', function (req) {
         connectionArray.splice(addresses.indexOf(connection.socket.remoteAddress), 1);
       });
     }
+    // More connections form same device
     else {
       console.log('Same IP address connected twice');
     }
-
+    // First connection message with game online
     if (gameSocket) {
-      gameSocket.send(req.remoteAddress);
+      gameSocket.send("Remote connection from: " + req.remoteAddress);
     }
   }
 });
