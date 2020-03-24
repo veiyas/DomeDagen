@@ -11,3 +11,9 @@ Player::Player(const std::string& name /* position,  fler argument */)
 Player::~Player() {
   sgct::Log::Info("Player with name=\"%s\" removed", name_.c_str());
 }
+
+void Player::Update(float delta_time) {
+  //velocity_ = delta_time * acceleration_;  // funkar nog ej bra just för vårt spel
+
+  GameObject::Update(delta_time);
+}
