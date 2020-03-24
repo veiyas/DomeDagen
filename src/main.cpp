@@ -4,8 +4,8 @@
 
 #include "sgct/sgct.h"
 #include "websockethandler.h"
-#include "Utility.hpp"
-#include "player.h";
+#include "utility.h"
+#include "game.h"
 
 #include <memory>
 #include <string>
@@ -64,7 +64,6 @@ std::string rootDir = Utility::findRootDir();
 			MAIN
 *****************************/
 int main(int argc, char** argv) {
-	//???
     std::vector<std::string> arg(argv + 1, argv + argc);
     Configuration config = sgct::parseArguments(arg);
 
@@ -81,8 +80,9 @@ int main(int argc, char** argv) {
     callbacks.postSyncPreDraw = postSyncPreDraw;
     callbacks.draw = draw;
     callbacks.cleanup = cleanup;
-    callbacks.keyboard = keyboard;
+    callbacks.keyboard = keyboard;	
 
+	//Initialize engine
     try {
         Engine::create(cluster, callbacks, config);
     }
@@ -102,10 +102,14 @@ int main(int argc, char** argv) {
         );
         constexpr const int MessageSize = 1024;
         wsHandler->connect("example-protocol", MessageSize);
-    }
+    }	
+	/**********************************/
+	/*			 Test Area			  */
+	/**********************************/
+	Game::getInstance().PrintShaderPrograms();
 
-	wsHandler->queueMessage("game_connect");
 
+	wsHandler->queueMessage("game_connect");	
     Engine::instance().render();
 
     Engine::destroy();
@@ -138,6 +142,33 @@ void draw(const RenderData& data) {
 }
 
 void initOGL(GLFWwindow*) {
+	/**********************************/
+	/*			  Shaders			  */
+	/**********************************/
+
+	//Read shaders into strings
+	std::ifstream in_vert{ "../src/shaders/testing_vert.glsl" };
+	std::ifstream in_frag{ "../src/shaders/testing_frag.glsl" };
+	std::string vert;
+	std::string frag;
+	if (in_vert.good() && in_frag.good()) {
+		vert = std::string(std::istreambuf_iterator<char>(in_vert), {});
+		frag = std::string(std::istreambuf_iterator<char>(in_frag), {});
+	}
+	else
+	{
+		std::cout << "ERROR OPENING SHADER FILES";
+	}
+	in_vert.close(); in_frag.close();
+
+	ShaderManager::instance().addShaderProgram("xform", vert, frag);
+	const ShaderProgram& prg = ShaderManager::instance().shaderProgram("xform");
+
+	prg.bind();
+	mvpMatrixLoc = glGetUniformLocation(prg.id(), "mvp");
+	transMatrixLoc = glGetUniformLocation(prg.id(), "transformation");
+	prg.unbind();
+
 	/**********************************/
 	/*			  OpenGL 			  */
 	/**********************************/
@@ -268,35 +299,7 @@ void initOGL(GLFWwindow*) {
 	//Unbind everything
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-
-	/**********************************/
-	/*			  Shaders			  */
-	/**********************************/
-
-	//Read shaders into strings
-	std::ifstream in_vert{ "../src/shaders/testing_vertex.glsl" };
-	std::ifstream in_frag{ "../src/shaders/testing_fragment.glsl" };
-	std::string vert;
-	std::string frag;
-	if (in_vert.good() && in_frag.good()) {
-		vert = std::string(std::istreambuf_iterator<char>(in_vert), {});
-		frag = std::string(std::istreambuf_iterator<char>(in_frag), {});
-	}
-	else
-	{
-		std::cout << "ERROR OPENING SHADER FILES";
-	}
-	in_vert.close(); in_frag.close();
-
-	ShaderManager::instance().addShaderProgram("xform", vert, frag);
-	const ShaderProgram& prg = ShaderManager::instance().shaderProgram("xform");
-	prg.bind();
-	mvpMatrixLoc = glGetUniformLocation(prg.id(), "mvp");
-	transMatrixLoc = glGetUniformLocation(prg.id(), "transformation");
-
-	prg.unbind();
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);        
 }
 
 void keyboard(Key key, Modifier modifier, Action action, int) {
