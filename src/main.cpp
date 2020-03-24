@@ -4,8 +4,8 @@
 
 #include "sgct/sgct.h"
 #include "websockethandler.h"
-#include "utility.h"
-#include "game.h"
+#include "utility.hpp"
+#include "game.hpp"
 
 #include <memory>
 #include <string>
@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
 	/**********************************/
 	/*			 Test Area			  */
 	/**********************************/
-	Game::getInstance().PrintShaderPrograms();
+	Game::getInstance().printShaderPrograms();
 
 
 	wsHandler->queueMessage("game_connect");	
@@ -147,8 +147,8 @@ void initOGL(GLFWwindow*) {
 	/**********************************/
 
 	//Read shaders into strings
-	std::ifstream in_vert{ "../src/shaders/testing_vert.glsl" };
-	std::ifstream in_frag{ "../src/shaders/testing_frag.glsl" };
+	std::ifstream in_vert{ "../src/shaders/testingvert.glsl" };
+	std::ifstream in_frag{ "../src/shaders/testingfrag.glsl" };
 	std::string vert;
 	std::string frag;
 	if (in_vert.good() && in_frag.good()) {

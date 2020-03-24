@@ -1,7 +1,7 @@
 #ifndef GAMEOBJECT_H_
 #define GAMEOBJECT_H_
 
-#include "renderable.h"
+#include "renderable.hpp"
 #include "sgct/shadermanager.h"
 #include "sgct/shaderprogram.h"
 #include <vector>
@@ -10,11 +10,11 @@
 class GameObject : public Renderable {
 public:
     GameObject() = default;
-  virtual ~GameObject() { };  // hur är det med virtuella destructors nu igen
+    virtual ~GameObject() { };  // hur är det med virtuella destructors nu igen
   
-  void Render() const override;
+    void render() const override;
 
- protected:
+protected:
   //nån slags position
   //const sgct::ShaderProgram prg_;
 };

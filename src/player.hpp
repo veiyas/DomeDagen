@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "gameobject.h"
+#include "gameobject.hpp"
 //#include "sgct/sgct.h"
 
 class Player : public GameObject {
@@ -17,16 +17,16 @@ class Player : public GameObject {
   Player& operator=(const Player&) = delete;
 
   // accessors
-  int points() const { return points_; };
-  bool is_alive() const { return is_alive_; };
-  const std::string& name() const { return name_; };
+  int points() const { return mPoints; };
+  bool is_alive() const { return mIsAlive; };
+  const std::string& name() const { return mName; };
 
  private:
   // lägg till nåt id eller ip typ eller båda
 
-  int points_;
-  bool is_alive_;
-  const std::string name_;  // vad händer om namn ej är unikt? bör kanske
+  int mPoints;
+  bool mIsAlive;
+  const std::string mName;  // vad händer om namn ej är unikt? bör kanske
                             // hanteras i webbservern
 };
 
