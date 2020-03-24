@@ -5,6 +5,7 @@
 #include "sgct/sgct.h"
 #include "websockethandler.h"
 #include "Utility.hpp"
+#include "player.h";
 
 #include <memory>
 #include <string>
@@ -211,7 +212,6 @@ void initOGL(GLFWwindow*) {
 	transMatrixLoc = glGetUniformLocation(prg.id(), "transformation");
 
 	prg.unbind();
-
 }
 
 void keyboard(Key key, Modifier modifier, Action action, int) {

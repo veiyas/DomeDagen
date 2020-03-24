@@ -32,6 +32,12 @@ add_executable(${PROJECT_NAME}
   src/main.cpp
   src/websockethandler.h
   src/websockethandler.cpp
+  src/Utility.hpp
+  src/renderable.h
+  src/gameobject.h
+  src/gameobject.cc
+  src/player.h
+  src/player.cc
 )
 target_include_directories(${PROJECT_NAME} PRIVATE
   src
