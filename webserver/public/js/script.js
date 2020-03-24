@@ -7,6 +7,8 @@ function log(msg) {
     console.log(msg);
 }
 
+// Set up everything the front-end application needs.
+// Called on load for <body>. 
 function initialize() {
   socket = new WebSocket(serverAddress);
   socket.onopen = function(event) {
@@ -30,12 +32,13 @@ function initialize() {
     screens.set(screen.id, screen)
   });
 
+  // Set up event listeners
   var connectButton = document.querySelector('#connect');
   connectButton.addEventListener('click', () => setCurrentScreen('waitingScreen'))
 }
 
-// Set the currently visible screen to the matching screenID argument
-// If no screen exists matching that argument, do nothing
+// Set the currently visible screen to the matching screenID argument.
+// If no screen exists matching that argument, do nothing.
 function setCurrentScreen(screenID) {
   if (screens.has(screenID)) {
     screens.forEach(screen => {
@@ -49,6 +52,8 @@ function setCurrentScreen(screenID) {
   }
 }
 
+// Enable the connect button if and only if the user has entered something
+// into the input form.
 function handleTextInputChange() {
   var connectButton = document.querySelector('#connect');
   var inputTextForm = document.querySelector('#lname');
