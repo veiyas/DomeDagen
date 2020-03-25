@@ -53,10 +53,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE
   src
   ext/sgct/include
   ext/libwebsockets/include
-  ext/fbxsdk/include
+  ext/assimp/include
   ${LIBWEBSOCKETS_INCLUDE_DIRS}
 )
-target_link_libraries(${PROJECT_NAME} PRIVATE sgct websockets libfbxsdk)
+target_link_libraries(${PROJECT_NAME} PRIVATE sgct websockets assimp)
 
 
 #

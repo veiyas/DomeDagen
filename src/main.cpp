@@ -9,6 +9,8 @@
 #include "gameobject.hpp"
 #include "player.hpp"
 
+#include "assimp/Importer.hpp"
+
 #include <memory>
 #include <string>
 #include <vector>
