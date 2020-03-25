@@ -12,6 +12,7 @@ project("Domedagen")
 # Add the libraries that this application depends on,
 #  1. SGCT (https://github.com/opensgct/sgct) for window handling and cluster support
 #  2. libwebsockets (https://libwebsockets.org) for support for WebSockets
+#  3. FBXSDK for importing models, textures, animation, etc
 
 # Disable SSL requirement as it requires another library
 set(LWS_WITH_SSL OFF CACHE BOOL "" FORCE)
@@ -24,6 +25,9 @@ set_property(TARGET websockets_shared PROPERTY FOLDER "Dependencies")
 add_subdirectory(ext/sgct)
 set_property(TARGET sgct PROPERTY FOLDER "Dependencies")
 
+add_subdirectory(ext/assimp)
+set_property(TARGET assimp PROPERTY FOLDER "Dependencies")
+
 
 #
 # Adding the source files here that are compiled for this project
@@ -32,14 +36,27 @@ add_executable(${PROJECT_NAME}
   src/main.cpp
   src/websockethandler.h
   src/websockethandler.cpp
+  src/utility.hpp
+  src/renderable.hpp
+  src/gameobject.hpp
+  src/gameobject.cpp
+  src/player.hpp
+  src/player.cpp
+  src/game.hpp
+  src/game.cpp
+  src/shaders/playervert.glsl
+  src/shaders/playerfrag.glsl
+  src/shaders/testingvert.glsl
+  src/shaders/testingfrag.glsl
 )
 target_include_directories(${PROJECT_NAME} PRIVATE
   src
   ext/sgct/include
   ext/libwebsockets/include
+  ext/fbxsdk/include
   ${LIBWEBSOCKETS_INCLUDE_DIRS}
 )
-target_link_libraries(${PROJECT_NAME} PRIVATE sgct websockets)
+target_link_libraries(${PROJECT_NAME} PRIVATE sgct websockets libfbxsdk)
 
 
 #

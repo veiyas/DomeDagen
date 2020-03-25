@@ -10,7 +10,7 @@ public:
 		auto searcher = std::filesystem::current_path();
 		while (searcher.has_parent_path())
 		{
-			if (searcher.filename() == "DomeDagen" || searcher.filename() == "Domedagen")
+			if (searcher.filename() == "DomeDagen" || searcher.filename() == "Domedagen" || searcher.filename() == "domedagen")
 				return searcher.string();
 			else
 				searcher = searcher.parent_path();
