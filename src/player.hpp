@@ -15,7 +15,7 @@ public:
 	Player(const Player&) = delete;
 	Player& operator=(const Player&) = delete;
 
-	void update(float delta_time) override;
+	void update(float deltaTime) override;
 
 	// accessors
 	int getPoints() const { return mPoints; };

@@ -14,7 +14,7 @@ public:
 	virtual ~GameObject() { };  // hur �r det med virtuella destructors nu igen
 
 	void render() const override;
-	virtual void update(float delta_time);
+	virtual void update(float deltaTime);
 
 	// accessors
 	const glm::vec2& getPosition() const { return mPosition; };

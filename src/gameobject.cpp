@@ -4,6 +4,6 @@ void GameObject::render() const {
 
 }
 
-void GameObject::update(float delta_time) {
+void GameObject::update(float deltaTime) {
 
 }
