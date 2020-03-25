@@ -31,10 +31,10 @@ Game::Game()
 	readShader("testing");
 }
 
-void Game::readShader(const std::string& shader_name)
+void Game::readShader(const std::string& shaderName)
 {
 	//Define path and strings to hold shaders
-	std::string path = Utility::findRootDir() + "/src/shaders/" + shader_name;
+	std::string path = Utility::findRootDir() + "/src/shaders/" + shaderName;
 	std::string vert = "";
 	std::string frag = "";
 
@@ -49,9 +49,9 @@ void Game::readShader(const std::string& shader_name)
 	}
 	else
 	{
-		std::cout << "ERROR OPENING SHADER FILE: " + shader_name;
+		std::cout << "ERROR OPENING SHADER FILE: " + shaderName;
 	}
 	in_vert.close(); in_frag.close();
 
-	sgct::ShaderManager::instance().addShaderProgram(shader_name, vert, frag);
+	sgct::ShaderManager::instance().addShaderProgram(shaderName, vert, frag);
 }

@@ -84,7 +84,6 @@ int main(int argc, char** argv) {
     callbacks.cleanup = cleanup;
 	callbacks.keyboard = keyboard;
 
-
 	//Initialize engine
     try {
         Engine::create(cluster, callbacks, config);
@@ -110,7 +109,6 @@ int main(int argc, char** argv) {
 	/*			 Test Area			  */
 	/**********************************/
 	Game::getInstance().printShaderPrograms();
-
 
 	wsHandler->queueMessage("game_connect");	
     Engine::instance().render();
