@@ -7,24 +7,34 @@
 
 class Player : public GameObject {
 public:
+	//No default ctor
 	Player() = delete;
-	Player(const std::string& name /* position, ... fler argument */);
-	virtual ~Player();
 
-	// Players should be unique
+	//Ctor + Dtor
+	Player(const unsigned objType, const glm::vec2 position, const float orientation, const std::string& name /* position, ... fler argument */);
+	~Player();
+
+	//Players should be unique
 	Player(const Player&) = delete;
 	Player& operator=(const Player&) = delete;
 
-	void update(float deltaTime) override;
+	//Update position, (collision?) [Kanske göra i GameObject?]
+	//void update(float deltaTime) override;
 
-	// accessors
-	int getPoints() const { return mPoints; };
-	bool isAlive() const { return mIsAlive; };
+	//Render obejct
+	void render() const override;
+
+	//Accessors
+	const int getPoints() const { return mPoints; };
+	const bool isAlive() const { return mIsAlive; };
 	const std::string& getName() const { return mName; };
 
-private:
-	// l�gg till n�t id eller ip typ eller b�da
+	//Mutators
+	void setPoints(const int& points) { mPoints = points; };
+	void setIsAlive(const bool& isAlive) { mIsAlive = isAlive; };
 
+private:
+	//Player information/data
 	int mPoints;
 	bool mIsAlive;
 	const std::string mName;  // vad h�nder om namn ej �r unikt? b�r kanske

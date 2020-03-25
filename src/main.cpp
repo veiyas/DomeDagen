@@ -6,6 +6,8 @@
 #include "websockethandler.h"
 #include "utility.hpp"
 #include "game.hpp"
+#include "gameobject.hpp"
+#include "player.hpp"
 
 #include <memory>
 #include <string>
@@ -58,7 +60,7 @@ void messageReceived(const void* data, size_t length);
 /****************************
 		CONSTANTS 
 *****************************/
-std::string rootDir = Utility::findRootDir();
+const std::string rootDir = Utility::findRootDir();
 
 /****************************
 			MAIN
@@ -80,7 +82,8 @@ int main(int argc, char** argv) {
     callbacks.postSyncPreDraw = postSyncPreDraw;
     callbacks.draw = draw;
     callbacks.cleanup = cleanup;
-    callbacks.keyboard = keyboard;	
+	callbacks.keyboard = keyboard;
+
 
 	//Initialize engine
     try {
@@ -112,6 +115,7 @@ int main(int argc, char** argv) {
 	wsHandler->queueMessage("game_connect");	
     Engine::instance().render();
 
+	Game::destroy();
     Engine::destroy();
     return EXIT_SUCCESS;
 }
