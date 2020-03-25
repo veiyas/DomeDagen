@@ -1,0 +1,94 @@
+/* COLORS */
+:root {
+    --guiAccent: #f4c15a;
+    --guiBlue: #1476a1;
+    --guiDark: #242331;
+    --guiLight: #eff5f7;
+    --guiLightAccent: #14deca;
+    --oceanDark: #1476a1; 
+    --oceanLight: #92cedd;
+}
+
+/* MAIN ELEMENTS */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: radial-gradient(92.53% 92.53% at 50.07% 0%, var(--oceanLight) 0%, var(--oceanDark) 100%);
+    overflow: hidden;
+}
+
+.screen {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    width: 100%;
+}
+
+.col {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+/* UTILITY CLASSES */
+.centered {
+    align-items: center;
+    justify-content: center;
+}
+
+.padded {
+    padding: 30px;
+}
+
+/* GUI ELEMENTS */
+input {
+    background-color: var(--guiLight);
+    border: none;
+    color: var(--guiDark);
+    font-size: 1.5rem;
+    opacity: 65%;
+    text-align: center;
+}
+
+input:focus {
+    opacity: 85%;
+}
+
+button {
+    background-color: var(--guiLight);
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25), inset 0px -4px 4px #AFAFAF, inset 2px 2px 4px rgba(255, 255, 255, 0.25);
+    color: var(--guiDark);
+    font-size: 1.5rem;
+}
+
+button:not(.disabled):hover {
+    background-color: var(--guiAccent);
+}
+
+.disabled {
+    opacity: 50%;
+}
+
+/* FONTS AND HEADLINES */
+p {
+    color: var(--guiLight);
+}
+
+h1 {
+    color: var(--guiLight);
+    font-size: 4rem;
+    text-transform: uppercase;
+}

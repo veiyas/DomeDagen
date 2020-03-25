@@ -1,0 +1,37 @@
+#gameOverScreen {
+    background: var(--guiLight);
+}
+
+#gameOverScreen h1, #gameOverScreen h2, #gameOverScreen p {
+    color: var(--guiDark);
+    text-align: center;
+}
+
+#gameOverScreen h1 {
+    margin-bottom: 30px;
+}
+
+#finalScoreCard {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    flex-direction: column;
+
+    background-color: var(--guiAccent);
+    box-sizing: content-box;
+    height: 35vh;
+    margin-top: 30px;
+    width: 50vw;
+}
+
+#finalScoreCard h2, #finalScoreCard p {
+    margin: 10px 0;    
+}
+
+#finalScoreCard h2 {
+    font-size: 3rem;
+}
+
+#finalScoreCard p {
+    font-size: 6rem;
+}

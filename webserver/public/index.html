@@ -1,12 +1,66 @@
 <html>
+
 <head>
-  <script type="text/javascript" src="script.js"></script>
+  <script type="text/javascript" src="./js/script.js"></script>
+  <link rel="stylesheet" type="text/css" href="./css/main.css">
+  <link rel="stylesheet" type="text/css" href="./css/welcomeScreen.css">
+  <link rel="stylesheet" type="text/css" href="./css/waitingScreen.css">
+  <link rel="stylesheet" type="text/css" href="./css/gameRunningScreen.css">
+  <link rel="stylesheet" type="text/css" href="./css/gameOverScreen.css">
 </head>
-<body>
-  <button id="connect" onclick="initialize();">Connect</button>
 
-  <button id="message" onclick="message();">message</button>
+<body onload="initialize()">
 
-  <div id="debug-output">Debug info</div>
+  <div id="welcomeScreen" class="screen">
+    <div class="row centered">
+      <h1>Welcome</h1>
+    </div>
+    <div class="row">
+      <div class="col">
+        <input type="text" id="lname" name="lname" placeholder="Enter your name..." oninput="handleTextInputChange()">
+        <button id="connect" class="disabled" disabled="true">Connect</button>
+      </div>
+    </div>
+    <!-- Add connection to get name in input, in initialize() function -->
+    <div id="debug-output">Debug info</div>
+  </div>
+
+  <div id="waitingScreen" class="screen">
+    <div class="col">
+      <div class="row padded">
+        <h1>This is you</h1>
+      </div>
+      <div class="row padded">
+        <img width="80%" src="https://www.jing.fm/clipimg/detail/69-694479_diver-png-joseph-annamkutty-jose-quotes.png"/>
+      </div>
+    </div>
+
+    <div class="col centered">
+      <p>Waiting page information....</p>
+    </div>
+  </div>
+
+  <div class="screen centered" id="gameRunningScreen">
+    <div class="row centered">
+      <p>Score: <span id="currentScore">100</span></p>
+      <div id="steeringInstruction">
+        <!-- TODO: Animation or similar graphic to show steering controls -->
+        <p>Tilt to steer</p>         
+      </div>
+      <button>Hold to swim</button>
+    </div>
+  </div>
+
+  <div class="screen" id="gameOverScreen">
+    <div class="col centered">
+      <h1>Game Over</h1>
+      <div class="centered padded" id="finalScoreCard">
+        <h2>Final Score</h2>
+        <p id="finalScore">1000</p>
+      </div>
+    </div>
+  </div>
+
 </body>
+
 </html>

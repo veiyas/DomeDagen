@@ -1,0 +1,40 @@
+#gameRunningScreen .row {
+    /*display: none;*/
+    height: 90%;
+    width: 90%;
+    position: relative;
+}
+
+#gameRunningScreen .row > p {
+    background-color: #ffda73;
+    color: var(--guiDark);
+    font-size: 1.5rem;
+    left: 0;
+    padding: 10px;
+    position: absolute;
+    top: 0;
+}
+
+#gameRunningScreen .row > button {
+    background-color: var(--guiLightAccent);
+    bottom: 0;
+    border-radius: 100%;
+    height: 20vw;
+    font-size: 2rem;
+    right: 0;
+    padding: 20px;
+    position: absolute;
+    width: 20vw;
+}
+
+#gameRunningScreen .row > button:active {
+    background-color: var(--oceanLight);
+}
+
+#steeringInstruction p {
+    height: 50vh;
+    text-align: center;
+    width: 50vw;
+}
+
+
