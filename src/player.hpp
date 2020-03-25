@@ -30,8 +30,8 @@ public:
 	const std::string& getName() const { return mName; };
 
 	//Mutators
-	void setPoints(const int& points) { mPoints = points; };
-	void setIsAlive(const bool& isAlive) { mIsAlive = isAlive; };
+	void setPoints(int points) { mPoints = points; };
+	void setIsAlive(bool isAlive) { mIsAlive = isAlive; };
 
 private:
 	//Player information/data

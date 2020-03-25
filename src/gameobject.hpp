@@ -42,8 +42,8 @@ public:
 	//Mutators
 	void setPosition(const glm::vec2& position) { mPosition = position; };
 	void setVelocity(const glm::vec2& velocity) { mVelocity = velocity; };
-	void setOrientation(const float& orientation) { mOrientation = orientation; };
-	void setScale(const float& scale) { mScale = scale; };
+	void setOrientation(float orientation) { mOrientation = orientation; };
+	void setScale(float scale) { mScale = scale; };
 
 private:
 	glm::vec2 mPosition;  // oklart om detta �r r�tt typ av position eg
