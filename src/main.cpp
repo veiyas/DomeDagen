@@ -10,6 +10,8 @@
 #include "player.hpp"
 
 #include "assimp/Importer.hpp"
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 #include <memory>
 #include <string>
@@ -112,7 +114,11 @@ int main(int argc, char** argv) {
 	/**********************************/
 	Game::getInstance().printShaderPrograms();
 
-	wsHandler->queueMessage("game_connect");	
+	Assimp::Importer importer;
+	importer.ReadFile(rootDir + "/src/models/fish/fish.fbx", aiProcess_ValidateDataStructure);
+	aiScene test = *(importer.GetOrphanedScene());
+
+	wsHandler->queueMessage("game_connect");
     Engine::instance().render();
 
 	Game::destroy();
