@@ -39,7 +39,6 @@ private:
 	int mPoints;
 	bool mIsAlive;
 	const std::string mName;
-	Model mModel;
 };
 
 #endif

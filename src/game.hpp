@@ -17,7 +17,7 @@
 #include "player.hpp"
 
 const std::vector<std::string> allModelNames{ "fish" };
-const std::vector<std::string> allShaderNames{ "player", "testing" };
+const std::vector<std::string> allShaderNames{ "player", "testing", "sceneobject" };
 
 //Implemented as singleton
 class Game
@@ -45,14 +45,12 @@ public:
     //Set MVP matrix
     void setMVP(const glm::mat4& mvp) { mMvp = mvp;};
 
-    //Add player to mInteractobjects
-    void addPlayer(Player p);
-
-    //Add sceneObj to mRenderables
-    void addSceneObject(SceneObject& obj);
+    //Add object to mRenderables
+    void addGameObject(GameObject* obj);
 
     //Accessors
     Model& getModel(const std::string& nameKey);
+    glm::mat4& getMVP() { return mMvp; };
 
 private:
         //Members

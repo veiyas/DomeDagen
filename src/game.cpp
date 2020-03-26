@@ -60,23 +60,19 @@ void Game::printModelNames() const
 
 void Game::render() const
 {
-	//TODO This method needs some work regarding renderable vs gameobject rendering
-	const sgct::ShaderProgram& prg = sgct::ShaderManager::instance().shaderProgram("player");
-	//prg.bind();
+	//TODO This method needs some thoughts regarding renderable vs gameobject rendering
 	for (const Renderable* obj : mRenderObjects)
 	{		
 		obj->render();
 	}
+	for (const GameObject* obj : mInteractObjects)
+	{
+		obj->render();
+	}
 }
-
-void Game::addPlayer(Player p)
+void Game::addGameObject(GameObject* obj)
 {
-	mInteractObjects.push_back(&p);
-}
-
-void Game::addSceneObject(SceneObject& obj)
-{
-	mRenderObjects.push_back(&obj);
+	mInteractObjects.push_back(obj);
 }
 
 Model& Game::getModel(const std::string& nameKey)

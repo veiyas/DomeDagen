@@ -42,7 +42,8 @@ namespace {
 	GLint transMatrixLoc = -1;
 	glm::mat4 transMatrix{ 1.f };
 
-	Model* test;
+	//Model* test;
+	SceneObject* test;
 } // namespace
 
 using namespace sgct;
@@ -122,9 +123,7 @@ int main(int argc, char** argv) {
 	Game::getInstance().printShaderPrograms();
 	Game::getInstance().printModelNames();
 
-	SceneObject temp{ Game::getInstance().getModel("fish") };
-
-	Game::getInstance().addSceneObject(temp);
+	//Game::getInstance().addSceneObject();
 
 	wsHandler->queueMessage("game_connect");
     Engine::instance().render();
@@ -141,51 +140,12 @@ void draw(const RenderData& data) {
 	glEnable(GL_DEPTH_TEST);
 	glCullFace(GL_BACK);
 
-	ShaderManager::instance().shaderProgram("player").bind();
-
-	glUniformMatrix4fv(mvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(mvp));
-	glUniformMatrix4fv(transMatrixLoc, 1, GL_FALSE, glm::value_ptr(transMatrix));
-
-	//Game::getInstance().render();
-	test->render();
-
-	ShaderManager::instance().shaderProgram("player").unbind();
+	Game::getInstance().render();
 }
 
 void initOGL(GLFWwindow*) {
-	/**********************************/
-	/*			  Shaders			  */
-	/**********************************/
-	Game::getInstance();
-	test = new Model{ "C:/Users/David/source/repos/DomeDagen/src/models/fish/fish.fbx" };
-
-	//Read shaders into strings
-	//std::ifstream in_vert{ "../src/shaders/playervert.glsl" };
-	//std::ifstream in_frag{ "../src/shaders/playerfrag.glsl" };
-	//std::string vert;
-	//std::string frag;
-	//if (in_vert.good() && in_frag.good()) {
-	//	vert = std::string(std::istreambuf_iterator<char>(in_vert), {});
-	//	frag = std::string(std::istreambuf_iterator<char>(in_frag), {});
-	//}
-	//else
-	//{
-	//	std::cout << "ERROR OPENING SHADER FILES";
-	//}
-	//in_vert.close(); in_frag.close();
-
-	//ShaderManager::instance().addShaderProgram("player", vert, frag);
-	const ShaderProgram& prg = ShaderManager::instance().shaderProgram("player");
-
-	prg.bind();
-	mvpMatrixLoc = glGetUniformLocation(prg.id(), "mvp");
-	transMatrixLoc = glGetUniformLocation(prg.id(), "transformation");
-	prg.unbind();
-
-	/**********************************/
-	/*			  OpenGL 			  */
-	/**********************************/
-
+	GameObject* temp = new SceneObject( GameObject::SCENEOBJECT, glm::vec2(0.f, 0.f), 0.f, "fish" );
+	Game::getInstance().addGameObject(temp);
 }
 
 void keyboard(Key key, Modifier modifier, Action action, int) {

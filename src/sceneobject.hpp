@@ -1,14 +1,19 @@
 #pragma once
 
 #include "renderable.hpp"
+#include "gameobject.hpp"
 #include "model.hpp"
 
-class SceneObject : public Renderable
+class SceneObject : public GameObject
 {
 public:
-	SceneObject(Model& m);
-	void render() const override;
+	//Ctor
+	SceneObject(const unsigned objType, const glm::vec2 position, const float orientation, std::string modelName);
 
+	//Render, overrides
+	void render() const override;
 private:
-	Model mModel;
+	Model& mModel;
+	GLint transMatrixLoc = -1;
+	GLint mvpMatrixLoc = -1;
 };
