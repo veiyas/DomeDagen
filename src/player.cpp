@@ -1,11 +1,14 @@
-#include "player.hpp"
 
-#include "sgct/log.h"
 #include <iostream>
+
+#include "player.hpp"
+#include "game.hpp"
+#include "sgct/log.h"
 
 Player::Player(const unsigned objType, const glm::vec2 position, const float orientation, const std::string& name /* position, ... fler argument */)
 	:	GameObject{ objType, position, orientation }, mName { name }, mPoints{ 0 }, mIsAlive{ true }
 {
+	mModel = Game::getInstance().getModel("fish");
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
 }
 
@@ -21,5 +24,5 @@ Player::~Player() {
 
 void Player::render() const
 {
-	//Do something
+	mModel.render();
 }

@@ -4,6 +4,7 @@
 #include <string>
 
 #include "gameobject.hpp"
+#include "model.hpp"
 
 class Player : public GameObject {
 public:
@@ -37,8 +38,8 @@ private:
 	//Player information/data
 	int mPoints;
 	bool mIsAlive;
-	const std::string mName;  // vad h�nder om namn ej �r unikt? b�r kanske
-							  // hanteras i webbservern
+	const std::string mName;
+	Model mModel;
 };
 
 #endif

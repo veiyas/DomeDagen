@@ -12,6 +12,7 @@ unsigned int TextureFromFile(const char* path, const std::string& directory, boo
 class Model
 {
 public:
+	Model() = default;
 	//Ctor with path to .fbx file
 	Model(char* path);
 
@@ -24,7 +25,7 @@ private:
 	std::string mDirectory;
 
 	//Load model and sets mDirectory
-	void loadModel(std::string path);
+	void loadModel(const std::string& path);
 
 	//Process all nodes from assimp recursively, property of online tutorial
 	void processNode(aiNode* node, const aiScene* scene);

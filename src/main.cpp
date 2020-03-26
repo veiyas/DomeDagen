@@ -7,6 +7,7 @@
 #include "utility.hpp"
 #include "game.hpp"
 #include "gameobject.hpp"
+#include "sceneobject.hpp"
 #include "player.hpp"
 #include "model.hpp"
 
@@ -116,7 +117,14 @@ int main(int argc, char** argv) {
 	/**********************************/
 	/*			 Test Area			  */
 	/**********************************/
+	//Debugging tools
+	Game::getInstance();
 	Game::getInstance().printShaderPrograms();
+	Game::getInstance().printModelNames();
+
+	SceneObject temp{ Game::getInstance().getModel("fish") };
+
+	Game::getInstance().addSceneObject(temp);
 
 	wsHandler->queueMessage("game_connect");
     Engine::instance().render();
@@ -128,56 +136,46 @@ int main(int argc, char** argv) {
 
 void draw(const RenderData& data) {
 	const glm::mat4 mvp = data.modelViewProjectionMatrix;
-
-	//Vars if you need to debug each MVP matrix
-	//auto t1 = data.modelMatrix;
-	//auto t2 = data.viewMatrix;
-	//auto t3 = data.projectionMatrix;
-	//auto t4 = data.modelViewProjectionMatrix
+	Game::getInstance().setMVP(mvp);	
 
 	glEnable(GL_DEPTH_TEST);
 	glCullFace(GL_BACK);
 
-	ShaderManager::instance().shaderProgram("xform").bind();
-	
+	ShaderManager::instance().shaderProgram("player").bind();
 
 	glUniformMatrix4fv(mvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(mvp));
 	glUniformMatrix4fv(transMatrixLoc, 1, GL_FALSE, glm::value_ptr(transMatrix));
 
+	//Game::getInstance().render();
 	test->render();
 
-	//glBindVertexArray(vertexArray);
-	//glDrawElements(GL_TRIANGLES, vertArrayDataSize, GL_UNSIGNED_INT, nullptr);
-	//glBindVertexArray(0);
-	//glBindBuffer(0, 0);
-
-	ShaderManager::instance().shaderProgram("xform").unbind();
+	ShaderManager::instance().shaderProgram("player").unbind();
 }
 
 void initOGL(GLFWwindow*) {
 	/**********************************/
 	/*			  Shaders			  */
 	/**********************************/
-
+	Game::getInstance();
 	test = new Model{ "C:/Users/David/source/repos/DomeDagen/src/models/fish/fish.fbx" };
 
 	//Read shaders into strings
-	std::ifstream in_vert{ "../src/shaders/playervert.glsl" };
-	std::ifstream in_frag{ "../src/shaders/playerfrag.glsl" };
-	std::string vert;
-	std::string frag;
-	if (in_vert.good() && in_frag.good()) {
-		vert = std::string(std::istreambuf_iterator<char>(in_vert), {});
-		frag = std::string(std::istreambuf_iterator<char>(in_frag), {});
-	}
-	else
-	{
-		std::cout << "ERROR OPENING SHADER FILES";
-	}
-	in_vert.close(); in_frag.close();
+	//std::ifstream in_vert{ "../src/shaders/playervert.glsl" };
+	//std::ifstream in_frag{ "../src/shaders/playerfrag.glsl" };
+	//std::string vert;
+	//std::string frag;
+	//if (in_vert.good() && in_frag.good()) {
+	//	vert = std::string(std::istreambuf_iterator<char>(in_vert), {});
+	//	frag = std::string(std::istreambuf_iterator<char>(in_frag), {});
+	//}
+	//else
+	//{
+	//	std::cout << "ERROR OPENING SHADER FILES";
+	//}
+	//in_vert.close(); in_frag.close();
 
-	ShaderManager::instance().addShaderProgram("xform", vert, frag);
-	const ShaderProgram& prg = ShaderManager::instance().shaderProgram("xform");
+	//ShaderManager::instance().addShaderProgram("player", vert, frag);
+	const ShaderProgram& prg = ShaderManager::instance().shaderProgram("player");
 
 	prg.bind();
 	mvpMatrixLoc = glGetUniformLocation(prg.id(), "mvp");
@@ -187,7 +185,7 @@ void initOGL(GLFWwindow*) {
 	/**********************************/
 	/*			  OpenGL 			  */
 	/**********************************/
-	
+
 }
 
 void keyboard(Key key, Modifier modifier, Action action, int) {

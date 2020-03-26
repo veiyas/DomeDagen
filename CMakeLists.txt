@@ -48,6 +48,8 @@ add_executable(${PROJECT_NAME}
   src/mesh.cpp
   src/model.hpp
   src/model.cpp
+  src/sceneobject.hpp
+  src/sceneobject.cpp
   src/shaders/playervert.glsl
   src/shaders/playerfrag.glsl
   src/shaders/testingvert.glsl

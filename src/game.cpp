@@ -1,9 +1,28 @@
+#include <memory>
+
 #include "game.hpp"
+#include "player.hpp"
 #include "utility.hpp"
 #include "sgct/log.h"
+#include "sgct/shadermanager.h"
+#include "sgct/shaderprogram.h"
+#include "glad/glad.h"
+#include "glm/packing.hpp"
 
 //Define instance
 Game* Game::mInstance = nullptr;
+std::map<std::string, Model> Game::mModels;
+
+Game::Game()
+	: mMvp{ glm::mat4{1.f} }
+{
+	//Loads all models and shaders into pool
+	for (const std::string& modelName : allModelNames)
+		loadModel(modelName);
+
+	for (const std::string& shaderName : allShaderNames)
+		loadShader(shaderName);
+}
 
 Game& Game::getInstance()
 {
@@ -21,17 +40,57 @@ void Game::destroy()
 
 void Game::printShaderPrograms() const
 {
-	sgct::Log::Info(sgct::ShaderManager::instance().shaderProgram("player").name().c_str());
-	sgct::Log::Info(sgct::ShaderManager::instance().shaderProgram("player").name().c_str());
+	std::string output = "Loaded shaders:";
+	for (const std::string& s : mShaderNames)
+	{
+		output +="\n       " + s;
+	}
+	sgct::Log::Info(output.c_str());
 }
 
-Game::Game()
+void Game::printModelNames() const
 {
-	readShader("player");
-	readShader("testing");
+	std::string output = "Loaded models:";
+	for (const std::pair<std::string, Model>& p : mModels)
+	{
+		output += "\n       " + p.first;
+	}
+	sgct::Log::Info(output.c_str());
 }
 
-void Game::readShader(const std::string& shaderName)
+void Game::render() const
+{
+	//TODO This method needs some work regarding renderable vs gameobject rendering
+	const sgct::ShaderProgram& prg = sgct::ShaderManager::instance().shaderProgram("player");
+	//prg.bind();
+	for (const Renderable* obj : mRenderObjects)
+	{		
+		obj->render();
+	}
+}
+
+void Game::addPlayer(Player p)
+{
+	mInteractObjects.push_back(&p);
+}
+
+void Game::addSceneObject(SceneObject& obj)
+{
+	mRenderObjects.push_back(&obj);
+}
+
+Model& Game::getModel(const std::string& nameKey)
+{
+	return mModels[nameKey];
+}
+
+void Game::loadModel(const std::string& modelName)
+{
+	std::string path = Utility::findRootDir() + "/src/models/" + modelName + "/" + modelName + ".fbx";
+	mModels.emplace(modelName, Model{ path.data() });
+}
+
+void Game::loadShader(const std::string& shaderName)
 {
 	//Define path and strings to hold shaders
 	std::string path = Utility::findRootDir() + "/src/shaders/" + shaderName;
@@ -53,5 +112,6 @@ void Game::readShader(const std::string& shaderName)
 	}
 	in_vert.close(); in_frag.close();
 
+	mShaderNames.push_back(shaderName);
 	sgct::ShaderManager::instance().addShaderProgram(shaderName, vert, frag);
 }

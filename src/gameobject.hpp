@@ -8,15 +8,15 @@
 #include <string>
 #include <glm/vec2.hpp>
 
-//Enumerator to keep track of object type
-enum objectType{
-	PLAYER,
-	ENEMY,
-	COLLECTIBLE
-};
-
 class GameObject : public Renderable {
 public:
+
+	//Enumerator to keep track of object type
+	enum objectType {
+		PLAYER,
+		ENEMY,
+		COLLECTIBLE
+	};
 	//No default ctor
 	GameObject() = delete;
 
