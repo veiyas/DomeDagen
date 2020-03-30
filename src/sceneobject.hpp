@@ -8,12 +8,15 @@ class SceneObject : public GameObject
 {
 public:
 	//Ctor
-	SceneObject(const unsigned objType, const glm::vec2 position, const float orientation, std::string modelName);
+	SceneObject(const std::string& objType, const glm::vec3 position, const float orientation);
 
-	//Render, overrides
-	void render() const override;
+	//Render
+	void render() const;
+
 private:
-	Model& mModel;
-	GLint transMatrixLoc = -1;
-	GLint mvpMatrixLoc = -1;
+	//Shader matrix locations
+	GLint mTransMatrixLoc = -1;
+	GLint mMvpMatrixLoc = -1;
+
+	const std::string mModelName;
 };

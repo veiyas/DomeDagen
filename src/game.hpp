@@ -16,13 +16,16 @@
 #include "model.hpp"
 #include "player.hpp"
 
-const std::vector<std::string> allModelNames{ "fish" };
+const std::vector<std::string> allModelNames{ "fish" };	
 const std::vector<std::string> allShaderNames{ "player", "testing", "sceneobject" };
 
 //Implemented as singleton
 class Game
 {
 public:
+	//Init instance and print useful shader and model info
+	static void init();
+
     //Get instance
     static Game& getInstance();
 
@@ -33,11 +36,8 @@ public:
     Game(Game const&) = delete;
     void operator=(Game const&) = delete;
 
-    //Debugging tool to display current list of shaders
-    void printShaderPrograms() const;
-
-    //Debugging tool to display current list of models
-    void printModelNames() const;
+	//Print loaded assets (shaders, models)
+	void printLoadedAssets() const;    
 
     //Render objects
     void render() const;
@@ -81,6 +81,12 @@ private:
 
     //Read shader into ShaderManager
     void loadShader(const std::string& shaderName);
+
+	//Debugging tool to display current list of shaders
+	void printShaderPrograms() const;
+
+	//Debugging tool to display current list of models
+	void printModelNames() const;
 };
 
 #endif

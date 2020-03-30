@@ -12,7 +12,7 @@ public:
 	Player() = delete;
 
 	//Ctor + Dtor
-	Player(const unsigned objType, const glm::vec2 position, const float orientation, const std::string& name /* position, ... fler argument */);
+	Player(const std::string& objType, const glm::vec3 position, const float orientation, const std::string& name /* position, ... fler argument */);
 	~Player();
 
 	//Players should be unique
@@ -39,6 +39,10 @@ private:
 	int mPoints;
 	bool mIsAlive;
 	const std::string mName;
+
+	//Shader matrix locations and tranformation matrix
+	GLint mTransMatrixLoc = -1;
+	GLint mMvpMatrixLoc = -1;
 };
 
 #endif

@@ -118,13 +118,8 @@ int main(int argc, char** argv) {
 	/**********************************/
 	/*			 Test Area			  */
 	/**********************************/
-	//Debugging tools
-	Game::getInstance();
-	Game::getInstance().printShaderPrograms();
-	Game::getInstance().printModelNames();
-
-	//Game::getInstance().addSceneObject();
-
+	Game::getInstance().printLoadedAssets();
+	
 	wsHandler->queueMessage("game_connect");
     Engine::instance().render();
 
@@ -144,8 +139,10 @@ void draw(const RenderData& data) {
 }
 
 void initOGL(GLFWwindow*) {
-	GameObject* temp = new SceneObject( GameObject::SCENEOBJECT, glm::vec2(0.f, 0.f), 0.f, "fish" );
-	Game::getInstance().addGameObject(temp);
+	GameObject* temp1 = new SceneObject("fish", glm::vec3(0.f, 20.f, 0.f), 0.f);
+	GameObject* temp2 = new Player("fish", glm::vec3(0.f, 20.f, -20.f), 0.f, "spelare1");
+	Game::getInstance().addGameObject(temp1);
+	Game::getInstance().addGameObject(temp2);
 }
 
 void keyboard(Key key, Modifier modifier, Action action, int) {

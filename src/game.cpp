@@ -24,6 +24,11 @@ Game::Game()
 		loadShader(shaderName);
 }
 
+void Game::init()
+{
+	mInstance = new Game{};
+}
+
 Game& Game::getInstance()
 {
 	//If Game doesnt exist, create one. Return it.
@@ -56,6 +61,12 @@ void Game::printModelNames() const
 		output += "\n       " + p.first;
 	}
 	sgct::Log::Info(output.c_str());
+}
+
+void Game::printLoadedAssets() const
+{
+	mInstance->printModelNames();
+	mInstance->printShaderPrograms();
 }
 
 void Game::render() const
