@@ -1,15 +1,4 @@
-#include <iostream>
-
 #include "model.hpp"
-#include "mesh.hpp"
-#include "glm/glm.hpp"
-#include "glad/glad.h"
-#include "utility.hpp"
-
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-#include <stb_image.h>
 
 Model::Model(char* path)
 {

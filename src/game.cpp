@@ -1,13 +1,5 @@
-#include <memory>
-
 #include "game.hpp"
-#include "player.hpp"
-#include "utility.hpp"
-#include "sgct/log.h"
-#include "sgct/shadermanager.h"
-#include "sgct/shaderprogram.h"
-#include "glad/glad.h"
-#include "glm/packing.hpp"
+
 
 //Define instance
 Game* Game::mInstance = nullptr;
@@ -27,6 +19,7 @@ Game::Game()
 void Game::init()
 {
 	mInstance = new Game{};
+	mInstance->printLoadedAssets();
 }
 
 Game& Game::getInstance()

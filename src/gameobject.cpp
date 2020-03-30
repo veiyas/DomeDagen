@@ -1,12 +1,10 @@
 #include "gameobject.hpp"
-#include "game.hpp"
-#include "glm/gtc/matrix_transform.hpp"
 
-GameObject::GameObject(const std::string& objType, const glm::vec3 position, const float orientation)
-	: mModel{ Game::getInstance().getModel(objType)}, mPosition{ position }, mVelocity{ glm::vec2(0,0) }
-	, mOrientation{orientation}, mScale{1.f}, mTransformation{glm::mat4{1.f}}, mObjType{determineObjType(objType)}
+GameObject::GameObject(const unsigned objType, const glm::vec3 position, const float orientation)
+	: mPosition{ position }, mVelocity{ glm::vec2(0,0) }
+	, mOrientation{orientation}, mScale{1.f}, mObjType{ objType }
 {
-	mTransformation = glm::translate(mTransformation, position);
+
 }
 
 void GameObject::update(float deltaTime)

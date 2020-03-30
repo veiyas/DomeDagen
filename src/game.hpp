@@ -1,20 +1,25 @@
-#ifndef GAME_H_
-#define GAME_H_
+#pragma once
 
 #include <vector>
 #include <string>
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <memory>
 
+#include "sgct/log.h"
+#include "glad/glad.h"
+#include "glm/packing.hpp"
 #include "sgct/shadermanager.h"
 #include "sgct/shaderprogram.h"
 #include "glm/matrix.hpp"
+
 #include "renderable.hpp"
 #include "gameobject.hpp"
-#include "sceneobject.hpp"
-#include "model.hpp"
-#include "player.hpp"
+//#include "sceneobject.hpp"
+//#include "model.hpp"
+//#include "player.hpp"
+#include "utility.hpp"
 
 const std::vector<std::string> allModelNames{ "fish" };	
 const std::vector<std::string> allShaderNames{ "player", "testing", "sceneobject" };
@@ -88,5 +93,3 @@ private:
 	//Debugging tool to display current list of models
 	void printModelNames() const;
 };
-
-#endif

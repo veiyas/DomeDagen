@@ -1,21 +1,17 @@
-
-#include <iostream>
-
 #include "player.hpp"
-#include "game.hpp"
-#include "sgct/log.h"
-#include "glm/gtc/type_ptr.hpp"
 
-Player::Player(const std::string& objType, const glm::vec3 position, const float orientation, const std::string& name /* position, ... fler argument */)
-	:	GameObject{ objType, position, orientation }, mName { name }, mPoints{ 0 }, mIsAlive{ true }
+Player::Player(const unsigned objectType, const std::string& objectModelName,
+	const glm::vec3 position, const float orientation, const std::string playerName)
+	: GameObject{ objectType, position, orientation }, GeometryHandler("player", objectModelName),
+	  mName{playerName}, mIsAlive{true}, mPoints{0}
 {
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
+	mShaderProgram.bind();
 
-	const sgct::ShaderProgram& prg = sgct::ShaderManager::instance().shaderProgram("player");
-	prg.bind();
-	mMvpMatrixLoc = glGetUniformLocation(prg.id(), "mvp");
-	mTransMatrixLoc = glGetUniformLocation(prg.id(), "transformation");
-	prg.unbind();
+	mMvpMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "mvp");
+	mTransMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "transformation");
+
+	mShaderProgram.unbind();
 }
 
 Player::~Player() {
@@ -30,12 +26,11 @@ Player::~Player() {
 
 void Player::render() const
 {
-	const sgct::ShaderProgram& prg = sgct::ShaderManager::instance().shaderProgram("player");
-	prg.bind();
+	mShaderProgram.bind();
 
 	glUniformMatrix4fv(mMvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(Game::getInstance().getMVP()));
-	glUniformMatrix4fv(mTransMatrixLoc, 1, GL_FALSE, glm::value_ptr(getTranformation()));
+	glUniformMatrix4fv(mTransMatrixLoc, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.f)));
 	this->renderModel();
 
-	prg.unbind();
+	mShaderProgram.unbind();
 }

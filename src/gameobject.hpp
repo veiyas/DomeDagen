@@ -3,14 +3,15 @@
 
 #include <vector>
 #include <string>
-#include <glm/vec2.hpp>
 
-#include "renderable.hpp"
-#include "model.hpp"
+#include <glm/gtc/type_ptr.hpp>
 #include "sgct/shadermanager.h"
 #include "sgct/shaderprogram.h"
 #include "glad/glad.h"
-#include "glm/gtc/matrix_transform.hpp"
+
+#include "renderable.hpp"
+#include "model.hpp"
+
 
 class GameObject : public Renderable
 {
@@ -27,16 +28,13 @@ public:
 	GameObject() = delete;
 
 	//Ctor
-	GameObject(const std::string& objType, const glm::vec3 position, const float orientation);
+	GameObject(const unsigned objType, const glm::vec3 position, const float orientation);
 
 	//Dtor implemented by subclasses
 	virtual ~GameObject() override = default;
 
 	//Render object, called by subclass to bind shaders
 	virtual void render() const = 0;
-
-	//Render model
-	void renderModel() const { mModel.render(); };
 
 	//Update object (position, collision?)
 	virtual void update(float deltaTime);
@@ -47,15 +45,12 @@ public:
 	const float getOrientation() const { return mOrientation; };
 	const float getScale() const { return mScale; };
 	unsigned getObjType() const { return mObjType; };
-	glm::mat4 getTranformation() const { return mTransformation; };
 
 	//Mutators
 	void setPosition(const glm::vec3& position) { mPosition = position; };
 	void setVelocity(const glm::vec2& velocity) { mVelocity = velocity; };
 	void setOrientation(float orientation) { mOrientation = orientation; };
 	void setScale(float scale) { mScale = scale; };
-	void setTranformation(glm::vec3 transVec) { mTransformation = glm::translate(mTransformation, transVec); };
-
 private:
 	glm::vec3 mPosition;  // oklart om detta �r r�tt typ av position eg
 	glm::vec2 mVelocity;  // eg borde ju speed r�cka i kombination med orientation
@@ -63,11 +58,6 @@ private:
 	float mScale;         // uniform in all directions
 	unsigned const mObjType;
 
-	//Reference to model to render
-	Model& mModel;
-
-	//Objects curren tranformation
-	glm::mat4 mTransformation;
 
 	//Determine and set mObjType, ugly but functional
 	unsigned determineObjType(const std::string& objType);

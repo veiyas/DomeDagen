@@ -1,22 +1,22 @@
 #pragma once
+#include <string>
 
-#include "renderable.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
+#include "geometryhandler.hpp"
 #include "gameobject.hpp"
-#include "model.hpp"
 
-class SceneObject : public GameObject
+
+//For movable non-interactible objects, e.g fish in background
+class SceneObject : public GameObject, private GeometryHandler
 {
 public:
 	//Ctor
-	SceneObject(const std::string& objType, const glm::vec3 position, const float orientation);
+	SceneObject(const unsigned objectType, const std::string& objectModelName,
+				const glm::vec3 position, const float orientation);
 
 	//Render
 	void render() const;
 
 private:
-	//Shader matrix locations
-	GLint mTransMatrixLoc = -1;
-	GLint mMvpMatrixLoc = -1;
-
-	const std::string mModelName;
 };
