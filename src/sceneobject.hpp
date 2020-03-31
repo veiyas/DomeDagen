@@ -8,7 +8,7 @@ class SceneObject : public GameObject
 {
 public:
 	//Ctor
-	SceneObject(const std::string& objType, const glm::vec3 position, const float orientation);
+	SceneObject(const std::string& objType, float radius, const glm::quat& position, const float orientation);
 
 	//Render
 	void render() const;

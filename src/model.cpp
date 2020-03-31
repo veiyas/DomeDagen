@@ -27,7 +27,8 @@ void Model::render() const
 void Model::loadModel(const std::string& path)
 {
     Assimp::Importer import;
-    const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+    import.SetPropertyBool(AI_CONFIG_PP_PTV_NORMALIZE, true);
+    const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate| aiProcess_FlipUVs | aiProcess_PreTransformVertices);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {

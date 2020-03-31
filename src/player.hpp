@@ -12,7 +12,7 @@ public:
 	Player() = delete;
 
 	//Ctor + Dtor
-	Player(const std::string& objType, const glm::vec3 position, const float orientation, const std::string& name /* position, ... fler argument */);
+	Player(const std::string& objType, float radius, const glm::quat& position, float orientation, const std::string& name);
 	~Player();
 
 	//Players should be unique
@@ -20,7 +20,7 @@ public:
 	Player& operator=(const Player&) = delete;
 
 	//Update position, (collision?) [Kanske göra i GameObject?]
-	//void update(float deltaTime) override;
+	void update(float deltaTime) override;
 
 	//Render obejct
 	void render() const override;

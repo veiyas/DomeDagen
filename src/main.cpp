@@ -44,6 +44,9 @@ namespace {
 
 	//Model* test;
 	SceneObject* test;
+
+	GameObject* temp2;
+
 } // namespace
 
 using namespace sgct;
@@ -81,6 +84,7 @@ int main(int argc, char** argv) {
 
 	//Open config .xml
 	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	//config.configFilename = rootDir + "/src/configs/simple.xml";
     config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
 	//Provide functions to engine handles
@@ -139,9 +143,10 @@ void draw(const RenderData& data) {
 }
 
 void initOGL(GLFWwindow*) {
-	GameObject* temp1 = new SceneObject("fish", glm::vec3(0.f, 20.f, 0.f), 0.f);
-	GameObject* temp2 = new Player("fish", glm::vec3(0.f, 20.f, -20.f), 0.f, "spelare1");
-	Game::getInstance().addGameObject(temp1);
+	//GameObject* temp1 = new SceneObject("fish", glm::vec3(0.f, 20.f, 0.f), 0.f);
+	temp2 = new Player("fish", 50.f, glm::vec3(-1.f, -0.5f, 0), 0.f, "spelare1");
+	temp2->setScale(10.f);
+	//Game::getInstance().addGameObject(temp1);
 	Game::getInstance().addGameObject(temp2);
 }
 
@@ -154,29 +159,18 @@ void keyboard(Key key, Modifier modifier, Action action, int) {
 		Log::Info("Released space key");
 		wsHandler->disconnect();
 	}
+
 	//Left
 	if (key == Key::A && (action == Action::Press || action == Action::Repeat)) {
-		transMatrix = glm::translate(transMatrix, glm::vec3(-1.f, 0.f, 0.f));
+		temp2->setOrientation(temp2->getOrientation() + 0.1);
 	}
 	//Right
 	if (key == Key::D && (action == Action::Press || action == Action::Repeat)) {
-		transMatrix = glm::translate(transMatrix, glm::vec3(1.f, 0.f, 0.f));
+		temp2->setOrientation(temp2->getOrientation() - 0.1);
 	}
 	//Up
 	if (key == Key::W && (action == Action::Press || action == Action::Repeat)) {
-		transMatrix = glm::translate(transMatrix, glm::vec3(0.f, 0.f, 1.f));
-	}
-	//Down
-	if (key == Key::S && (action == Action::Press || action == Action::Repeat)) {
-		transMatrix = glm::translate(transMatrix, glm::vec3(0.f, 0.f, -1.f));
-	}
-	//In
-	if (key == Key::Space && (action == Action::Press || action == Action::Repeat)) {
-		transMatrix = glm::translate(transMatrix, glm::vec3(0.f, -1.f, 0.f));
-	}
-	//Out
-	if (key == Key::LeftControl && (action == Action::Press || action == Action::Repeat)) {
-		transMatrix = glm::translate(transMatrix, glm::vec3(0.f, 1.f, 0.f));
+		//temp2->setSpeed(1.f);
 	}
 
 }

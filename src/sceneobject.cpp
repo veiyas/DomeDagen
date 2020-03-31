@@ -6,8 +6,8 @@
 #include "sgct/shaderprogram.h"
 #include "glm/gtc/type_ptr.hpp"
 
-SceneObject::SceneObject(const std::string& objType, const glm::vec3 position, const float orientation)
-	: GameObject{ objType, position, orientation }
+SceneObject::SceneObject(const std::string& objType, float radius, const glm::quat& position, const float orientation)
+	: GameObject{ objType, radius, position, orientation }
 {
 	const sgct::ShaderProgram& prg = sgct::ShaderManager::instance().shaderProgram("sceneobject");
 	prg.bind();
