@@ -3,7 +3,6 @@
 
 //Define instance
 Game* Game::mInstance = nullptr;
-std::map<std::string, Model> Game::mModels;
 
 Game::Game()
 	: mMvp{ glm::mat4{1.f} }
@@ -64,19 +63,34 @@ void Game::printLoadedAssets() const
 
 void Game::render() const
 {
-	//TODO This method needs some thoughts regarding renderable vs gameobject rendering
-	for (const Renderable* obj : mRenderObjects)
+	//TODO This method might needs some thoughts regarding renderable vs gameobject rendering
+	for (const std::unique_ptr<Renderable>& obj : mRenderObjects)
 	{		
 		obj->render();
 	}
-	for (const GameObject* obj : mInteractObjects)
+	for (const std::unique_ptr<GameObject>& obj : mInteractObjects)
 	{
 		obj->render();
 	}
 }
 void Game::addGameObject(GameObject* obj)
 {
-	mInteractObjects.push_back(obj);
+	mInteractObjects.push_back(std::unique_ptr<GameObject>(std::move(obj)));
+}
+
+void Game::addRenderable(Renderable* obj)
+{
+	mRenderObjects.push_back(std::unique_ptr<Renderable>(std::move(obj)));
+}
+
+GameObject& Game::getGameObject(const unsigned index)
+{
+	return *mInteractObjects[index].get();
+}
+
+std::vector<std::unique_ptr<GameObject>>& Game::getGameObjectVector()
+{
+	return mInteractObjects;
 }
 
 Model& Game::getModel(const std::string& nameKey)

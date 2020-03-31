@@ -6,7 +6,9 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <utility>
 
+#include "sgct/shareddata.h"
 #include "sgct/log.h"
 #include "glad/glad.h"
 #include "glm/packing.hpp"
@@ -49,11 +51,22 @@ public:
 
     //Add object to mInteractObjects
     void addGameObject(GameObject* obj);
-    //TODO create identical method for mRenderables
+
+    //Add object to mRenderObjects
+    void addRenderable(Renderable* obj);
+
+    //Returns ref to GameObject in slot index
+    GameObject& getGameObject(const unsigned index);
+
+    //TODO Make this a plain-old data type or new method?
+    std::vector<std::unique_ptr<GameObject>>& getGameObjectVector();
 
     //Accessors
     Model& getModel(const std::string& nameKey);
     glm::mat4& getMVP() { return mMvp; };
+
+    //Debugging tools
+    bool showFps = true;
 
 private:
 //Members
@@ -61,15 +74,15 @@ private:
     static Game* mInstance;
 
     //All models loaded into a pool (vertices + textures, see mesh.hpp)
-    static std::map<std::string, Model> mModels;
+    std::map<std::string, Model> mModels;
 
     //All renderable objects
-    std::vector<Renderable*> mRenderObjects;
-
-    //TODO maybe a separate vector for objects with collision only (performance enhancement)
+    std::vector<std::unique_ptr<Renderable>> mRenderObjects;
 
     //All interactble objects (movement, collision, etc)
-    std::vector<GameObject*> mInteractObjects;
+    std::vector<std::unique_ptr<GameObject>> mInteractObjects;
+
+    //TODO maybe a separate vector for objects with collision only (performance enhancement)
 
     //Track all shader names
     std::vector<std::string> mShaderNames;

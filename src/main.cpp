@@ -99,7 +99,7 @@ int main(int argc, char** argv) {
     }	
 	/**********************************/
 	/*			 Test Area			  */
-	/**********************************/	
+	/**********************************/
 	
 	wsHandler->queueMessage("game_connect");
     Engine::instance().render();
@@ -110,8 +110,7 @@ int main(int argc, char** argv) {
 }
 
 void draw(const RenderData& data) {
-	const glm::mat4 mvp = data.modelViewProjectionMatrix;
-	Game::getInstance().setMVP(mvp);	
+	Game::getInstance().setMVP(data.modelViewProjectionMatrix);
 
 	glEnable(GL_DEPTH_TEST);
 	glCullFace(GL_BACK);
@@ -125,48 +124,61 @@ void initOGL(GLFWwindow*) {
 	/**********************************/
 	/*			 Test Area			  */
 	/**********************************/
-	const float radius = 50.f;	
+	const float radius = 50.f;
 
-	GameObject* temp1 = new SceneObject(GameObject::SCENEOBJECT, "fish", radius, glm::quat(glm::vec3(-1.f, -0.5f, 0)), 0.f);
-	            temp2 = new Player(GameObject::PLAYER, "fish", radius, glm::quat(glm::vec3(-0.7f, -0.5f, 0)), 10.f, "hejhej");
-	temp2->setScale(50.f);
-	Game::getInstance().addGameObject(temp1);
-	Game::getInstance().addGameObject(temp2);
+	for (size_t i = 0; i < 30; i++)
+	{
+		Game::getInstance().addGameObject(new SceneObject(GameObject::SCENEOBJECT, "fish", radius, glm::quat(glm::vec3(1.f - 0.1*i, -0.5f, 0)), 0.25f*i));
+	}
 }
 
-void keyboard(Key key, Modifier modifier, Action action, int) {
+void keyboard(Key key, Modifier modifier, Action action, int)
+{
 	if (key == Key::Esc && action == Action::Press) {
 		Engine::instance().terminate();
 	}
-	if (key == Key::Space && modifier == Modifier::Shift && action == Action::Release) {
+	if (key == Key::Space && modifier == Modifier::Shift && action == Action::Release)
+	{
 		Log::Info("Released space key, disconnecting");
 		wsHandler->disconnect();
 	}
 	//Left
-	if (key == Key::A && (action == Action::Press || action == Action::Repeat)) {
-		temp2->setOrientation(temp2->getOrientation() - 0.1f);
+	if (key == Key::A && (action == Action::Press || action == Action::Repeat))
+	{
+		std::vector<std::unique_ptr<GameObject>>& temp = Game::getInstance().getGameObjectVector();
+		for (std::unique_ptr<GameObject>& obj : temp)
+			obj.get()->setOrientation(obj.get()->getOrientation() - 0.25f);
 	}
 	//Right
-	if (key == Key::D && (action == Action::Press || action == Action::Repeat)) {
-		temp2->setOrientation(temp2->getOrientation() + 0.1f);
+	if (key == Key::D && (action == Action::Press || action == Action::Repeat))
+	{
+		std::vector<std::unique_ptr<GameObject>>& temp = Game::getInstance().getGameObjectVector();
+		for (std::unique_ptr<GameObject>& obj : temp)
+			obj.get()->setOrientation(obj.get()->getOrientation() + 0.25f);
 	}
 	//Up
-	if (key == Key::W && (action == Action::Press || action == Action::Repeat)) {
+	if (key == Key::W && (action == Action::Press || action == Action::Repeat))
+	{
 	}
 	//Right
-	if (key == Key::D && (action == Action::Press || action == Action::Repeat)) {
+	if (key == Key::D && (action == Action::Press || action == Action::Repeat))
+	{
 	}
 	//Up
-	if (key == Key::W && (action == Action::Press || action == Action::Repeat)) {
+	if (key == Key::W && (action == Action::Press || action == Action::Repeat))
+	{
 	}
 	//Down
-	if (key == Key::S && (action == Action::Press || action == Action::Repeat)) {
+	if (key == Key::S && (action == Action::Press || action == Action::Repeat))
+	{
 	}
 	//In
-	if (key == Key::Space && (action == Action::Press || action == Action::Repeat)) {
+	if (key == Key::Space && (action == Action::Press || action == Action::Repeat))
+	{
 	}
 	//Out
-	if (key == Key::LeftControl && (action == Action::Press || action == Action::Repeat)) {
+	if (key == Key::LeftControl && (action == Action::Press || action == Action::Repeat))
+	{
 	}
 
 }
@@ -175,18 +187,12 @@ void preSync() {
 	// Do the application simulation step on the server node in here and make sure that
 	// the computed state is serialized and deserialized in the encode/decode calls
 
-
-	//if (Engine::instance().isMaster() && wsHandler->isConnected() &&
-	//    Engine::instance().currentFrameNumber() % 100 == 0)
-	//{
-	//    wsHandler->queueMessage("ping");
-	//}
-
-
-
-	if (Engine::instance().isMaster()) {
+	if (Engine::instance().isMaster())
+	{
 		// This doesn't have to happen every frame, but why not?
 		wsHandler->tick();
+
+		//TODO implement gamelogic
 	}
 }
 
@@ -194,9 +200,11 @@ std::vector<std::byte> encode() {
 	// These are just two examples;  remove them and replace them with the logic of your
 	// application that you need to synchronize
 	std::vector<std::byte> data;
-	serializeObject(data, exampleInt);
-	serializeObject(data, exampleString);
+	//serializeObject(data, exampleInt);
+	//serializeObject(data, exampleString);
 
+	//Encoding testing
+	serializeObject(data, Game::getInstance().getGameObjectVector());
 
 	return data;
 }
@@ -204,8 +212,13 @@ std::vector<std::byte> encode() {
 void decode(const std::vector<std::byte>& data, unsigned int pos) {
 	// These are just two examples;  remove them and replace them with the logic of your
 	// application that you need to synchronize
-	deserializeObject(data, pos, exampleInt);
-	deserializeObject(data, pos, exampleString);
+
+	//deserializeObject(data, pos, exampleInt);
+	//deserializeObject(data, pos, exampleString);
+
+	deserializeObject(data, pos, Game::getInstance().getGameObjectVector());
+	std::cout << "test";
+
 }
 
 void cleanup() {

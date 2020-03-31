@@ -32,6 +32,8 @@ public:
 	//Render obejct
 	void render() const override;
 
+	//TODO Method to export a plain-old data type struct(?)
+
 	//Accessors
 	const int getPoints() const { return mPoints; };
 	const bool isAlive() const { return mIsAlive; };
