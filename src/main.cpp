@@ -63,7 +63,6 @@ int main(int argc, char** argv) {
 
 	//Open config .xml
 	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
-	//config.configFilename = rootDir + "/src/configs/simple.xml";
     config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
 	//Provide functions to engine handles
@@ -100,8 +99,7 @@ int main(int argc, char** argv) {
     }	
 	/**********************************/
 	/*			 Test Area			  */
-	/**********************************/
-	
+	/**********************************/	
 	
 	wsHandler->queueMessage("game_connect");
     Engine::instance().render();
@@ -122,13 +120,16 @@ void draw(const RenderData& data) {
 }
 
 void initOGL(GLFWwindow*) {
-	const float radius = 50;
-
 	Game::init();
 
+	/**********************************/
+	/*			 Test Area			  */
+	/**********************************/
+	const float radius = 50.f;	
+
 	GameObject* temp1 = new SceneObject(GameObject::SCENEOBJECT, "fish", radius, glm::quat(glm::vec3(-1.f, -0.5f, 0)), 0.f);
-	            temp2 = new Player(GameObject::PLAYER, "fish", radius, glm::quat(glm::vec3(-0.7f, -0.5f, 0)), 0.f, "hejhej");
-	temp2->setScale(10.f);
+	            temp2 = new Player(GameObject::PLAYER, "fish", radius, glm::quat(glm::vec3(-0.7f, -0.5f, 0)), 10.f, "hejhej");
+	temp2->setScale(50.f);
 	Game::getInstance().addGameObject(temp1);
 	Game::getInstance().addGameObject(temp2);
 }
@@ -137,46 +138,35 @@ void keyboard(Key key, Modifier modifier, Action action, int) {
 	if (key == Key::Esc && action == Action::Press) {
 		Engine::instance().terminate();
 	}
-
 	if (key == Key::Space && modifier == Modifier::Shift && action == Action::Release) {
 		Log::Info("Released space key, disconnecting");
 		wsHandler->disconnect();
 	}
-
 	//Left
 	if (key == Key::A && (action == Action::Press || action == Action::Repeat)) {
-		temp2->setOrientation(temp2->getOrientation() - 0.1);
+		temp2->setOrientation(temp2->getOrientation() - 0.1f);
 	}
 	//Right
 	if (key == Key::D && (action == Action::Press || action == Action::Repeat)) {
-		temp2->setOrientation(temp2->getOrientation() + 0.1);
+		temp2->setOrientation(temp2->getOrientation() + 0.1f);
 	}
-
-
 	//Up
 	if (key == Key::W && (action == Action::Press || action == Action::Repeat)) {
-		//temp2->setSpeed(1.f);
-		//transMatrix = glm::translate(transMatrix, glm::vec3(-1.f, 0.f, 0.f));
 	}
 	//Right
 	if (key == Key::D && (action == Action::Press || action == Action::Repeat)) {
-		//transMatrix = glm::translate(transMatrix, glm::vec3(1.f, 0.f, 0.f));
 	}
 	//Up
 	if (key == Key::W && (action == Action::Press || action == Action::Repeat)) {
-		//transMatrix = glm::translate(transMatrix, glm::vec3(0.f, 0.f, 1.f));
 	}
 	//Down
 	if (key == Key::S && (action == Action::Press || action == Action::Repeat)) {
-		//transMatrix = glm::translate(transMatrix, glm::vec3(0.f, 0.f, -1.f));
 	}
 	//In
 	if (key == Key::Space && (action == Action::Press || action == Action::Repeat)) {
-		//transMatrix = glm::translate(transMatrix, glm::vec3(0.f, -1.f, 0.f));
 	}
 	//Out
 	if (key == Key::LeftControl && (action == Action::Press || action == Action::Repeat)) {
-		//transMatrix = glm::translate(transMatrix, glm::vec3(0.f, 1.f, 0.f));
 	}
 
 }

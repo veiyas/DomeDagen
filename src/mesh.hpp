@@ -14,11 +14,12 @@ struct Vertex
 
 struct Texture
 {
-	unsigned mId;
+	unsigned mId = 0;
 	std::string mType;
 	std::string mPath;
 };
 
+//This class was written with help of tutorial 
 class Mesh
 {
 public:

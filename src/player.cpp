@@ -6,6 +6,7 @@ Player::Player(const unsigned objectType, const std::string & objectModelName, f
 	  mName { name }, mPoints{ 0 }, mIsAlive{ true }
 {
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
+
 	mShaderProgram.bind();
 
 	mMvpMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "mvp");

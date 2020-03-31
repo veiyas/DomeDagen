@@ -16,9 +16,6 @@
 
 #include "renderable.hpp"
 #include "gameobject.hpp"
-//#include "sceneobject.hpp"
-//#include "model.hpp"
-//#include "player.hpp"
 #include "utility.hpp"
 
 const std::vector<std::string> allModelNames{ "fish" };	
@@ -50,15 +47,16 @@ public:
     //Set MVP matrix
     void setMVP(const glm::mat4& mvp) { mMvp = mvp;};
 
-    //Add object to mRenderables
+    //Add object to mInteractObjects
     void addGameObject(GameObject* obj);
+    //TODO create identical method for mRenderables
 
     //Accessors
     Model& getModel(const std::string& nameKey);
     glm::mat4& getMVP() { return mMvp; };
 
 private:
-        //Members
+//Members
     //Singleton instance of game
     static Game* mInstance;
 
@@ -67,6 +65,8 @@ private:
 
     //All renderable objects
     std::vector<Renderable*> mRenderObjects;
+
+    //TODO maybe a separate vector for objects with collision only (performance enhancement)
 
     //All interactble objects (movement, collision, etc)
     std::vector<GameObject*> mInteractObjects;
@@ -77,7 +77,7 @@ private:
     //MVP matrix used for rendering
     glm::mat4 mMvp;
 
-        //Functions
+//Functions
     //Constructor
     Game();
 
@@ -87,11 +87,10 @@ private:
     //Read shader into ShaderManager
     void loadShader(const std::string& shaderName);
 
-	//Debugging tool to display current list of shaders
+	//Display current list of shaders, called by printLoadedAssets()
 	void printShaderPrograms() const;
 
-	//Debugging tool to display current list of models
-	void printModelNames() const;
-
+	//Display current list of models, called by printLoadedAssets()
+    void printModelNames() const;
 };
 

@@ -50,8 +50,7 @@ public:
 	const float getScale() const { return mScale; }
 	unsigned getObjType() const { return mObjType; }
 	const glm::quat& getPosition() const { return mPosition; }
-	const float getOrientation() const { return mOrientation; }
-	
+	const float getOrientation() const { return mOrientation; }	
 
 	//Mutators
 	void setScale(float scale) { mScale = scale; }
@@ -71,10 +70,8 @@ private:
 	//Scale of object, uniform
 	float mScale;
 
+	//Lightweight representation of object type
 	unsigned const mObjType;
-
-	//Determine and set mObjType, ugly but functional
-	unsigned determineObjType(const std::string& objType);
 };
 
 #endif

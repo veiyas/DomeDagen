@@ -28,16 +28,3 @@ glm::mat4 GameObject::getTransformation() const
 
 	return rot * trans * orient * scale;
 }
-
-//TODO Rework with a list of object types and remove this ugly boilerplate
-unsigned GameObject::determineObjType(const std::string& objType)
-{
-	if (objType == "player")
-		return PLAYER;
-	else if (objType == "fish")
-		return SCENEOBJECT;
-	else if (objType == "enemy")
-		return ENEMY;
-	else if (objType == "collectible")
-		return COLLECTIBLE;
-}

@@ -17,11 +17,13 @@
 
 unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma = false);
 
+//This class was written with help of tutorial 
 class Model
 {
 public:
 	Model() = default;
-	//Ctor with path to .fbx file
+
+	//Ctor with path to .fbx file (char* because library wanted it)
 	Model(char* path);
 
 	//Render model
@@ -38,5 +40,7 @@ private:
 	//Process all nodes from assimp recursively, property of online tutorial
 	void processNode(aiNode* node, const aiScene* scene);
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+
+
 	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
 };
