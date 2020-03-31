@@ -1,5 +1,4 @@
 #include "mesh.hpp"
-#include "glad/glad.h"
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, std::vector<Texture> textures)
 {

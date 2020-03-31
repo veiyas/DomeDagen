@@ -3,17 +3,12 @@
 //
 
 #include "sgct/sgct.h"
+
 #include "websockethandler.h"
 #include "utility.hpp"
 #include "game.hpp"
-#include "gameobject.hpp"
 #include "sceneobject.hpp"
 #include "player.hpp"
-#include "model.hpp"
-
-#include "assimp/Importer.hpp"
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
 
 #include <memory>
 #include <string>
@@ -27,25 +22,9 @@ namespace {
 
     int64_t exampleInt = 0;
 	std::string exampleString;
-
 	double currentTime = 0.0;
 
-	GLuint vertexArray = 0;
-	GLuint vertArrayDataSize = 0;
-	GLuint vertexPositionBuffer = 0;
-	GLuint vertexTexBuffer = 0;
-	GLuint indexBuffer = 0;
-	GLuint vertexNormalBuffer = 0;
-
-	GLint mvpMatrixLoc = -1;
-
-	GLint transMatrixLoc = -1;
-	glm::mat4 transMatrix{ 1.f };
-
-	//Model* test;
-	SceneObject* test;
-
-	GameObject* temp2;
+	GameObject* temp2; //For testing
 
 } // namespace
 
@@ -122,7 +101,7 @@ int main(int argc, char** argv) {
 	/**********************************/
 	/*			 Test Area			  */
 	/**********************************/
-	Game::getInstance().printLoadedAssets();
+	
 	
 	wsHandler->queueMessage("game_connect");
     Engine::instance().render();
@@ -143,10 +122,14 @@ void draw(const RenderData& data) {
 }
 
 void initOGL(GLFWwindow*) {
-	//GameObject* temp1 = new SceneObject("fish", glm::vec3(0.f, 20.f, 0.f), 0.f);
-	temp2 = new Player("fish", 50.f, glm::vec3(-1.f, -0.5f, 0), 0.f, "spelare1");
+	const float radius = 50;
+
+	Game::init();
+
+	GameObject* temp1 = new SceneObject(GameObject::SCENEOBJECT, "fish", radius, glm::quat(glm::vec3(-1.f, -0.5f, 0)), 0.f);
+	            temp2 = new Player(GameObject::PLAYER, "fish", radius, glm::quat(glm::vec3(-0.7f, -0.5f, 0)), 0.f, "hejhej");
 	temp2->setScale(10.f);
-	//Game::getInstance().addGameObject(temp1);
+	Game::getInstance().addGameObject(temp1);
 	Game::getInstance().addGameObject(temp2);
 }
 
@@ -156,21 +139,44 @@ void keyboard(Key key, Modifier modifier, Action action, int) {
 	}
 
 	if (key == Key::Space && modifier == Modifier::Shift && action == Action::Release) {
-		Log::Info("Released space key");
+		Log::Info("Released space key, disconnecting");
 		wsHandler->disconnect();
 	}
 
 	//Left
 	if (key == Key::A && (action == Action::Press || action == Action::Repeat)) {
-		temp2->setOrientation(temp2->getOrientation() + 0.1);
+		temp2->setOrientation(temp2->getOrientation() - 0.1);
 	}
 	//Right
 	if (key == Key::D && (action == Action::Press || action == Action::Repeat)) {
-		temp2->setOrientation(temp2->getOrientation() - 0.1);
+		temp2->setOrientation(temp2->getOrientation() + 0.1);
 	}
+
+
 	//Up
 	if (key == Key::W && (action == Action::Press || action == Action::Repeat)) {
 		//temp2->setSpeed(1.f);
+		//transMatrix = glm::translate(transMatrix, glm::vec3(-1.f, 0.f, 0.f));
+	}
+	//Right
+	if (key == Key::D && (action == Action::Press || action == Action::Repeat)) {
+		//transMatrix = glm::translate(transMatrix, glm::vec3(1.f, 0.f, 0.f));
+	}
+	//Up
+	if (key == Key::W && (action == Action::Press || action == Action::Repeat)) {
+		//transMatrix = glm::translate(transMatrix, glm::vec3(0.f, 0.f, 1.f));
+	}
+	//Down
+	if (key == Key::S && (action == Action::Press || action == Action::Repeat)) {
+		//transMatrix = glm::translate(transMatrix, glm::vec3(0.f, 0.f, -1.f));
+	}
+	//In
+	if (key == Key::Space && (action == Action::Press || action == Action::Repeat)) {
+		//transMatrix = glm::translate(transMatrix, glm::vec3(0.f, -1.f, 0.f));
+	}
+	//Out
+	if (key == Key::LeftControl && (action == Action::Press || action == Action::Repeat)) {
+		//transMatrix = glm::translate(transMatrix, glm::vec3(0.f, 1.f, 0.f));
 	}
 
 }

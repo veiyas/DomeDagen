@@ -2,17 +2,24 @@
 #define PLAYER_H_
 
 #include <string>
+#include <iostream>
+
+#include "sgct/log.h"
 
 #include "gameobject.hpp"
-#include "model.hpp"
+#include "geometryhandler.hpp"
 
-class Player : public GameObject {
+
+class Player : public GameObject, private GeometryHandler
+{
 public:
 	//No default ctor
 	Player() = delete;
 
 	//Ctor + Dtor
-	Player(const std::string& objType, float radius, const glm::quat& position, float orientation, const std::string& name);
+	Player(const unsigned objectType, const std::string & objectModelName, float radius, 
+		   const glm::quat& position, float orientation, const std::string& name);
+
 	~Player();
 
 	//Players should be unique
@@ -39,10 +46,6 @@ private:
 	int mPoints;
 	bool mIsAlive;
 	const std::string mName;
-
-	//Shader matrix locations and tranformation matrix
-	GLint mTransMatrixLoc = -1;
-	GLint mMvpMatrixLoc = -1;
 };
 
 #endif

@@ -1,15 +1,13 @@
 #include "gameobject.hpp"
-#include "game.hpp"
-#include "glm/gtc/matrix_transform.hpp"
 
 #include<glm/common.hpp>
 #include<glm/gtx/string_cast.hpp>
 
 #include<iostream>
 
-GameObject::GameObject(const std::string& objType, float radius, const glm::quat& position, float orientation)
-	: mModel{ Game::getInstance().getModel(objType) }, mRadius{ radius }, mPosition{ position }, mOrientation{ orientation },
-	mScale{ 1.f }, mObjType{ determineObjType(objType) }
+GameObject::GameObject(const unsigned objType, float radius, const glm::quat& position, float orientation)
+	: mRadius{ radius }, mPosition{ position }, mOrientation{ orientation },
+	 mScale{ 1.f }, mObjType{ objType }
 {
 
 }
@@ -19,7 +17,7 @@ void GameObject::update(float deltaTime)
 
 }
 
-glm::mat4 GameObject::getTranformation() const
+glm::mat4 GameObject::getTransformation() const
 {
 	glm::mat4 trans  = glm::translate(glm::mat4(1.f), glm::vec3(0.f, mRadius, 0.f));
 	glm::mat4 orient = glm::rotate(glm::mat4(1.f), mOrientation, glm::vec3(0, 1, 0));

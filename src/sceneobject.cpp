@@ -1,29 +1,24 @@
-#include <string>
-
 #include "sceneobject.hpp"
-#include "game.hpp"
-#include "sgct/shadermanager.h"
-#include "sgct/shaderprogram.h"
-#include "glm/gtc/type_ptr.hpp"
 
-SceneObject::SceneObject(const std::string& objType, float radius, const glm::quat& position, const float orientation)
-	: GameObject{ objType, radius, position, orientation }
+SceneObject::SceneObject(const unsigned objectType, const std::string & objectModelName,
+	                     float radius, const glm::quat& position, const float orientation)
+	: GameObject{ objectType, radius, position, orientation }, GeometryHandler("sceneobject", objectModelName)
 {
-	const sgct::ShaderProgram& prg = sgct::ShaderManager::instance().shaderProgram("sceneobject");
-	prg.bind();
-	mMvpMatrixLoc = glGetUniformLocation(prg.id(), "mvp");
-	mTransMatrixLoc = glGetUniformLocation(prg.id(), "transformation");
-	prg.unbind();
+	mShaderProgram.bind();
+
+	mMvpMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "mvp");
+	mTransMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "transformation");
+
+	mShaderProgram.unbind();
 }
 
 void SceneObject::render() const
 {
-	const sgct::ShaderProgram& prg = sgct::ShaderManager::instance().shaderProgram("sceneobject");
-	prg.bind();
+	mShaderProgram.bind();
 
 	glUniformMatrix4fv(mMvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(Game::getInstance().getMVP()));
-	glUniformMatrix4fv(mTransMatrixLoc, 1, GL_FALSE, glm::value_ptr(getTranformation()));
+	glUniformMatrix4fv(mTransMatrixLoc, 1, GL_FALSE, glm::value_ptr(getTransformation()));
 	this->renderModel();
 
-	prg.unbind();
+	mShaderProgram.unbind();
 }

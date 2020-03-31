@@ -6,13 +6,14 @@
 #include <glm/vec2.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
-
-#include "renderable.hpp"
-#include "model.hpp"
+#include <glm/gtc/type_ptr.hpp>
 #include "sgct/shadermanager.h"
 #include "sgct/shaderprogram.h"
 #include "glad/glad.h"
-#include "glm/gtc/matrix_transform.hpp"
+
+#include "renderable.hpp"
+#include "model.hpp"
+
 
 //A GameObject is located att the surface of a sphere
 //and it has a side that is always facing origin.
@@ -31,7 +32,7 @@ public:
 	GameObject() = delete;
 
 	//Ctor
-	GameObject(const std::string& objType, float radius, const glm::quat& position, const float orientation);
+	GameObject(const unsigned objType, float radius, const glm::quat& position, float orientation);
 
 	//Dtor implemented by subclasses
 	virtual ~GameObject() override = default;
@@ -39,14 +40,11 @@ public:
 	//Render object, called by subclass to bind shaders
 	virtual void render() const = 0;
 
-	//Render model
-	void renderModel() const { mModel.render(); }
-
 	//Update object (position, collision?)
 	virtual void update(float deltaTime);
 
 	//Calculates and returns the objects transformation matrix
-	glm::mat4 getTranformation() const; // is there any reason for this not returning const&?
+	glm::mat4 getTransformation() const; // is there any reason for this not returning const&?
 
 	//Accessors
 	const float getScale() const { return mScale; }
@@ -74,9 +72,6 @@ private:
 	float mScale;
 
 	unsigned const mObjType;
-
-	//Reference to model to render
-	Model& mModel;
 
 	//Determine and set mObjType, ugly but functional
 	unsigned determineObjType(const std::string& objType);
