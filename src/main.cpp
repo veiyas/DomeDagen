@@ -63,6 +63,9 @@ int main(int argc, char** argv) {
 
 	//Open config .xml
 	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	//config.configFilename = rootDir + "/src/configs/simple.xml";
+	//config.configFilename = rootDir + "/src/configs/two_nodes.xml";
+
     config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
 	//Provide functions to engine handles
@@ -115,6 +118,7 @@ void draw(const RenderData& data) {
 	glEnable(GL_DEPTH_TEST);
 	glCullFace(GL_BACK);
 
+	temp2->update(0);
 	Game::getInstance().render();
 }
 
@@ -126,10 +130,16 @@ void initOGL(GLFWwindow*) {
 	/**********************************/
 	const float radius = 50.f;
 
-	for (size_t i = 0; i < 30; i++)
-	{
-		Game::getInstance().addGameObject(new SceneObject(GameObject::SCENEOBJECT, "fish", radius, glm::quat(glm::vec3(1.f - 0.1*i, -0.5f, 0)), 0.25f*i));
-	}
+	//for (size_t i = 0; i < 30; i++)
+	//{
+	//	Game::getInstance().addGameObject(new SceneObject(GameObject::SCENEOBJECT, "fish", radius, glm::quat(glm::vec3(1.f - 0.1*i, -0.5f, 0)), 0.25f*i));
+	//}
+
+	GameObject* temp1 = new SceneObject(GameObject::SCENEOBJECT, "fish", radius, glm::quat(glm::vec3(-1.f, -0.5f, 0)), 0.f);
+	            temp2 = new Player(GameObject::PLAYER, "fish", radius, glm::quat(glm::vec3(1.f, 0.f, 0.f)), 0.f, "hejhej");
+	temp2->setScale(10.f);
+	Game::getInstance().addGameObject(temp1);
+	Game::getInstance().addGameObject(temp2);
 }
 
 void keyboard(Key key, Modifier modifier, Action action, int)
@@ -143,18 +153,25 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 		wsHandler->disconnect();
 	}
 	//Left
-	if (key == Key::A && (action == Action::Press || action == Action::Repeat))
-	{
-		std::vector<std::unique_ptr<GameObject>>& temp = Game::getInstance().getGameObjectVector();
-		for (std::unique_ptr<GameObject>& obj : temp)
-			obj.get()->setOrientation(obj.get()->getOrientation() - 0.25f);
+	//if (key == Key::A && (action == Action::Press || action == Action::Repeat))
+	//{
+	//	std::vector<std::unique_ptr<GameObject>>& temp = Game::getInstance().getGameObjectVector();
+	//	for (std::unique_ptr<GameObject>& obj : temp)
+	//		obj.get()->setOrientation(obj.get()->getOrientation() - 0.25f);
+	//}
+	////Right
+	//if (key == Key::D && (action == Action::Press || action == Action::Repeat))
+	//{
+	//	std::vector<std::unique_ptr<GameObject>>& temp = Game::getInstance().getGameObjectVector();
+	//	for (std::unique_ptr<GameObject>& obj : temp)
+	//		obj.get()->setOrientation(obj.get()->getOrientation() + 0.25f);
+
+	if (key == Key::A && (action == Action::Press || action == Action::Repeat)) {
+		temp2->setOrientation(temp2->getOrientation() + 0.1);
 	}
 	//Right
-	if (key == Key::D && (action == Action::Press || action == Action::Repeat))
-	{
-		std::vector<std::unique_ptr<GameObject>>& temp = Game::getInstance().getGameObjectVector();
-		for (std::unique_ptr<GameObject>& obj : temp)
-			obj.get()->setOrientation(obj.get()->getOrientation() + 0.25f);
+	if (key == Key::D && (action == Action::Press || action == Action::Repeat)) {
+		temp2->setOrientation(temp2->getOrientation() - 0.1);
 	}
 	//Up
 	if (key == Key::W && (action == Action::Press || action == Action::Repeat))
@@ -204,7 +221,7 @@ std::vector<std::byte> encode() {
 	//serializeObject(data, exampleString);
 
 	//Encoding testing
-	serializeObject(data, Game::getInstance().getGameObjectVector());
+	//serializeObject(data, Game::getInstance().getGameObjectVector());
 
 	return data;
 }
@@ -216,7 +233,7 @@ void decode(const std::vector<std::byte>& data, unsigned int pos) {
 	//deserializeObject(data, pos, exampleInt);
 	//deserializeObject(data, pos, exampleString);
 
-	deserializeObject(data, pos, Game::getInstance().getGameObjectVector());
+	//deserializeObject(data, pos, Game::getInstance().getGameObjectVector());
 	std::cout << "test";
 
 }

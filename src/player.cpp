@@ -1,4 +1,7 @@
 #include "player.hpp"
+#include<glm/common.hpp>
+#include<glm/gtx/string_cast.hpp>
+#include<iostream>
 
 Player::Player(const unsigned objectType, const std::string & objectModelName, float radius,
 	           const glm::quat & position, float orientation, const std::string & name)
@@ -22,15 +25,15 @@ Player::~Player()
 
 void Player::update(float deltaTime)
 {
-	//glm::vec3 rotationAxis = glm::dot(tangent, normal);
+	glm::quat newPos = getPosition();
+	//TODO Make framerate independent, use speed, etc.
+	newPos *= glm::quat(0.001f * glm::vec3(cos(getOrientation()), sin(getOrientation()), 0.f));
 
+	setPosition(glm::normalize(newPos));
 
-	//glm::quat change;
+	//TODO Constrain to visible area
 
-	//glm::quat newPosition = change * getPosition() * glm::inverse(change);
-
-	//setPosition(newPosition);
-	//GameObject::update(deltaTime);
+	//sgct::Log::Info("Updatedd");
 }
 
 void Player::render() const
