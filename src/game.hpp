@@ -58,8 +58,8 @@ public:
     //Returns ref to GameObject in slot index
     GameObject& getGameObject(const unsigned index);
 
-    //TODO Make this a plain-old data type or new method?
-    std::vector<std::unique_ptr<GameObject>>& getGameObjectVector();
+    //Get ref to all GameObjects
+    std::map<const unsigned int, std::unique_ptr<GameObject>>& getGameObjectVector();
 
     //Accessors
     Model& getModel(const std::string& nameKey);
@@ -79,8 +79,11 @@ private:
     //All renderable objects
     std::vector<std::unique_ptr<Renderable>> mRenderObjects;
 
-    //All interactble objects (movement, collision, etc)
-    std::vector<std::unique_ptr<GameObject>> mInteractObjects;
+    //All interactble objects, map because we need unique id's for sync
+    std::map<const unsigned int, std::unique_ptr<GameObject>> mInteractObjects;
+
+    //GameObjects unique id generator
+    static unsigned int mUniqueId;
 
     //TODO maybe a separate vector for objects with collision only (performance enhancement)
 
