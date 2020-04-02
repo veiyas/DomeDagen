@@ -62,9 +62,9 @@ int main(int argc, char** argv) {
     Configuration config = sgct::parseArguments(arg);
 
 	//Open config .xml
-	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
-	//config.configFilename = rootDir + "/src/configs/two_nodes.xml";
+	config.configFilename = rootDir + "/src/configs/two_nodes.xml";
 
     config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
 	/*			 Test Area			  */
 	/**********************************/
 	
-	wsHandler->queueMessage("game_connect");
+	//wsHandler->queueMessage("game_connect"); // crashes when run on client, bcs wsHandler is undefined
     Engine::instance().render();
 
 	Game::destroy();
@@ -136,7 +136,7 @@ void initOGL(GLFWwindow*) {
 	//}
 
 	GameObject* temp1 = new SceneObject(GameObject::SCENEOBJECT, "fish", radius, glm::quat(glm::vec3(-1.f, -0.5f, 0)), 0.f);
-	            temp2 = new Player(GameObject::PLAYER, "fish", radius, glm::quat(glm::vec3(1.f, 0.f, 0.f)), 0.f, "hejhej");
+	            temp2 = new Player(GameObject::PLAYER, "fish", radius, glm::quat(glm::vec3(0.f, 0.f, 0.f)), 0.f, "hejhej");
 	temp2->setScale(10.f);
 	Game::getInstance().addGameObject(temp1);
 	Game::getInstance().addGameObject(temp2);
