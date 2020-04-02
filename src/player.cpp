@@ -1,8 +1,8 @@
 #include "player.hpp"
 
-Player::Player(const unsigned objectType, const std::string & objectModelName, float radius,
+Player::Player( const std::string & objectModelName, float radius,
 	           const glm::quat & position, float orientation, const std::string & name)
-	: GameObject{ objectType, radius, position, orientation }, GeometryHandler("player", objectModelName),
+	: GameObject{ GameObject::PLAYER, radius, position, orientation }, GeometryHandler("player", objectModelName),
 	  mName { name }, mPoints{ 0 }, mIsAlive{ true }
 {
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());

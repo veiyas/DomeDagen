@@ -127,8 +127,8 @@ void initOGL(GLFWwindow*) {
 	/**********************************/
 	const float radius = 50.f;	
 
-	GameObject* temp1 = new SceneObject(GameObject::SCENEOBJECT, "fish", radius, glm::quat(glm::vec3(-1.f, -0.5f, 0)), 0.f);
-	            temp2 = new Player(GameObject::PLAYER, "fish", radius, glm::quat(glm::vec3(-0.7f, -0.5f, 0)), 10.f, "hejhej");
+	GameObject* temp1 = new SceneObject("fish", radius, glm::quat(glm::vec3(-1.f, -0.5f, 0)), 0.f);
+	            temp2 = new Player("fish", radius, glm::quat(glm::vec3(-0.7f, -0.5f, 0)), 10.f, "hejhej");
 	temp2->setScale(50.f);
 	Game::getInstance().addGameObject(temp1);
 	Game::getInstance().addGameObject(temp2);

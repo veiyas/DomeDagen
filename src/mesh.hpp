@@ -20,6 +20,7 @@ struct Texture
 };
 
 //This class was written with help of tutorial 
+//https://learnopengl.com/Model-Loading/Assimp
 class Mesh
 {
 public:

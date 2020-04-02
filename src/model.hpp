@@ -15,9 +15,8 @@
 #include <assimp/postprocess.h>
 #include <stb_image.h>
 
-unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma = false);
-
-//This class was written with help of tutorial 
+//This class was written with help of tutorial
+//https://learnopengl.com/Model-Loading/Assimp
 class Model
 {
 public:
