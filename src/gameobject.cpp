@@ -13,7 +13,7 @@ GameObject::GameObject(const unsigned objType, float radius, const glm::quat& po
 
 }
 
-PositionData GameObject::encodePositionData(unsigned int id)
+PositionData GameObject::getMovementData(unsigned int id)
 {
 	PositionData temp;
 	
@@ -30,6 +30,21 @@ PositionData GameObject::encodePositionData(unsigned int id)
 	temp.mZ = getPosition().z;
 
 	return temp;
+}
+
+void GameObject::setMovementData(PositionData& newState)
+{
+	setOrientation(newState.mOrientation);
+	setRadius(newState.mRadius);
+	setScale(newState.mScale);
+
+	glm::quat newPosition;
+	newPosition.w = newState.mW;
+	newPosition.x = newState.mX;
+	newPosition.y = newState.mY;
+	newPosition.z = newState.mZ;
+
+	setPosition(newPosition);
 }
 
 void GameObject::update(float deltaTime)

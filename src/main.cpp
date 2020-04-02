@@ -161,11 +161,13 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 }
 
 void preSync() {
+	//std::cout << __FUNCTION__ << "\n";
 	// Do the application simulation step on the server node in here and make sure that
-	// the computed state is serialized and deserialized in the encode/decode calls
+	// the computed state is serialized and deserialized in the encode/decode calls	
 
 	if (Engine::instance().isMaster())
 	{
+		exampleInt++;
 		// This doesn't have to happen every frame, but why not?
 		wsHandler->tick();
 
@@ -174,32 +176,35 @@ void preSync() {
 }
 
 std::vector<std::byte> encode() {
+	std::cout << __FUNCTION__ << "\n";
 	// These are just two examples;  remove them and replace them with the logic of your
 	// application that you need to synchronize
 	std::vector<std::byte> data;
+	serializeObject(data, exampleInt);
 
 	//Encoding testing
-	auto& gameObjects = Game::getInstance().getGameObjectVector();
-	std::vector<PositionData> playerStates;
+	//auto& gameObjects = Game::getInstance().getGameObjectVector();
+	//auto& objectPositionStates = Game::getInstance().getMovementStates();
 
-	//Encode position data from GameObjects
-	for (auto& [id, value] : gameObjects)
-		playerStates.push_back(value->encodePositionData(id));
+	//////Encode position data from GameObjects
+	//for (auto& [id, obj] : gameObjects)
+	//	objectPositionStates.push_back(obj->getMovementData(id));
 
-	serializeObject(data, playerStates);
+	//serializeObject(data, objectPositionStates);
 
 	return data;
 }
 
 void decode(const std::vector<std::byte>& data, unsigned int pos) {
+	//std::cout << __FUNCTION__ << "\n";
 	// These are just two examples;  remove them and replace them with the logic of your
 	// application that you need to synchronize
 
-	//deserializeObject(data, pos, exampleInt);
+	deserializeObject(data, pos, exampleInt);
 	//deserializeObject(data, pos, exampleString);
 
-	//deserializeObject(data, pos, Game::getInstance().getGameObjectVector());
-	std::cout << __FUNCTION__ << "() called";
+	//deserializeObject(data, pos, Game::getInstance().getMovementStates());
+	
 
 }
 
@@ -211,6 +216,8 @@ void cleanup() {
 }
 
 void postSyncPreDraw() {
+	exampleInt = exampleInt;
+	//std::cout << __FUNCTION__ << "\n";
 	// Apply the (now synchronized) application state before the rendering will start
 }
 

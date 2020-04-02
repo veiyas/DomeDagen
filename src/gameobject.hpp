@@ -14,17 +14,18 @@
 #include "renderable.hpp"
 #include "model.hpp"
 
-//POD struct to encode/decode game state data. Ctor not allowed, KEEP IT POD
+//POD struct to encode/decode game state data
+//Ctor, initialisation disallowed to KEEP IT POD
 struct PositionData
 {
 public:
-	//NO INITIALIZATION ALLOWED TO KEEP IT POD
+	//Unique identifier
+	unsigned int mId;
+	
 	float mRadius;
 	float mOrientation;
 	float mScale;
-	unsigned int mObjType;
-
-	unsigned int mId;
+	unsigned int mObjType;	
 
 	//Quat stuff
 	float mW;
@@ -58,8 +59,11 @@ public:
 	//Render object, implemented by subclass
 	virtual void render() const = 0;
 
-	//Retrieve game state info as plain-old data, implemented by subclass
-	PositionData encodePositionData(unsigned int id);
+	//Retrieve position data as plain-old data struct
+	PositionData getMovementData(unsigned int id);
+
+	//Write new position data from plain-old data struct
+	void setMovementData(PositionData& newState);
 
 	//Update object (position, collision?)
 	virtual void update(float deltaTime);
@@ -75,6 +79,7 @@ public:
 	const float getOrientation() const { return mOrientation; }	
 
 	//Mutators
+	void setRadius(float radius) { mRadius = radius; }
 	void setScale(float scale) { mScale = scale; }
 	void setPosition(const glm::quat position) { mPosition = position; }
 	void setOrientation(float orientation) { mOrientation = orientation; } //overflow?
