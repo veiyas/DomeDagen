@@ -3,6 +3,7 @@
 
 //Define instance
 Game* Game::mInstance = nullptr;
+unsigned int Game::mUniqueId = 0;
 
 Game::Game()
 	: mMvp{ glm::mat4{1.f} }
@@ -68,14 +69,14 @@ void Game::render() const
 	{		
 		obj->render();
 	}
-	for (const std::unique_ptr<GameObject>& obj : mInteractObjects)
+	for (auto& [key, value] : mInteractObjects)
 	{
-		obj->render();
+		value->render();
 	}
 }
 void Game::addGameObject(GameObject* obj)
 {
-	mInteractObjects.push_back(std::unique_ptr<GameObject>(std::move(obj)));
+	mInteractObjects[mUniqueId++] = std::unique_ptr<GameObject>(std::move(obj));
 }
 
 void Game::addRenderable(Renderable* obj)
@@ -88,7 +89,7 @@ GameObject& Game::getGameObject(const unsigned index)
 	return *mInteractObjects[index].get();
 }
 
-std::vector<std::unique_ptr<GameObject>>& Game::getGameObjectVector()
+std::map<const unsigned int, std::unique_ptr<GameObject>>& Game::getGameObjectVector()
 {
 	return mInteractObjects;
 }

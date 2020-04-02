@@ -24,7 +24,7 @@ namespace {
 	std::string exampleString;
 	double currentTime = 0.0;
 
-	GameObject* temp2; //For testing
+	//GameObject* temp2; //For testing
 
 } // namespace
 
@@ -103,6 +103,7 @@ int main(int argc, char** argv) {
 	/**********************************/
 	/*			 Test Area			  */
 	/**********************************/
+	std::cout << "IS PlayerData POD? -" << std::is_pod<PositionData>::value << "\n";
 	
 	//wsHandler->queueMessage("game_connect"); // crashes when run on client, bcs wsHandler is undefined
     Engine::instance().render();
@@ -118,7 +119,7 @@ void draw(const RenderData& data) {
 	glEnable(GL_DEPTH_TEST);
 	glCullFace(GL_BACK);
 
-	temp2->update(0);
+	//temp2->update(0);
 	Game::getInstance().render();
 }
 
@@ -130,14 +131,10 @@ void initOGL(GLFWwindow*) {
 	/**********************************/
 	const float radius = 50.f;
 
-	//for (size_t i = 0; i < 30; i++)
-	//{
-	//	Game::getInstance().addGameObject(new SceneObject(GameObject::SCENEOBJECT, "fish", radius, glm::quat(glm::vec3(1.f - 0.1*i, -0.5f, 0)), 0.25f*i));
-	//}
+	GameObject* temp1 = new Player(GameObject::PLAYER, "fish", radius, glm::quat(glm::vec3(1.f, 0.f, 0.f)), 0.f, "hejhej");
+	GameObject* temp2 = new Player(GameObject::PLAYER, "fish", radius, glm::quat(glm::vec3(0.f, 0.f, 0.f)), 0.f, "hejhej");
+	temp2->setScale(20.f);
 
-	GameObject* temp1 = new SceneObject(GameObject::SCENEOBJECT, "fish", radius, glm::quat(glm::vec3(-1.f, -0.5f, 0)), 0.f);
-	            temp2 = new Player(GameObject::PLAYER, "fish", radius, glm::quat(glm::vec3(0.f, 0.f, 0.f)), 0.f, "hejhej");
-	temp2->setScale(10.f);
 	Game::getInstance().addGameObject(temp1);
 	Game::getInstance().addGameObject(temp2);
 }
@@ -153,59 +150,25 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 		wsHandler->disconnect();
 	}
 	//Left
-	//if (key == Key::A && (action == Action::Press || action == Action::Repeat))
-	//{
-	//	std::vector<std::unique_ptr<GameObject>>& temp = Game::getInstance().getGameObjectVector();
-	//	for (std::unique_ptr<GameObject>& obj : temp)
-	//		obj.get()->setOrientation(obj.get()->getOrientation() - 0.25f);
-	//}
-	////Right
-	//if (key == Key::D && (action == Action::Press || action == Action::Repeat))
-	//{
-	//	std::vector<std::unique_ptr<GameObject>>& temp = Game::getInstance().getGameObjectVector();
-	//	for (std::unique_ptr<GameObject>& obj : temp)
-	//		obj.get()->setOrientation(obj.get()->getOrientation() + 0.25f);
-
-	if (key == Key::A && (action == Action::Press || action == Action::Repeat)) {
-		temp2->setOrientation(temp2->getOrientation() + 0.1);
-	}
-	//Right
-	if (key == Key::D && (action == Action::Press || action == Action::Repeat)) {
-		temp2->setOrientation(temp2->getOrientation() - 0.1);
-	}
-	//Up
-	if (key == Key::W && (action == Action::Press || action == Action::Repeat))
+	if (key == Key::A && (action == Action::Press || action == Action::Repeat))
 	{
+
 	}
 	//Right
 	if (key == Key::D && (action == Action::Press || action == Action::Repeat))
 	{
+		
 	}
-	//Up
-	if (key == Key::W && (action == Action::Press || action == Action::Repeat))
-	{
-	}
-	//Down
-	if (key == Key::S && (action == Action::Press || action == Action::Repeat))
-	{
-	}
-	//In
-	if (key == Key::Space && (action == Action::Press || action == Action::Repeat))
-	{
-	}
-	//Out
-	if (key == Key::LeftControl && (action == Action::Press || action == Action::Repeat))
-	{
-	}
-
 }
 
 void preSync() {
+	//std::cout << __FUNCTION__ << "\n";
 	// Do the application simulation step on the server node in here and make sure that
-	// the computed state is serialized and deserialized in the encode/decode calls
+	// the computed state is serialized and deserialized in the encode/decode calls	
 
 	if (Engine::instance().isMaster())
 	{
+		exampleInt++;
 		// This doesn't have to happen every frame, but why not?
 		wsHandler->tick();
 
@@ -214,27 +177,35 @@ void preSync() {
 }
 
 std::vector<std::byte> encode() {
+	std::cout << __FUNCTION__ << "\n";
 	// These are just two examples;  remove them and replace them with the logic of your
 	// application that you need to synchronize
 	std::vector<std::byte> data;
-	//serializeObject(data, exampleInt);
-	//serializeObject(data, exampleString);
+	serializeObject(data, exampleInt);
 
 	//Encoding testing
-	//serializeObject(data, Game::getInstance().getGameObjectVector());
+	//auto& gameObjects = Game::getInstance().getGameObjectVector();
+	//auto& objectPositionStates = Game::getInstance().getMovementStates();
+
+	//////Encode position data from GameObjects
+	//for (auto& [id, obj] : gameObjects)
+	//	objectPositionStates.push_back(obj->getMovementData(id));
+
+	//serializeObject(data, objectPositionStates);
 
 	return data;
 }
 
 void decode(const std::vector<std::byte>& data, unsigned int pos) {
+	//std::cout << __FUNCTION__ << "\n";
 	// These are just two examples;  remove them and replace them with the logic of your
 	// application that you need to synchronize
 
-	//deserializeObject(data, pos, exampleInt);
+	deserializeObject(data, pos, exampleInt);
 	//deserializeObject(data, pos, exampleString);
 
-	//deserializeObject(data, pos, Game::getInstance().getGameObjectVector());
-	std::cout << "test";
+	//deserializeObject(data, pos, Game::getInstance().getMovementStates());
+	
 
 }
 
@@ -246,6 +217,8 @@ void cleanup() {
 }
 
 void postSyncPreDraw() {
+	exampleInt = exampleInt;
+	//std::cout << __FUNCTION__ << "\n";
 	// Apply the (now synchronized) application state before the rendering will start
 }
 

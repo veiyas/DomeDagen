@@ -14,6 +14,25 @@
 #include "renderable.hpp"
 #include "model.hpp"
 
+//POD struct to encode/decode game state data
+//Ctor, initialisation disallowed to KEEP IT POD
+struct PositionData
+{
+public:
+	//Unique identifier
+	unsigned int mId;
+	
+	float mRadius;
+	float mOrientation;
+	float mScale;
+	unsigned int mObjType;	
+
+	//Quat stuff
+	float mW;
+	float mX;
+	float mY;
+	float mZ;
+};
 
 //A GameObject is located att the surface of a sphere
 //and it has a side that is always facing origin.
@@ -37,8 +56,14 @@ public:
 	//Dtor implemented by subclasses
 	virtual ~GameObject() override = default;
 
-	//Render object, called by subclass to bind shaders
+	//Render object, implemented by subclass
 	virtual void render() const = 0;
+
+	//Retrieve position data as plain-old data struct
+	PositionData getMovementData(unsigned int id);
+
+	//Write new position data from plain-old data struct
+	void setMovementData(PositionData& newState);
 
 	//Update object (position, collision?)
 	virtual void update(float deltaTime);
@@ -48,11 +73,13 @@ public:
 
 	//Accessors
 	const float getScale() const { return mScale; }
+	const float getRadius() const { return mRadius; }
 	unsigned getObjType() const { return mObjType; }
 	const glm::quat& getPosition() const { return mPosition; }
 	const float getOrientation() const { return mOrientation; }	
 
 	//Mutators
+	void setRadius(float radius) { mRadius = radius; }
 	void setScale(float scale) { mScale = scale; }
 	void setPosition(const glm::quat position) { mPosition = position; }
 	void setOrientation(float orientation) { mOrientation = orientation; } //overflow?

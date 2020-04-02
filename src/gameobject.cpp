@@ -13,6 +13,40 @@ GameObject::GameObject(const unsigned objType, float radius, const glm::quat& po
 
 }
 
+PositionData GameObject::getMovementData(unsigned int id)
+{
+	PositionData temp;
+	
+	temp.mId = id;
+
+	//Positional stuff
+	temp.mOrientation = getOrientation();
+	temp.mRadius = getRadius();
+	temp.mScale = getScale();
+
+	temp.mW = getPosition().w;
+	temp.mX = getPosition().x;
+	temp.mY = getPosition().y;
+	temp.mZ = getPosition().z;
+
+	return temp;
+}
+
+void GameObject::setMovementData(PositionData& newState)
+{
+	setOrientation(newState.mOrientation);
+	setRadius(newState.mRadius);
+	setScale(newState.mScale);
+
+	glm::quat newPosition;
+	newPosition.w = newState.mW;
+	newPosition.x = newState.mX;
+	newPosition.y = newState.mY;
+	newPosition.z = newState.mZ;
+
+	setPosition(newPosition);
+}
+
 void GameObject::update(float deltaTime)
 {
 
@@ -28,6 +62,7 @@ glm::mat4 GameObject::getTransformation() const
 	//std::cout << glm::to_string(trans) << '\n';
 
 	//TODO Put model rotation in a variable to allow models with different orientation
+	//TODO put these matrix multiplications on the GPU
 	return rot * trans * orient * scale
 		* glm::rotate(glm::mat4(1.f), -glm::half_pi<float>(), glm::vec3(0.f, 0.f, 1.f))
 		* glm::rotate(glm::mat4(1.f), glm::half_pi<float>(), glm::vec3(1.f, 0.f, 0.f));
