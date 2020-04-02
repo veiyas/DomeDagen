@@ -33,6 +33,9 @@ public:
     //Get instance
     static Game& getInstance();
 
+    //Check if instance is running
+    static bool instanceExists() { return mInstance == nullptr; }
+
     //Destroy instance
     static void destroy();
 
