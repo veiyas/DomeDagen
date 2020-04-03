@@ -58,6 +58,9 @@ public:
     //Add object to mRenderObjects
     void addRenderable(Renderable* obj);
 
+    //Update all gameobjects
+    void update();
+
     //Get ref to GameObject in slot index
     GameObject& getGameObject(const unsigned index);
 
@@ -101,6 +104,9 @@ private:
 
     //MVP matrix used for rendering
     glm::mat4 mMvp;
+
+    //The time of the last update (in seconds)
+    float mLastFrameTime;
 
 //Functions
     //Constructor

@@ -131,7 +131,8 @@ void initOGL(GLFWwindow*) {
 	const float radius = 50.f;
 
 	GameObject* temp1 = new Player(GameObject::PLAYER, "fish", radius, glm::quat(glm::vec3(1.f, 0.f, 0.f)), 0.f, "hejhej");
-	GameObject* temp2 = new Player(GameObject::PLAYER, "fish", radius, glm::quat(glm::vec3(0.f, 0.f, 0.f)), 0.f, "hejhej");
+	Player* temp2 = new Player(GameObject::PLAYER, "fish", radius, glm::quat(glm::vec3(0.f, 0.f, 0.f)), 0.f, "hejhej");
+	temp2->setSpeed(0.1f);
 	temp2->setScale(20.f);
 
 	Game::getInstance().addGameObject(temp1);
@@ -170,6 +171,7 @@ void preSync() {
 		wsHandler->tick();
 
 		//TODO implement gamelogic
+		Game::getInstance().update();
 	}
 }
 

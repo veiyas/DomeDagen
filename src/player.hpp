@@ -35,11 +35,13 @@ public:
 	//TODO Method to export a plain-old data type struct(?)
 
 	//Accessors
+	float getSpeed() const { return mSpeed; };
 	const int getPoints() const { return mPoints; };
 	const bool isAlive() const { return mIsAlive; };
 	const std::string& getName() const { return mName; };
 
 	//Mutators
+	void setSpeed(float speed) { mSpeed = speed; };
 	void setPoints(int points) { mPoints = points; };
 	void setIsAlive(bool isAlive) { mIsAlive = isAlive; };
 
@@ -47,6 +49,7 @@ private:
 	//Player information/data
 	int mPoints;
 	bool mIsAlive;
+	float mSpeed;
 	const std::string mName;
 };
 

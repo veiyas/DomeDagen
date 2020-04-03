@@ -5,8 +5,9 @@
 
 Player::Player(const unsigned objectType, const std::string & objectModelName, float radius,
 	           const glm::quat & position, float orientation, const std::string & name)
-	: GameObject{ objectType, radius, position, orientation }, GeometryHandler("player", objectModelName),
-	  mName { name }, mPoints{ 0 }, mIsAlive{ true }
+	: GameObject{ objectType, radius, position, orientation },
+	  GeometryHandler("player", objectModelName),
+	  mName { name }, mPoints{ 0 }, mIsAlive{ true }, mSpeed{ 0.0 }
 {
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
 
@@ -26,14 +27,15 @@ Player::~Player()
 void Player::update(float deltaTime)
 {
 	glm::quat newPos = getPosition();
-	//TODO Make framerate independent, use speed, etc.
-	newPos *= glm::quat(0.001f * glm::vec3(cos(getOrientation()), sin(getOrientation()), 0.f));
+	newPos *= glm::quat(
+		mSpeed * deltaTime * glm::vec3(cos(getOrientation()), sin(getOrientation()), 0.f)
+	);
 
-	setPosition(glm::normalize(newPos));
+	setPosition(glm::normalize(newPos)); //Normalize might not be necessary?
 
 	//TODO Constrain to visible area
 
-	//sgct::Log::Info("Updatedd");
+	//sgct::Log::Info("Updated");
 }
 
 void Player::render() const

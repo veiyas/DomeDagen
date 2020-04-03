@@ -1,4 +1,5 @@
 #include "game.hpp"
+#include<sgct/engine.h>
 
 
 //Define instance
@@ -6,7 +7,7 @@ Game* Game::mInstance = nullptr;
 unsigned int Game::mUniqueId = 0;
 
 Game::Game()
-	: mMvp{ glm::mat4{1.f} }
+	: mMvp{ glm::mat4{1.f} }, mLastFrameTime{ -1 }
 {
 	//Loads all models and shaders into pool
 	for (const std::string& modelName : allModelNames)
@@ -83,6 +84,27 @@ void Game::addGameObject(GameObject* obj)
 void Game::addRenderable(Renderable* obj)
 {
 	mRenderObjects.push_back(std::unique_ptr<Renderable>(std::move(obj)));
+}
+
+void Game::update()
+{
+	if (mLastFrameTime < 0) //First update?
+	{
+		mLastFrameTime = sgct::Engine::getTime();
+		return;
+	}
+
+	float currentFrameTime = sgct::Engine::getTime();
+	float deltaTime = currentFrameTime - mLastFrameTime;
+
+	for (auto& [id, obj] : mInteractObjects)
+	{
+		obj->update(deltaTime);
+	}
+
+	//TODO check for collisions
+
+	mLastFrameTime = currentFrameTime;
 }
 
 GameObject& Game::getGameObject(const unsigned index)
