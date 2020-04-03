@@ -10,12 +10,6 @@
 #include "glad/glad.h"
 #include "utility.hpp"
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-#include <stb_image.h>
-
-unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma = false);
 
 //This class was written with help of tutorial 
 class Model

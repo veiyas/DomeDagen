@@ -24,6 +24,7 @@ void Game::init()
 
 Game& Game::getInstance()
 {
+	auto test = mInstance->instanceExists();
 	//If Game doesnt exist, create one. Return it.
 	if (!mInstance) {
 		mInstance = new Game{};
