@@ -62,9 +62,9 @@ int main(int argc, char** argv) {
     Configuration config = sgct::parseArguments(arg);
 
 	//Open config .xml
-	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
-	//config.configFilename = rootDir + "/src/configs/two_nodes.xml";
+	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
 
     config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
@@ -132,7 +132,7 @@ void initOGL(GLFWwindow*) {
 
 	GameObject* temp1 = new Player(GameObject::PLAYER, "fish", radius, glm::quat(glm::vec3(1.f, 0.f, 0.f)), 0.f, "hejhej");
 	Player* temp2 = new Player(GameObject::PLAYER, "fish", radius, glm::quat(glm::vec3(0.f, 0.f, 0.f)), 0.f, "hejhej");
-	temp2->setSpeed(0.1f);
+	temp2->setSpeed(0.3f);
 	temp2->setScale(20.f);
 
 	Game::getInstance().addGameObject(temp1);
@@ -149,15 +149,24 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 		Log::Info("Released space key, disconnecting");
 		wsHandler->disconnect();
 	}
+
+	auto& objList = Game::getInstance().getGameObjectVector();
+
 	//Left
 	if (key == Key::A && (action == Action::Press || action == Action::Repeat))
 	{
-
+		for (auto& [id, obj] : objList)
+		{
+			obj->setOrientation(obj->getOrientation() + 0.1f);
+		}
 	}
 	//Right
 	if (key == Key::D && (action == Action::Press || action == Action::Repeat))
 	{
-		
+		for (auto& [id, obj] : objList)
+		{
+			obj->setOrientation(obj->getOrientation() - 0.1f);
+		}
 	}
 }
 

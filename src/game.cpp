@@ -90,11 +90,11 @@ void Game::update()
 {
 	if (mLastFrameTime < 0) //First update?
 	{
-		mLastFrameTime = sgct::Engine::getTime();
+		mLastFrameTime = static_cast<float>(sgct::Engine::getTime());
 		return;
 	}
 
-	float currentFrameTime = sgct::Engine::getTime();
+	float currentFrameTime = static_cast<float>(sgct::Engine::getTime());
 	float deltaTime = currentFrameTime - mLastFrameTime;
 
 	for (auto& [id, obj] : mInteractObjects)
@@ -109,7 +109,7 @@ void Game::update()
 
 GameObject& Game::getGameObject(const unsigned index)
 {
-	return *mInteractObjects[index].get();
+	return *mInteractObjects.at(index).get();
 }
 
 std::map<const unsigned int, std::unique_ptr<GameObject>>& Game::getGameObjectVector()
