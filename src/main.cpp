@@ -20,11 +20,12 @@
 namespace {
     std::unique_ptr<WebSocketHandler> wsHandler;
 
-    int64_t exampleInt = 0;
+	//Ref to movement states used for syncing
+	std::vector<PositionData>& states = Game::getInstance().getMovementStates();
+
+	int64_t exampleInt = 1;
 	std::string exampleString;
 	double currentTime = 0.0;
-
-	//GameObject* temp2; //For testing
 
 } // namespace
 
@@ -124,8 +125,9 @@ void draw(const RenderData& data) {
 }
 
 void initOGL(GLFWwindow*) {
-	std::cout << __FUNCTION__ << " CALLED\n";
 	Game::init();
+	std::cout << "Game instance exists = " << Game::instanceExists() << "\n";
+	std::cout << __FUNCTION__ << "()\n";
 
 	/**********************************/
 	/*			 Test Area			  */
@@ -187,16 +189,14 @@ void preSync() {
 }
 
 std::vector<std::byte> encode() {
-	// These are just two examples;  remove them and replace them with the logic of your
-	// application that you need to synchronize
+	//Output data
 	std::vector<std::byte> data;
-	//serializeObject(data, exampleInt);
 
-	//Encoding testing
+	//GameObjects and their states
 	auto& gameObjects = Game::getInstance().getGameObjectVector();
 	auto& objectPositionStates = Game::getInstance().getMovementStates();
 
-	//Encode position data from GameObjects
+	//Save position data from GameObjects
 	for (auto& [id, obj] : gameObjects)
 		objectPositionStates.push_back(obj->getMovementData(id));
 
@@ -206,25 +206,16 @@ std::vector<std::byte> encode() {
 }
 
 void decode(const std::vector<std::byte>& data, unsigned int pos) {
-	std::cout << __FUNCTION__ << " CALLED\n";
 	// These are just two examples;  remove them and replace them with the logic of your
 	// application that you need to synchronize
 
 	//deserializeObject(data, pos, exampleInt);
 	//deserializeObject(data, pos, exampleString);
 
-	//Perhaps we need to add thread locking (mutex)
-	auto& temp = Game::getInstance().getMovementStates();
-	int temp2 = 2;
-
-	//std::vector<PositionData>& objectPositionStates = Game::getInstance().getMovementStates();
-	//std::cout << __LINE__ << "\n";
-	//deserializeObject(data, pos, Game::getInstance().getMovementStates());
-	//std::cout << __LINE__ << "\n";
+	deserializeObject(data, pos, states);
 }
 
 void cleanup() {
-	std::cout << __FUNCTION__ << " CALLED\n";
 	// Cleanup all of your state, particularly the OpenGL state in here.  This function
 	// should behave symmetrically to the initOGL function
 
@@ -232,15 +223,17 @@ void cleanup() {
 }
 
 void postSyncPreDraw() {
-	std::cout << __FUNCTION__ << " CALLED\n";
-	// Apply the (now synchronized) application state before the rendering will start
-	//auto& gameObjects = Game::getInstance().getGameObjectVector();
-	//auto& objectPositionStates = Game::getInstance().getMovementStates();
+	//Get gameobjects to update
+	auto& gameObjects = Game::getInstance().getGameObjectVector();
 
-	//for (size_t i = 0; i < gameObjects.size(); i++)
-	//{
-	//	gameObjects[objectPositionStates[i].mId]->setMovementData(objectPositionStates[i]);
-	//}	
+	//Update positions
+	for (size_t i = 0; i < states.size(); i++)
+	{
+		gameObjects[states[i].mId]->setMovementData(states[i]);
+	}
+	
+	//Clear states for next frame
+	Game::getInstance().getMovementStates().clear();
 }
 
 void connectionEstablished() {

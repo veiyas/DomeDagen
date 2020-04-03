@@ -9,23 +9,23 @@ unsigned int Game::mUniqueId = 0;
 Game::Game()
 	: mMvp{ glm::mat4{1.f} }, mLastFrameTime{ -1 }
 {
+	//std::mutex test;
 	//std::unique_lock test(sgct::mutex::DataSync);
 	//test.lock();
 	//test.unlock();
 
-	std::cout << __FUNCTION__ << " called\n";
-	std::cout << __LINE__ << " of " << __FUNCTION__ << "\n";	
+	//Ctor seems to get called multiple times even tho it has already been instanciated on client node?
+	//It works now but is ugly
+
+	std::cout << __FUNCTION__ << " called\n";	
 
 	//Loads all models and shaders into pool
-	std::cout << __LINE__ << " of " << __FUNCTION__ << "\n";
 	for (const std::string& modelName : allModelNames)
 		loadModel(modelName);
-	std::cout << __LINE__ << " of " << __FUNCTION__ << "\n";
 	for (const std::string& shaderName : allShaderNames)
 		loadShader(shaderName);
-	std::cout << __LINE__ << " of " << __FUNCTION__ << "\n";	
 
-	
+	std::cout << __FUNCTION__ << " complete\n";
 }
 
 void Game::init()
@@ -46,7 +46,8 @@ Game& Game::getInstance()
 
 void Game::destroy()
 {
-	delete mInstance;
+	if(mInstance->instanceExists())
+		delete mInstance;
 }
 
 void Game::printShaderPrograms() const
