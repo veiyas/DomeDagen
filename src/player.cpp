@@ -1,25 +1,45 @@
 #include "player.hpp"
 
-#include "sgct/log.h"
-#include <iostream>
-
-Player::Player(const unsigned objType, const glm::vec2 position, const float orientation, const std::string& name /* position, ... fler argument */)
-	:	GameObject{ objType, position, orientation }, mName { name }, mPoints{ 0 }, mIsAlive{ true }
+Player::Player( const std::string & objectModelName, float radius,
+	           const glm::quat & position, float orientation, const std::string & name)
+	: GameObject{ GameObject::PLAYER, radius, position, orientation }, GeometryHandler("player", objectModelName),
+	  mName { name }, mPoints{ 0 }, mIsAlive{ true }
 {
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
+
+	mShaderProgram.bind();
+
+	mMvpMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "mvp");
+	mTransMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "transformation");
+
+	mShaderProgram.unbind();
 }
 
-Player::~Player() {
+Player::~Player()
+{
 	sgct::Log::Info("Player with name=\"%s\" removed", mName.c_str());
 }
 
-//void Player::update(float deltaTime) const {
-	//velocity_ = deltaTime * acceleration_;  // funkar nog ej bra just f�r v�rt spel
+void Player::update(float deltaTime)
+{
+	//glm::vec3 rotationAxis = glm::dot(tangent, normal);
 
+
+	//glm::quat change;
+
+	//glm::quat newPosition = change * getPosition() * glm::inverse(change);
+
+	//setPosition(newPosition);
 	//GameObject::update(deltaTime);
-//}
+}
 
 void Player::render() const
 {
-	//Do something
+	mShaderProgram.bind();
+
+	glUniformMatrix4fv(mMvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(Game::getInstance().getMVP()));
+	glUniformMatrix4fv(mTransMatrixLoc, 1, GL_FALSE, glm::value_ptr(getTransformation()));
+	this->renderModel();
+
+	mShaderProgram.unbind();
 }

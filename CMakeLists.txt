@@ -38,14 +38,23 @@ add_executable(${PROJECT_NAME}
   src/websockethandler.cpp
   src/utility.hpp
   src/renderable.hpp
+  src/geometryhandler.hpp
   src/gameobject.hpp
   src/gameobject.cpp
   src/player.hpp
   src/player.cpp
   src/game.hpp
   src/game.cpp
+  src/mesh.hpp
+  src/mesh.cpp
+  src/model.hpp
+  src/model.cpp
+  src/sceneobject.hpp
+  src/sceneobject.cpp
   src/shaders/playervert.glsl
   src/shaders/playerfrag.glsl
+  src/shaders/sceneobjectvert.glsl
+  src/shaders/sceneobjectfrag.glsl
   src/shaders/testingvert.glsl
   src/shaders/testingfrag.glsl
 )

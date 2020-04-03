@@ -2,16 +2,24 @@
 #define PLAYER_H_
 
 #include <string>
+#include <iostream>
+
+#include "sgct/log.h"
 
 #include "gameobject.hpp"
+#include "geometryhandler.hpp"
 
-class Player : public GameObject {
+
+class Player : public GameObject, private GeometryHandler
+{
 public:
 	//No default ctor
 	Player() = delete;
 
 	//Ctor + Dtor
-	Player(const unsigned objType, const glm::vec2 position, const float orientation, const std::string& name /* position, ... fler argument */);
+	Player(const std::string & objectModelName, float radius, 
+		   const glm::quat& position, float orientation, const std::string& name);
+
 	~Player();
 
 	//Players should be unique
@@ -19,7 +27,7 @@ public:
 	Player& operator=(const Player&) = delete;
 
 	//Update position, (collision?) [Kanske göra i GameObject?]
-	//void update(float deltaTime) override;
+	void update(float deltaTime) override;
 
 	//Render obejct
 	void render() const override;
@@ -37,8 +45,7 @@ private:
 	//Player information/data
 	int mPoints;
 	bool mIsAlive;
-	const std::string mName;  // vad h�nder om namn ej �r unikt? b�r kanske
-							  // hanteras i webbservern
+	const std::string mName;
 };
 
 #endif
