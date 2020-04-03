@@ -26,6 +26,14 @@
 const std::vector<std::string> allModelNames{ "fish" };
 const std::vector<std::string> allShaderNames{ "player", "testing", "sceneobject" };
 
+// abock;  consider implementing all of this as an "implicit" singleton.  Instead of
+// making the functions static, you create a single instance of Game in the main.cpp and
+// then pass this around.  Personally, I enjoy that method of handling singletons better
+// see also https://github.com/OpenSpace/OpenSpace/blob/master/include/openspace/engine/globals.h
+// and https://github.com/OpenSpace/OpenSpace/blob/master/src/engine/globals.cpp for a
+// way to implement that functionality
+
+
 //Implemented as singleton, handles pretty much everything
 class Game
 {
@@ -63,6 +71,12 @@ public:
 
 	//Update all gameobjects
 	void update();
+
+	// abock;  Consider the next five functions carefully.  You are exposing the internal
+	// state of the game to the outside, so you can no longer reason about the state after
+	// these functions have been called because you don't know what the called will do to
+	// them;  basically you are making the member variables public by giving this broad
+	// access
 
 	//Get ref to GameObject in slot index
 	GameObject& getGameObject(const unsigned index);

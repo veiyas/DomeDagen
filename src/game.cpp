@@ -63,10 +63,16 @@ void Game::printShaderPrograms() const
 void Game::printModelNames() const
 {
 	std::string output = "Loaded models:";
+	// abock;  small detail, but the correct type for p is
+	// const std::pair<const std::string, Model>&
 	for (const std::pair<std::string, Model>& p : mModels)
 	{
 		output += "\n       " + p.first;
 	}
+	// abock; This is a potential security risk;  better to do:
+	// sgct::Log::Info("%s", output.c_str());
+	// otherwise, I could load a model that has the name "%s" and read arbitrary parts of
+	// memory
 	sgct::Log::Info(output.c_str());
 }
 
@@ -83,6 +89,12 @@ void Game::render() const
 	{		
 		obj->render();
 	}
+	// abock;  iterating over a map is horribly slow;  consider replacing the type of mInteractObjects
+	// to:
+	// struct InteractObject { unsigned int id; std::unique_ptr<GameObject> obj; };
+	// std::vector<InteractObject> mInteractObjects
+	// And then keeping the vector sorted if you are searching for an object by id very
+	// often
 	for (auto& [key, value] : mInteractObjects)
 	{
 		value->render();
@@ -144,6 +156,7 @@ void Game::loadShader(const std::string& shaderName)
 {
 	//Define path and strings to hold shaders
 	std::string path = Utility::findRootDir() + "/src/shaders/" + shaderName;
+	// abock;  no need to do this, std::string's default constructor already does this
 	std::string vert = "";
 	std::string frag = "";
 

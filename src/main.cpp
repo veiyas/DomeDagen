@@ -21,6 +21,9 @@ namespace {
     std::unique_ptr<WebSocketHandler> wsHandler;
 
 	//Ref to movement states used for syncing
+	// abock;  This Game::getInstance() gets called at load time even before the main
+	// function runs, and since you are creating the Game object in this function, this is
+	// the reason for your second constructor
 	std::vector<PositionData>& states = Game::getInstance().getMovementStates();
 
 	int64_t exampleInt = 1;
@@ -63,6 +66,9 @@ int main(int argc, char** argv) {
     Configuration config = sgct::parseArguments(arg);
 
 	//Open config .xml
+	// abock;  Instead of writing that file in the source code, you can also pass it on
+	// the commandline.  You can do Domedagen.exe -config configs/fisheye_testing.xml 
+	// instead or hardcoding it in here
 	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
@@ -104,6 +110,8 @@ int main(int argc, char** argv) {
 	/**********************************/
 	/*			 Test Area			  */
 	/**********************************/
+	// abock;  You can use Log::Info or Log::Warning here as well you can check the 
+	// sgct/log.h file for the Debug, Warning, Info, and Error functions for it
 	std::cout << "IS PlayerData POD? -" << std::is_pod<PositionData>::value << "\n";
 	std::cout << __FUNCTION__ << " CALLED\n";
 
@@ -139,6 +147,10 @@ void initOGL(GLFWwindow*) {
 	temp2->setSpeed(0.3f);
 	temp2->setScale(20.f);
 
+	// abock;  I would recommend using a std::unique_ptr in here as that better represents
+	// the transfer of ownership, so you would have:
+	// std::unique_ptr<GameObject> temp1 = std::make_unique<Player>(GameObject::PLAYER, "fish", radius, glm::quat(glm::vec3(1.f, 0.f, 0.f)), 0.f, "hejhej");
+	// Game::getInstance().addGameObject(std::move(temp1));
 	Game::getInstance().addGameObject(temp1);
 	Game::getInstance().addGameObject(temp2);
 }
@@ -154,6 +166,10 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 		wsHandler->disconnect();
 	}
 
+	// abock; it might be nicer to add functions to the Game that will do this internally.
+	// So you would have a function called setOrientation on the Game that would do the
+	// iteration internally.  That way, you don't need to expose the internals of the Game
+	// which would make it a bit cleaner
 	auto& objList = Game::getInstance().getGameObjectVector();
 
 	//Left
@@ -192,6 +208,10 @@ std::vector<std::byte> encode() {
 	//Output data
 	std::vector<std::byte> data;
 
+	// abock;  same comment as above. compare this solution with a way where you have a
+	// function in the game that would just return a vector of std::byte that already
+	// contains all of the serialized information. In that way, you don't need to expose
+	// the game state
 	//GameObjects and their states
 	auto& gameObjects = Game::getInstance().getGameObjectVector();
 	auto& objectPositionStates = Game::getInstance().getMovementStates();
