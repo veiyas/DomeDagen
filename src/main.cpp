@@ -21,7 +21,7 @@ namespace {
     std::unique_ptr<WebSocketHandler> wsHandler;
 
 	//Ref to movement states used for syncing
-	std::vector<PositionData>& states = Game::getInstance().getMovementStates();
+	std::vector<PositionData> states{ 0 };
 
 	int64_t exampleInt = 1;
 	std::string exampleString;
@@ -104,12 +104,10 @@ int main(int argc, char** argv) {
 	/**********************************/
 	/*			 Test Area			  */
 	/**********************************/
-	std::cout << "IS PlayerData POD? -" << std::is_pod<PositionData>::value << "\n";
-	std::cout << __FUNCTION__ << " CALLED\n";
 
     Engine::instance().render();
 
-	Game::destroy();
+	//Game::destroy();
     Engine::destroy();
     return EXIT_SUCCESS;
 }
@@ -120,27 +118,32 @@ void draw(const RenderData& data) {
 	glEnable(GL_DEPTH_TEST);
 	glCullFace(GL_BACK);
 
-	//temp2->update(0);
 	Game::getInstance().render();
 }
 
 void initOGL(GLFWwindow*) {
 	Game::init();
-	std::cout << "Game instance exists = " << Game::instanceExists() << "\n";
-	std::cout << __FUNCTION__ << "()\n";
 
 	/**********************************/
 	/*			 Test Area			  */
 	/**********************************/
 	const float radius = 50.f;
 
-	GameObject* temp1 = new Player(GameObject::PLAYER, "fish", radius, glm::quat(glm::vec3(1.f, 0.f, 0.f)), 0.f, "hejhej");
-	Player* temp2 = new Player(GameObject::PLAYER, "fish", radius, glm::quat(glm::vec3(0.f, 0.f, 0.f)), 0.f, "hejhej");
-	temp2->setSpeed(0.3f);
-	temp2->setScale(20.f);
+	//Player* temp1 = new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, 0.f)), 0.f, "hejhej");
+	//Player* temp2 = new Player("fish", radius, glm::quat(glm::vec3(0.f, 0.f, 0.f)), 0.f, "hejhej");
 
-	Game::getInstance().addGameObject(temp1);
-	Game::getInstance().addGameObject(temp2);
+	//temp2->setSpeed(0.3f);
+	//temp2->setScale(20.f);
+
+	//Game::getInstance().addGameObject(temp1);
+	//Game::getInstance().addGameObject(temp2);
+
+	for (size_t i = 0; i < 100; i++)
+	{
+		Player* temp = new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, -1.f + 0.05 * i)), 0.f, "hejhej");
+		temp->setSpeed(0.3f);
+		Game::getInstance().addGameObject(temp);
+	}
 }
 
 void keyboard(Key key, Modifier modifier, Action action, int)
@@ -154,7 +157,7 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 		wsHandler->disconnect();
 	}
 
-	auto& objList = Game::getInstance().getGameObjectVector();
+	auto& objList = Game::getInstance().getGameObjectMap();
 
 	//Left
 	if (key == Key::A && (action == Action::Press || action == Action::Repeat))
@@ -178,6 +181,7 @@ void preSync() {
 	// Do the application simulation step on the server node in here and make sure that
 	// the computed state is serialized and deserialized in the encode/decode calls	
 
+	//Run game simulation on master only
 	if (Engine::instance().isMaster())
 	{
 		// This doesn't have to happen every frame, but why not?
@@ -192,15 +196,21 @@ std::vector<std::byte> encode() {
 	//Output data
 	std::vector<std::byte> data;
 
-	//GameObjects and their states
-	auto& gameObjects = Game::getInstance().getGameObjectVector();
+	//GameObjects
+	auto& gameObjects = Game::getInstance().getGameObjectMap();
+
+	//Copy of states
 	auto& objectPositionStates = Game::getInstance().getMovementStates();
 
 	//Save position data from GameObjects
 	for (auto& [id, obj] : gameObjects)
+	{
 		objectPositionStates.push_back(obj->getMovementData(id));
+	}
 
+	//Encode the data and clear vector for next frame
 	serializeObject(data, objectPositionStates);
+	objectPositionStates.clear();
 
 	return data;
 }
@@ -209,31 +219,32 @@ void decode(const std::vector<std::byte>& data, unsigned int pos) {
 	// These are just two examples;  remove them and replace them with the logic of your
 	// application that you need to synchronize
 
-	//deserializeObject(data, pos, exampleInt);
-	//deserializeObject(data, pos, exampleString);
-
 	deserializeObject(data, pos, states);
 }
 
 void cleanup() {
 	// Cleanup all of your state, particularly the OpenGL state in here.  This function
 	// should behave symmetrically to the initOGL function
-
-
 }
 
 void postSyncPreDraw() {
-	//Get gameobjects to update
-	auto& gameObjects = Game::getInstance().getGameObjectVector();
-
-	//Update positions
-	for (size_t i = 0; i < states.size(); i++)
+	//Sync gameobjects' state on clients only
+	if (!Engine::instance().isMaster())
 	{
-		gameObjects[states[i].mId]->setMovementData(states[i]);
+		//Ref to GameObjects
+		auto& gameObjects = Game::getInstance().getGameObjectMap();
+
+		//Sync new data
+		for (auto& data : states)
+		{
+			gameObjects[data.mId]->setMovementData(data);
+		}
+
+		//Clear states for next frame, not needed but it's polite
+		states.clear();
 	}
-	
-	//Clear states for next frame
-	Game::getInstance().getMovementStates().clear();
+	else
+		return;
 }
 
 void connectionEstablished() {

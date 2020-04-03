@@ -17,7 +17,7 @@ public:
 	Player() = delete;
 
 	//Ctor + Dtor
-	Player(const unsigned objectType, const std::string & objectModelName, float radius, 
+	Player(const std::string & objectModelName, float radius, 
 		   const glm::quat& position, float orientation, const std::string& name);
 
 	~Player();

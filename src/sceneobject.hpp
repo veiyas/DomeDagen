@@ -12,7 +12,7 @@ class SceneObject : public GameObject, private GeometryHandler
 {
 public:
 	//Ctor
-	SceneObject(const unsigned objectType, const std::string & objectModelName,
+	SceneObject(const std::string & objectModelName,
 	            float radius, const glm::quat & position, const float orientation);
 
 	//Render

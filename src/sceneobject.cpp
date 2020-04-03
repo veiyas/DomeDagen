@@ -1,8 +1,8 @@
 #include "sceneobject.hpp"
 
-SceneObject::SceneObject(const unsigned objectType, const std::string & objectModelName,
+SceneObject::SceneObject(const std::string & objectModelName,
 	                     float radius, const glm::quat& position, const float orientation)
-	: GameObject{ objectType, radius, position, orientation }, GeometryHandler("sceneobject", objectModelName)
+	: GameObject{ GameObject::SCENEOBJECT, radius, position, orientation }, GeometryHandler("sceneobject", objectModelName)
 {
 	mShaderProgram.bind();
 

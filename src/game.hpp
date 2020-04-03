@@ -71,7 +71,7 @@ public:
 	std::vector<PositionData>& getMovementStates() { return mObjectsPositionStates; }
 
 	//Get ref to all GameObjects
-	std::map<const unsigned int, std::unique_ptr<GameObject>>& getGameObjectVector();
+	std::map<const unsigned int, std::unique_ptr<GameObject>>& getGameObjectMap();
 
 	//Accessors
 	Model& getModel(const std::string& nameKey);

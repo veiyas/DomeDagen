@@ -1,5 +1,5 @@
 #include "game.hpp"
-#include<sgct/engine.h>
+#include <sgct/engine.h>
 
 
 //Define instance
@@ -9,23 +9,14 @@ unsigned int Game::mUniqueId = 0;
 Game::Game()
 	: mMvp{ glm::mat4{1.f} }, mLastFrameTime{ -1 }
 {
-	//std::mutex test;
-	//std::unique_lock test(sgct::mutex::DataSync);
-	//test.lock();
-	//test.unlock();
-
-	//Ctor seems to get called multiple times even tho it has already been instanciated on client node?
-	//It works now but is ugly
-
-	std::cout << __FUNCTION__ << " called\n";	
+	//Ctor seems to get called twice times even tho it has already been instanciated
+	//It works now but it is ugly
 
 	//Loads all models and shaders into pool
 	for (const std::string& modelName : allModelNames)
 		loadModel(modelName);
 	for (const std::string& shaderName : allShaderNames)
 		loadShader(shaderName);
-
-	std::cout << __FUNCTION__ << " complete\n";
 }
 
 void Game::init()
@@ -124,7 +115,7 @@ GameObject& Game::getGameObject(const unsigned index)
 	return *mInteractObjects.at(index).get();
 }
 
-std::map<const unsigned int, std::unique_ptr<GameObject>>& Game::getGameObjectVector()
+std::map<const unsigned int, std::unique_ptr<GameObject>>& Game::getGameObjectMap()
 {
 	return mInteractObjects;
 }

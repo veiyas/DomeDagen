@@ -3,9 +3,9 @@
 #include<glm/gtx/string_cast.hpp>
 #include<iostream>
 
-Player::Player(const unsigned objectType, const std::string & objectModelName, float radius,
+Player::Player(const std::string & objectModelName, float radius,
 	           const glm::quat & position, float orientation, const std::string & name)
-	: GameObject{ objectType, radius, position, orientation },
+	: GameObject{ GameObject::PLAYER, radius, position, orientation },
 	  GeometryHandler("player", objectModelName),
 	  mName { name }, mPoints{ 0 }, mIsAlive{ true }, mSpeed{ 0.0 }
 {
