@@ -7,7 +7,9 @@
 #include <map>
 #include <memory>
 #include <utility>
+#include <mutex>
 
+#include "sgct/mutexes.h"
 #include "sgct/shareddata.h"
 #include "sgct/log.h"
 #include "glad/glad.h"

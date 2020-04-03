@@ -62,9 +62,9 @@ int main(int argc, char** argv) {
     Configuration config = sgct::parseArguments(arg);
 
 	//Open config .xml
-	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
-	//config.configFilename = rootDir + "/src/configs/two_nodes.xml";
+	config.configFilename = rootDir + "/src/configs/two_nodes.xml";
 
     config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
@@ -104,6 +104,7 @@ int main(int argc, char** argv) {
 	/*			 Test Area			  */
 	/**********************************/
 	std::cout << "IS PlayerData POD? -" << std::is_pod<PositionData>::value << "\n";
+	std::cout << __FUNCTION__ << " CALLED\n";
 
     Engine::instance().render();
 
@@ -123,7 +124,8 @@ void draw(const RenderData& data) {
 }
 
 void initOGL(GLFWwindow*) {
-	Game::init();
+	std::cout << __FUNCTION__ << " CALLED\n";
+	Game::getInstance();
 
 	/**********************************/
 	/*			 Test Area			  */
@@ -181,20 +183,21 @@ std::vector<std::byte> encode() {
 	std::vector<std::byte> data;
 	//serializeObject(data, exampleInt);
 
-	////Encoding testing
-	//auto& gameObjects = Game::getInstance().getGameObjectVector();
-	//auto& objectPositionStates = Game::getInstance().getMovementStates();
+	//Encoding testing
+	auto& gameObjects = Game::getInstance().getGameObjectVector();
+	auto& objectPositionStates = Game::getInstance().getMovementStates();
 
-	////Encode position data from GameObjects
-	//for (auto& [id, obj] : gameObjects)
-	//	objectPositionStates.push_back(obj->getMovementData(id));
+	//Encode position data from GameObjects
+	for (auto& [id, obj] : gameObjects)
+		objectPositionStates.push_back(obj->getMovementData(id));
 
-	//serializeObject(data, objectPositionStates);
+	serializeObject(data, objectPositionStates);
 
 	return data;
 }
 
 void decode(const std::vector<std::byte>& data, unsigned int pos) {
+	std::cout << __FUNCTION__ << " CALLED\n";
 	// These are just two examples;  remove them and replace them with the logic of your
 	// application that you need to synchronize
 
@@ -202,6 +205,8 @@ void decode(const std::vector<std::byte>& data, unsigned int pos) {
 	//deserializeObject(data, pos, exampleString);
 
 	//Perhaps we need to add thread locking (mutex)
+	auto& temp = Game::getInstance().getMovementStates();
+	int temp2 = 2;
 
 	//std::vector<PositionData>& objectPositionStates = Game::getInstance().getMovementStates();
 	//std::cout << __LINE__ << "\n";
@@ -210,6 +215,7 @@ void decode(const std::vector<std::byte>& data, unsigned int pos) {
 }
 
 void cleanup() {
+	std::cout << __FUNCTION__ << " CALLED\n";
 	// Cleanup all of your state, particularly the OpenGL state in here.  This function
 	// should behave symmetrically to the initOGL function
 
@@ -217,6 +223,7 @@ void cleanup() {
 }
 
 void postSyncPreDraw() {
+	std::cout << __FUNCTION__ << " CALLED\n";
 	// Apply the (now synchronized) application state before the rendering will start
 	//auto& gameObjects = Game::getInstance().getGameObjectVector();
 	//auto& objectPositionStates = Game::getInstance().getMovementStates();
