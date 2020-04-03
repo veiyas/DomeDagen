@@ -9,9 +9,9 @@ unsigned int Game::mUniqueId = 0;
 Game::Game()
 	: mMvp{ glm::mat4{1.f} }, mLastFrameTime{ -1 }
 {
-	std::unique_lock test(sgct::mutex::DataSync);
-	test.lock();
-	test.unlock();
+	//std::unique_lock test(sgct::mutex::DataSync);
+	//test.lock();
+	//test.unlock();
 
 	std::cout << __FUNCTION__ << " called\n";
 	std::cout << __LINE__ << " of " << __FUNCTION__ << "\n";	

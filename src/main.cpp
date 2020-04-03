@@ -125,7 +125,7 @@ void draw(const RenderData& data) {
 
 void initOGL(GLFWwindow*) {
 	std::cout << __FUNCTION__ << " CALLED\n";
-	Game::getInstance();
+	Game::init();
 
 	/**********************************/
 	/*			 Test Area			  */

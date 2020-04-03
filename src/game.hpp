@@ -22,10 +22,11 @@
 #include "gameobject.hpp"
 #include "utility.hpp"
 
+//Temp name holders for easier file reading
 const std::vector<std::string> allModelNames{ "fish" };
 const std::vector<std::string> allShaderNames{ "player", "testing", "sceneobject" };
 
-//Implemented as singleton
+//Implemented as singleton, handles pretty much everything
 class Game
 {
 public:
@@ -101,7 +102,7 @@ private:
 
 	//TODO maybe a separate vector for objects with collision only (performance enhancement)
 
-	//Track all shader names
+	//Track all loaded shaders' names
 	std::vector<std::string> mShaderNames;
 
 	//MVP matrix used for rendering
