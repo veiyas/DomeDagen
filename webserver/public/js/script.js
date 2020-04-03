@@ -10,22 +10,22 @@ function log(msg) {
 // Set up everything the front-end application needs.
 // Called on load for <body>. 
 function initialize() {
-  socket = new WebSocket(serverAddress);
-  socket.onopen = function(event) {
-    log('Connection is opened');
-  };
+  // socket = new WebSocket(serverAddress);
+  // socket.onopen = function(event) {
+  //   log('Connection is opened');
+  // };
 
-  socket.onerror = function (err) {
-    log(`Error: ${err}`);
-  }
+  // socket.onerror = function (err) {
+  //   log(`Error: ${err}`);
+  // }
 
-  socket.onclose = function() {
-    log('Connection is closed');
-  }
+  // socket.onclose = function() {
+  //   log('Connection is closed');
+  // }
 
-  socket.onmessage = function() {
-    log(event.data);
-  }
+  // socket.onmessage = function() {
+  //   log(event.data);
+  // }
 
   // Push all screens into a map of [screen ID, screen]
   document.querySelectorAll('.screen').forEach(screen => {
@@ -34,7 +34,7 @@ function initialize() {
 
   // Set up event listeners
   var connectButton = document.querySelector('#connect');
-  connectButton.addEventListener('click', () => setCurrentScreen('waitingScreen'))
+  //connectButton.addEventListener('click', () => setCurrentScreen('waitingScreen'))
 }
 
 // Set the currently visible screen to the matching screenID argument.
