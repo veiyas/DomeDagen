@@ -158,28 +158,16 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 		wsHandler->disconnect();
 	}
 
-	//auto& objList = Game::getInstance().getGameObjectMap();
-	// //abock; it might be nicer to add functions to the Game that will do this internally.
-	// //So you would have a function called setOrientation on the Game that would do the
-	// //iteration internally.  That way, you don't need to expose the internals of the Game
-	// //which would make it a bit cleaner
-
-	////Left
-	//if (key == Key::A && (action == Action::Press || action == Action::Repeat))
-	//{
-	//	for (auto& [id, obj] : objList)
-	//	{
-	//		obj->setOrientation(obj->getOrientation() + 0.1f);
-	//	}
-	//}
-	////Right
-	//if (key == Key::D && (action == Action::Press || action == Action::Repeat))
-	//{
-	//	for (auto& [id, obj] : objList)
-	//	{
-	//		obj->setOrientation(obj->getOrientation() - 0.1f);
-	//	}
-	//}
+	//Left
+	if (key == Key::A && (action == Action::Press || action == Action::Repeat))
+	{
+		Game::getInstance().rotateAllGameObjects(0.1f);
+	}
+	//Right
+	if (key == Key::D && (action == Action::Press || action == Action::Repeat))
+	{
+		Game::getInstance().rotateAllGameObjects(-0.1f);
+	}
 }
 
 void preSync() {
@@ -206,6 +194,7 @@ void decode(const std::vector<std::byte>& data, unsigned int pos) {
 	// These are just two examples;  remove them and replace them with the logic of your
 	// application that you need to synchronize
 
+	//Decode position data into states
 	deserializeObject(data, pos, states);
 }
 

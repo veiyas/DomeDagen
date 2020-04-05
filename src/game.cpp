@@ -9,9 +9,6 @@ unsigned int Game::mUniqueId = 0;
 Game::Game()
 	: mMvp{ glm::mat4{1.f} }, mLastFrameTime{ -1 }
 {
-	//Ctor seems to get called twice times even tho it has already been instanciated
-	//It works now but it is ugly
-
 	//Loads all models and shaders into pool
 	for (const std::string& modelName : allModelNames)
 		loadModel(modelName);
@@ -27,7 +24,6 @@ void Game::init()
 
 Game& Game::getInstance()
 {
-	auto test = mInstance->instanceExists();
 	//If Game doesnt exist, create one. Return it.
 	if (!mInstance) {
 		mInstance = new Game{};
@@ -148,6 +144,14 @@ void Game::setDecodedPositionData(std::vector<PositionData>& newState)
 	for (auto& newData : newState)
 	{
 		mInteractObjects[newData.mId].second->setMovementData(newData);
+	}
+}
+
+void Game::rotateAllGameObjects(float newOrientation)
+{
+	for (auto& [id, obj] : mInteractObjects)
+	{
+		obj->setOrientation(obj->getOrientation() + newOrientation);
 	}
 }
 

@@ -33,7 +33,6 @@ const std::vector<std::string> allShaderNames{ "player", "testing", "sceneobject
 // and https://github.com/OpenSpace/OpenSpace/blob/master/src/engine/globals.cpp for a
 // way to implement that functionality
 
-
 //Implemented as singleton, handles pretty much everything
 class Game
 {
@@ -72,17 +71,8 @@ public:
 	//Update all gameobjects
 	void update();
 
-	// abock;  Consider the next five functions carefully.  You are exposing the internal
-	// state of the game to the outside, so you can no longer reason about the state after
-	// these functions have been called because you don't know what the called will do to
-	// them;  basically you are making the member variables public by giving this broad
-	// access
-
-	//Get ref to GameObject in slot index, binary searched
-	//GameObject& getGameObject(const unsigned searchId);
-
-	//Get ref to all GameObjects
-	//std::map<const unsigned int, std::unique_ptr<GameObject>>& getGameObjectMap();
+	//ALEX'S WISDOM: LET'S NOT GIVE ACCESS TO THIS CLASS INTERNALS OUTSIDE
+	//WRAP EVERYTHING IN METHODS THAT WONT EXPOSE INTERNALS
 
 	//Get and encode position data
 	std::vector<std::byte> getEncodedPositionData();
@@ -90,12 +80,12 @@ public:
 	//Set position data from inputted data
 	void setDecodedPositionData(std::vector<PositionData>& newState);
 
+	//DEBUGGING TOOL: apply orientation to all GameObjects
+	void rotateAllGameObjects(float newOrientation);
+
 	//Accessors
 	Model& getModel(const std::string& nameKey);
 	glm::mat4& getMVP() { return mMvp; };
-
-	//Debugging tools
-	bool showFps = true;
 
 private:
 //Members
@@ -108,7 +98,7 @@ private:
 	//All renderable objects
 	std::vector<std::unique_ptr<Renderable>> mRenderObjects;
 
-	//All interactble objects in a struct for id access/searching
+	//All interactble objects in pair for id access/searching
 	std::vector<std::pair<unsigned int, std::unique_ptr<GameObject>>> mInteractObjects;
 
 	//GameObjects unique id generator

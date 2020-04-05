@@ -83,6 +83,7 @@ public:
 	void setScale(float scale) { mScale = scale; }
 	void setPosition(const glm::quat position) { mPosition = position; }
 	void setOrientation(float orientation) { mOrientation = orientation; } //overflow?
+	//TODO setSpeed in here?
 
 private:
 	//The position on the sphere represented by a unit quaternion
