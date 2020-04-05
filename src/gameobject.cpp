@@ -32,7 +32,7 @@ PositionData GameObject::getMovementData(unsigned int id)
 	return temp;
 }
 
-void GameObject::setMovementData(PositionData& newState)
+void GameObject::setMovementData(const PositionData& newState)
 {
 	setOrientation(newState.mOrientation);
 	setRadius(newState.mRadius);
@@ -62,7 +62,6 @@ glm::mat4 GameObject::getTransformation() const
 	//std::cout << glm::to_string(trans) << '\n';
 
 	//TODO Put model rotation in a variable to allow models with different orientation
-	//TODO put these matrix multiplications on the GPU
 	return rot * trans * orient * scale
 		* glm::rotate(glm::mat4(1.f), -glm::half_pi<float>(), glm::vec3(0.f, 0.f, 1.f))
 		* glm::rotate(glm::mat4(1.f), glm::half_pi<float>(), glm::vec3(1.f, 0.f, 0.f));

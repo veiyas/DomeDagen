@@ -33,7 +33,7 @@ const std::vector<std::string> allShaderNames{ "player", "testing", "sceneobject
 // and https://github.com/OpenSpace/OpenSpace/blob/master/src/engine/globals.cpp for a
 // way to implement that functionality
 
-//Implemented as singleton, handles pretty much everything
+//Implemented as explicit singleton, handles pretty much everything
 class Game
 {
 public:
@@ -75,10 +75,10 @@ public:
 	//WRAP EVERYTHING IN METHODS THAT WONT EXPOSE INTERNALS
 
 	//Get and encode position data
-	std::vector<std::byte> getEncodedPositionData();
+	std::vector<std::byte> getEncodedPositionData() const;
 
 	//Set position data from inputted data
-	void setDecodedPositionData(std::vector<PositionData>& newState);
+	void setDecodedPositionData(const std::vector<PositionData>& newState);
 
 	//DEBUGGING TOOL: apply orientation to all GameObjects
 	void rotateAllGameObjects(float newOrientation);

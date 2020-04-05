@@ -66,20 +66,14 @@ void Game::printLoadedAssets() const
 
 void Game::render() const
 {
-	//TODO This method might needs some thoughts regarding renderable vs gameobject rendering
 	for (const std::unique_ptr<Renderable>& obj : mRenderObjects)
 	{		
 		obj->render();
 	}
-	// abock;  iterating over a map is horribly slow;  consider replacing the type of mInteractObjects
-	// to:
-	// struct InteractObject { unsigned int id; std::unique_ptr<GameObject> obj; };
-	// std::vector<InteractObject> mInteractObjects
-	// And then keeping the vector sorted if you are searching for an object by id very
-	// often
-	for (auto& [key, value] : mInteractObjects)
+
+	for (auto& [id, obj] : mInteractObjects)
 	{
-		value->render();
+		obj->render();
 	}
 }
 void Game::addGameObject(std::unique_ptr<GameObject> obj)
@@ -113,18 +107,7 @@ void Game::update()
 	mLastFrameTime = currentFrameTime;
 }
 
-
-//GameObject& Game::getGameObject(const unsigned int searchId)
-//{
-//	//TODO implement fast algorithm here
-//}
-
-//std::map<const unsigned int, std::unique_ptr<GameObject>>& Game::getGameObjectMap()
-//{
-//	
-//}
-
-std::vector<std::byte> Game::getEncodedPositionData()
+std::vector<std::byte> Game::getEncodedPositionData() const
 {
 	std::vector<PositionData> allPositionData;
 	for (auto& objPair : mInteractObjects)
@@ -139,9 +122,9 @@ std::vector<std::byte> Game::getEncodedPositionData()
 	return tempEncodedData;
 }
 
-void Game::setDecodedPositionData(std::vector<PositionData>& newState)
+void Game::setDecodedPositionData(const std::vector<PositionData>& newState)
 {
-	for (auto& newData : newState)
+	for (const auto& newData : newState)
 	{
 		mInteractObjects[newData.mId].second->setMovementData(newData);
 	}

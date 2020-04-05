@@ -32,8 +32,6 @@ public:
 	//Render obejct
 	void render() const override;
 
-	//TODO Method to export a plain-old data type struct(?)
-
 	//Accessors
 	float getSpeed() const { return mSpeed; };
 	const int getPoints() const { return mPoints; };

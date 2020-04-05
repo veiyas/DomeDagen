@@ -63,7 +63,7 @@ public:
 	PositionData getMovementData(unsigned int id);
 
 	//Write new position data from plain-old data struct
-	void setMovementData(PositionData& newState);
+	void setMovementData(const PositionData& newState);
 
 	//Update object (position, collision?)
 	virtual void update(float deltaTime);
@@ -83,7 +83,7 @@ public:
 	void setScale(float scale) { mScale = scale; }
 	void setPosition(const glm::quat position) { mPosition = position; }
 	void setOrientation(float orientation) { mOrientation = orientation; } //overflow?
-	//TODO setSpeed in here?
+	//TODO setSpeed in here probably
 
 private:
 	//The position on the sphere represented by a unit quaternion

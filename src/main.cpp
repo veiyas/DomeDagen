@@ -20,12 +20,8 @@
 namespace {
     std::unique_ptr<WebSocketHandler> wsHandler;
 
-	//Used to make deserialize game state data into
+	//Container for deserialized game state info
 	std::vector<PositionData> states{ 0 };
-
-	int64_t exampleInt = 1;
-	std::string exampleString;
-	double currentTime = 0.0;
 
 } // namespace
 
@@ -40,7 +36,6 @@ void cleanup();
 
 std::vector<std::byte> encode();
 void decode(const std::vector<std::byte>& data, unsigned int pos);
-
 void preSync();
 void postSyncPreDraw();
 
@@ -62,9 +57,10 @@ int main(int argc, char** argv) {
     std::vector<std::string> arg(argv + 1, argv + argc);
     Configuration config = sgct::parseArguments(arg);
 
-	//Open config .xml
+	//Choose which config file (.xml) to open
 	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
+	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
 	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
 
     config::Cluster cluster = sgct::loadCluster(config.configFilename);
@@ -127,7 +123,7 @@ void initOGL(GLFWwindow*) {
 	/**********************************/
 	/*			 Test Area			  */
 	/**********************************/
-	const float radius = 50.f;
+	constexpr float radius = 50.f;
 
 	//Player* temp1 = new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, 0.f)), 0.f, "hejhej");
 	//Player* temp2 = new Player("fish", radius, glm::quat(glm::vec3(0.f, 0.f, 0.f)), 0.f, "hejhej");
@@ -141,7 +137,7 @@ void initOGL(GLFWwindow*) {
 	for (size_t i = 0; i < 20; i++)
 	{
 		std::unique_ptr<GameObject> temp{ new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, -1.f + 0.05 * i)), 0.f, "hejhej") };
-		//Maybe setSpeed in GameObject?
+		//Perhaps setSpeed in GameObject would fit better?
 		//temp->setSpeed(0.3f);
 		Game::getInstance().addGameObject(std::move(temp));
 	}
@@ -194,7 +190,7 @@ void decode(const std::vector<std::byte>& data, unsigned int pos) {
 	// These are just two examples;  remove them and replace them with the logic of your
 	// application that you need to synchronize
 
-	//Decode position data into states
+	//Decode position data into states vector
 	deserializeObject(data, pos, states);
 }
 
