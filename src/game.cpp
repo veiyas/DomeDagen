@@ -54,17 +54,12 @@ void Game::printShaderPrograms() const
 void Game::printModelNames() const
 {
 	std::string output = "Loaded models:";
-	// abock;  small detail, but the correct type for p is
-	// const std::pair<const std::string, Model>&
-	for (const std::pair<std::string, Model>& p : mModels)
+
+	for (const std::pair<const std::string, Model>& p : mModels)
 	{
 		output += "\n       " + p.first;
 	}
-	// abock; This is a potential security risk;  better to do:
-	// sgct::Log::Info("%s", output.c_str());
-	// otherwise, I could load a model that has the name "%s" and read arbitrary parts of
-	// memory
-	sgct::Log::Info(output.c_str());
+	sgct::Log::Info("%s", output.c_str());
 }
 
 void Game::printLoadedAssets() const
@@ -91,9 +86,9 @@ void Game::render() const
 		value->render();
 	}
 }
-void Game::addGameObject(GameObject* obj)
+void Game::addGameObject(std::unique_ptr<GameObject> obj)
 {
-	mInteractObjects[mUniqueId++] = std::unique_ptr<GameObject>(std::move(obj));
+	mInteractObjects.push_back(std::make_pair(mUniqueId++, std::move(obj)));
 }
 
 void Game::addRenderable(Renderable* obj)
@@ -122,14 +117,38 @@ void Game::update()
 	mLastFrameTime = currentFrameTime;
 }
 
-GameObject& Game::getGameObject(const unsigned index)
+
+//GameObject& Game::getGameObject(const unsigned int searchId)
+//{
+//	//TODO implement fast algorithm here
+//}
+
+//std::map<const unsigned int, std::unique_ptr<GameObject>>& Game::getGameObjectMap()
+//{
+//	
+//}
+
+std::vector<std::byte> Game::getEncodedPositionData()
 {
-	return *mInteractObjects.at(index).get();
+	std::vector<PositionData> allPositionData;
+	for (auto& objPair : mInteractObjects)
+	{
+		allPositionData.push_back(objPair.second->getMovementData(objPair.first));
+	}
+
+	std::vector<std::byte> tempEncodedData;
+
+	sgct::serializeObject(tempEncodedData, allPositionData);
+
+	return tempEncodedData;
 }
 
-std::map<const unsigned int, std::unique_ptr<GameObject>>& Game::getGameObjectMap()
+void Game::setDecodedPositionData(std::vector<PositionData>& newState)
 {
-	return mInteractObjects;
+	for (auto& newData : newState)
+	{
+		mInteractObjects[newData.mId].second->setMovementData(newData);
+	}
 }
 
 Model& Game::getModel(const std::string& nameKey)
@@ -147,9 +166,7 @@ void Game::loadShader(const std::string& shaderName)
 {
 	//Define path and strings to hold shaders
 	std::string path = Utility::findRootDir() + "/src/shaders/" + shaderName;
-	// abock;  no need to do this, std::string's default constructor already does this
-	std::string vert = "";
-	std::string frag = "";
+	std::string vert, frag;
 
 	//Open streams to shader files
 	std::ifstream in_vert{ path + "vert.glsl" };
@@ -162,7 +179,7 @@ void Game::loadShader(const std::string& shaderName)
 	}
 	else
 	{
-		std::cout << "ERROR OPENING SHADER FILE: " + shaderName;
+		sgct::Log::Error("%s", std::string{ "ERROR OPENING SHADER FILE: " + shaderName }.c_str());
 	}
 	in_vert.close(); in_frag.close();
 

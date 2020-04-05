@@ -20,12 +20,8 @@
 namespace {
     std::unique_ptr<WebSocketHandler> wsHandler;
 
-	//Ref to movement states used for syncing
+	//Used to make deserialize game state data into
 	std::vector<PositionData> states{ 0 };
-
-	// abock;  This Game::getInstance() gets called at load time even before the main
-	// function runs, and since you are creating the Game object in this function, this is
-	// the reason for your second constructor
 
 	int64_t exampleInt = 1;
 	std::string exampleString;
@@ -67,9 +63,6 @@ int main(int argc, char** argv) {
     Configuration config = sgct::parseArguments(arg);
 
 	//Open config .xml
-	// abock;  Instead of writing that file in the source code, you can also pass it on
-	// the commandline.  You can do Domedagen.exe -config configs/fisheye_testing.xml 
-	// instead or hardcoding it in here
 	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
@@ -145,16 +138,13 @@ void initOGL(GLFWwindow*) {
 	//Game::getInstance().addGameObject(temp1);
 	//Game::getInstance().addGameObject(temp2);
 
-	for (size_t i = 0; i < 100; i++)
+	for (size_t i = 0; i < 20; i++)
 	{
-		Player* temp = new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, -1.f + 0.05 * i)), 0.f, "hejhej");
-		temp->setSpeed(0.3f);
-		Game::getInstance().addGameObject(temp);
+		std::unique_ptr<GameObject> temp{ new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, -1.f + 0.05 * i)), 0.f, "hejhej") };
+		//Maybe setSpeed in GameObject?
+		//temp->setSpeed(0.3f);
+		Game::getInstance().addGameObject(std::move(temp));
 	}
-	// abock;  I would recommend using a std::unique_ptr in here as that better represents
-	// the transfer of ownership, so you would have:
-	// std::unique_ptr<GameObject> temp1 = std::make_unique<Player>(GameObject::PLAYER, "fish", radius, glm::quat(glm::vec3(1.f, 0.f, 0.f)), 0.f, "hejhej");
-	// Game::getInstance().addGameObject(std::move(temp1));
 }
 
 void keyboard(Key key, Modifier modifier, Action action, int)
@@ -168,28 +158,28 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 		wsHandler->disconnect();
 	}
 
-	auto& objList = Game::getInstance().getGameObjectMap();
-	// abock; it might be nicer to add functions to the Game that will do this internally.
-	// So you would have a function called setOrientation on the Game that would do the
-	// iteration internally.  That way, you don't need to expose the internals of the Game
-	// which would make it a bit cleaner
+	//auto& objList = Game::getInstance().getGameObjectMap();
+	// //abock; it might be nicer to add functions to the Game that will do this internally.
+	// //So you would have a function called setOrientation on the Game that would do the
+	// //iteration internally.  That way, you don't need to expose the internals of the Game
+	// //which would make it a bit cleaner
 
-	//Left
-	if (key == Key::A && (action == Action::Press || action == Action::Repeat))
-	{
-		for (auto& [id, obj] : objList)
-		{
-			obj->setOrientation(obj->getOrientation() + 0.1f);
-		}
-	}
-	//Right
-	if (key == Key::D && (action == Action::Press || action == Action::Repeat))
-	{
-		for (auto& [id, obj] : objList)
-		{
-			obj->setOrientation(obj->getOrientation() - 0.1f);
-		}
-	}
+	////Left
+	//if (key == Key::A && (action == Action::Press || action == Action::Repeat))
+	//{
+	//	for (auto& [id, obj] : objList)
+	//	{
+	//		obj->setOrientation(obj->getOrientation() + 0.1f);
+	//	}
+	//}
+	////Right
+	//if (key == Key::D && (action == Action::Press || action == Action::Repeat))
+	//{
+	//	for (auto& [id, obj] : objList)
+	//	{
+	//		obj->setOrientation(obj->getOrientation() - 0.1f);
+	//	}
+	//}
 }
 
 void preSync() {
@@ -208,31 +198,8 @@ void preSync() {
 }
 
 std::vector<std::byte> encode() {
-	//Output data
-	std::vector<std::byte> data;
-	//GameObjects
-	auto& gameObjects = Game::getInstance().getGameObjectMap();
 
-	//Copy of states
-	// abock;  same comment as above. compare this solution with a way where you have a
-	// function in the game that would just return a vector of std::byte that already
-	// contains all of the serialized information. In that way, you don't need to expose
-	// the game state
-	//GameObjects and their states
-	auto& gameObjects = Game::getInstance().getGameObjectMap();
-	auto& objectPositionStates = Game::getInstance().getMovementStates();
-
-	//Save position data from GameObjects
-	for (auto& [id, obj] : gameObjects)
-	{
-		objectPositionStates.push_back(obj->getMovementData(id));
-	}
-
-	//Encode the data and clear vector for next frame
-	serializeObject(data, objectPositionStates);
-	objectPositionStates.clear();
-
-	return data;
+	return Game::getInstance().getEncodedPositionData();
 }
 
 void decode(const std::vector<std::byte>& data, unsigned int pos) {
@@ -251,14 +218,7 @@ void postSyncPreDraw() {
 	//Sync gameobjects' state on clients only
 	if (!Engine::instance().isMaster())
 	{
-		//Ref to GameObjects
-		auto& gameObjects = Game::getInstance().getGameObjectMap();
-
-		//Sync new data
-		for (auto& data : states)
-		{
-			gameObjects[data.mId]->setMovementData(data);
-		}
+		Game::getInstance().setDecodedPositionData(states);
 
 		//Clear states for next frame, not needed but it's polite
 		states.clear();

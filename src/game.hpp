@@ -64,7 +64,7 @@ public:
 	void setMVP(const glm::mat4& mvp) { mMvp = mvp;};
 
 	//Add object to mInteractObjects
-	void addGameObject(GameObject* obj);
+	void addGameObject(std::unique_ptr<GameObject> obj);
 
 	//Add object to mRenderObjects
 	void addRenderable(Renderable* obj);
@@ -78,14 +78,17 @@ public:
 	// them;  basically you are making the member variables public by giving this broad
 	// access
 
-	//Get ref to GameObject in slot index
-	GameObject& getGameObject(const unsigned index);
-
-	//Get ref to vector of position states used for encoding/decoding
-	std::vector<PositionData>& getMovementStates() { return mObjectsPositionStates; }
+	//Get ref to GameObject in slot index, binary searched
+	//GameObject& getGameObject(const unsigned searchId);
 
 	//Get ref to all GameObjects
-	std::map<const unsigned int, std::unique_ptr<GameObject>>& getGameObjectMap();
+	//std::map<const unsigned int, std::unique_ptr<GameObject>>& getGameObjectMap();
+
+	//Get and encode position data
+	std::vector<std::byte> getEncodedPositionData();
+
+	//Set position data from inputted data
+	void setDecodedPositionData(std::vector<PositionData>& newState);
 
 	//Accessors
 	Model& getModel(const std::string& nameKey);
@@ -105,14 +108,11 @@ private:
 	//All renderable objects
 	std::vector<std::unique_ptr<Renderable>> mRenderObjects;
 
-	//All interactble objects, map because we need unique id's for sync
-	std::map<const unsigned int, std::unique_ptr<GameObject>> mInteractObjects;
+	//All interactble objects in a struct for id access/searching
+	std::vector<std::pair<unsigned int, std::unique_ptr<GameObject>>> mInteractObjects;
 
 	//GameObjects unique id generator
 	static unsigned int mUniqueId;
-
-	//Track object position states between syncs
-	std::vector<PositionData> mObjectsPositionStates;
 
 	//TODO maybe a separate vector for objects with collision only (performance enhancement)
 
