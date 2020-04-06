@@ -60,7 +60,7 @@ wsServer.on('request', function (req) {
     });
   }
   else {
-    console.log(`Other connection from ${req.remoteAddress}`);    
+    console.log(`Other connection from ${req.remoteAddress}`);
 
     const addresses = connectionArray.map(c => c.socket.remoteAddress);
     if (addresses.indexOf(req.remoteAddress) === -1 || connectionArray.length === 0) {
@@ -73,9 +73,18 @@ wsServer.on('request', function (req) {
       // Do something with the connection
       connection.on('message', function(msg) {
         if (msg.type === 'utf8') {
-        	if(msg.utf8Data === "transform") {
-            console.log("Sending transformation request");
-            gameSocket.send("transform");
+          var temp = msg.utf8Data.split(' ');
+
+          // If first slot has value "N", send name
+          if (temp[0] === "N") {
+            console.log("Sending name: " + temp);
+            gameSocket.send("N " + temp[1]);
+          }
+          // If first slot has value "C", send rotation data
+          else if (temp[0] === "C") {
+            // Send rotation data from the user's mobile device to game
+            console.log(`(Rotation data) ${msg.utf8Data}`)
+            gameSocket.send("C " + temp[1]);
           }
         }
       });

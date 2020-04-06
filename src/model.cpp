@@ -113,7 +113,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
         aiString str;
         mat->GetTexture(type, i, &str);
         Texture texture;
-        texture.mId = Utility::TextureFromFile(str.C_Str(), mDirectory);
+        texture.mId = Utility::textureFromFile(str.C_Str(), mDirectory);
         texture.mType = typeName;
         texture.mPath = mDirectory + "/" + str.C_Str();
         textures.push_back(texture);

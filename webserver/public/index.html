@@ -11,17 +11,17 @@
 
 <body onload="initialize()">
 
-  <!-- <div id="welcomeScreen" class="screen">
+  <div id="welcomeScreen" class="screen">
     <div class="row centered">
       <h1>Welcome</h1>
     </div>
     <div class="row">
       <div class="col">
         <input type="text" id="lname" name="lname" placeholder="Enter your name..." oninput="handleTextInputChange()">
-        <button id="connect" class="disabled" disabled="true">Connect</button>
+        <button id="connect" class="disabled" disabled="true" onclick="sendName()">Connect</button>
       </div>
     </div>
-    Add connection to get name in input, in initialize() function
+    <!-- Add connection to get name in input, in initialize() function -->
     <div id="debug-output">Debug info</div>
   </div>
 
@@ -38,14 +38,14 @@
     <div class="col centered">
       <p>Waiting page information....</p>
     </div>
-  </div> -->
+  </div>
 
   <div class="screen centered" id="gameRunningScreen">
     <div class="row centered">
       <p>Score: <span id="currentScore">100</span></p>
       <!-- <div id="steeringInstruction">
         Animation or similar graphic to show steering controls
-        <p>Tilt to steer</p>         
+        <p>Tilt to steer</p>
       </div>
       <button>Hold to swim</button> -->
     </div>

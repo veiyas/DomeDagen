@@ -18,5 +18,7 @@ public:
 	//Render
 	void render() const;
 
+	void setSpeed(float speed) override {  };
+
 private:
 };

@@ -1,17 +1,17 @@
 #include "game.hpp"
+#include <sgct/engine.h>
 
 
 //Define instance
 Game* Game::mInstance = nullptr;
-std::map<std::string, Model> Game::mModels;
+unsigned int Game::mUniqueId = 0;
 
 Game::Game()
-	: mMvp{ glm::mat4{1.f} }
+	: mMvp{ glm::mat4{1.f} }, mLastFrameTime{ -1 }
 {
 	//Loads all models and shaders into pool
 	for (const std::string& modelName : allModelNames)
 		loadModel(modelName);
-
 	for (const std::string& shaderName : allShaderNames)
 		loadShader(shaderName);
 }
@@ -33,7 +33,8 @@ Game& Game::getInstance()
 
 void Game::destroy()
 {
-	delete mInstance;
+	if(mInstance->instanceExists())
+		delete mInstance;
 }
 
 void Game::printShaderPrograms() const
@@ -49,11 +50,12 @@ void Game::printShaderPrograms() const
 void Game::printModelNames() const
 {
 	std::string output = "Loaded models:";
-	for (const std::pair<std::string, Model>& p : mModels)
+
+	for (const std::pair<const std::string, Model>& p : mModels)
 	{
 		output += "\n       " + p.first;
 	}
-	sgct::Log::Info(output.c_str());
+	sgct::Log::Info("%s", output.c_str());
 }
 
 void Game::printLoadedAssets() const
@@ -63,23 +65,84 @@ void Game::printLoadedAssets() const
 }
 
 void Game::render() const
-{
-	//TODO This method needs some thoughts regarding renderable vs gameobject rendering
-	for (const Renderable* obj : mRenderObjects)
-	{		
-		obj->render();
-	}
-	for (const GameObject* obj : mInteractObjects)
+{	
+	//for (const std::unique_ptr<Renderable>& obj : mRenderObjects)
+	//{		
+	//	obj->render();
+	//}
+
+	for (auto& [id, obj] : mInteractObjects)
 	{
 		obj->render();
 	}
 }
-void Game::addGameObject(GameObject* obj)
+void Game::addObject(std::shared_ptr<Renderable> obj)
 {
-	mInteractObjects.push_back(obj);
+	//TODO implement shared ptr functionality between mInteractObjects and mRenderObjects
+}
+void Game::addGameObject(std::unique_ptr<GameObject> obj)
+{
+	mInteractObjects.push_back(std::make_pair(mUniqueId++, std::move(obj)));
 }
 
-Model& Game::getModel(const std::string& nameKey)
+void Game::addRenderable(std::unique_ptr<Renderable> obj)
+{
+	mRenderObjects.push_back(std::move(obj));
+}
+
+void Game::update()
+{
+	if (mLastFrameTime == -1) //First update?
+	{
+		mLastFrameTime = static_cast<float>(sgct::Engine::getTime());
+		return;
+	}
+
+	float currentFrameTime = static_cast<float>(sgct::Engine::getTime());
+	float deltaTime = currentFrameTime - mLastFrameTime;
+
+	for (auto& [id, obj] : mInteractObjects)
+	{
+		obj->update(deltaTime);
+	}
+
+	//TODO check for collisions
+
+	mLastFrameTime = currentFrameTime;
+}
+
+std::vector<std::byte> Game::getEncodedPositionData() const
+{
+	std::vector<PositionData> allPositionData(mInteractObjects.size());
+	for (auto& objPair : mInteractObjects)
+	{
+		allPositionData.push_back(objPair.second->getMovementData(objPair.first));
+	}
+
+	std::vector<std::byte> tempEncodedData;
+
+	sgct::serializeObject(tempEncodedData, allPositionData);
+
+	return tempEncodedData;
+}
+
+void Game::setDecodedPositionData(const std::vector<PositionData>& newState)
+{
+	for (const auto& newData : newState)
+	{
+		mInteractObjects[newData.mId].second->setMovementData(newData);
+	}
+}
+
+void Game::rotateAllGameObjects(float newOrientation)
+{
+	for (auto& [id, obj] : mInteractObjects)
+	{
+		obj->setOrientation(obj->getOrientation() + newOrientation);
+	}
+}
+
+const Model& Game::getModel(const std::string& nameKey)
 {
 	return mModels[nameKey];
 }
@@ -94,8 +157,7 @@ void Game::loadShader(const std::string& shaderName)
 {
 	//Define path and strings to hold shaders
 	std::string path = Utility::findRootDir() + "/src/shaders/" + shaderName;
-	std::string vert = "";
-	std::string frag = "";
+	std::string vert, frag;
 
 	//Open streams to shader files
 	std::ifstream in_vert{ path + "vert.glsl" };
@@ -108,7 +170,7 @@ void Game::loadShader(const std::string& shaderName)
 	}
 	else
 	{
-		std::cout << "ERROR OPENING SHADER FILE: " + shaderName;
+		sgct::Log::Error("ERROR OPENING SHADER FILE: %s", shaderName.c_str());
 	}
 	in_vert.close(); in_frag.close();
 

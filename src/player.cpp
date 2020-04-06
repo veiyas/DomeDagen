@@ -1,9 +1,13 @@
 #include "player.hpp"
+#include<glm/common.hpp>
+#include<glm/gtx/string_cast.hpp>
+#include<iostream>
 
-Player::Player( const std::string & objectModelName, float radius,
+Player::Player(const std::string & objectModelName, float radius,
 	           const glm::quat & position, float orientation, const std::string & name)
-	: GameObject{ GameObject::PLAYER, radius, position, orientation }, GeometryHandler("player", objectModelName),
-	  mName { name }, mPoints{ 0 }, mIsAlive{ true }
+	: GameObject{ GameObject::PLAYER, radius, position, orientation },
+	  GeometryHandler("player", objectModelName),
+	  mName { name }, mPoints{ 0 }, mIsAlive{ true }, mSpeed{ 0.0 }
 {
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
 
@@ -22,15 +26,16 @@ Player::~Player()
 
 void Player::update(float deltaTime)
 {
-	//glm::vec3 rotationAxis = glm::dot(tangent, normal);
+	glm::quat newPos = getPosition();
+	newPos *= glm::quat(
+		mSpeed * deltaTime * glm::vec3(cos(getOrientation()), sin(getOrientation()), 0.f)
+	);
 
+	setPosition(glm::normalize(newPos)); //Normalize might not be necessary?
 
-	//glm::quat change;
+	//TODO Constrain to visible area
 
-	//glm::quat newPosition = change * getPosition() * glm::inverse(change);
-
-	//setPosition(newPosition);
-	//GameObject::update(deltaTime);
+	//sgct::Log::Info("Updated");
 }
 
 void Player::render() const
