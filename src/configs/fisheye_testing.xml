@@ -3,8 +3,9 @@
   <Node address="localhost" port="20401">
     <Window fullScreen="false">
       <Stereo type="none" />
+      <Pos x="900" y="30"/>
       <!-- 16:9 aspect ratio -->
-      <Size x="1300" y="1300" />
+      <Size x="1000" y="1000" />
       <!-- Frame buffer resolution
 			<Res x="4096" y="4096" /> -->
       <!--

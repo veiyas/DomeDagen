@@ -25,6 +25,9 @@ namespace {
 	//Container for deserialized game state info
 	std::vector<PositionData> states{ 0 };
 
+	//TEMPORARY used to control rotation of all players 
+	float updatedRotation{ 0 };
+
 } // namespace
 
 using namespace sgct;
@@ -137,10 +140,10 @@ void initOGL(GLFWwindow*) {
 	//Game::getInstance().addGameObject(temp1);
 	//Game::getInstance().addGameObject(temp2);
 
-	for (size_t i = 0; i < 20; i++)
+	for (size_t i = 0; i < 10; i++)
 	{
 		std::unique_ptr<GameObject> temp{ new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, -1.f + 0.05 * i)), 0.f, "Player " + std::to_string(i+1)) };
-		temp->setSpeed(1.f);
+		temp->setSpeed(0.2f);
 		Game::getInstance().addGameObject(std::move(temp));
 	}
 
@@ -179,6 +182,7 @@ void preSync() {
 		// This doesn't have to happen every frame, but why not?
 		wsHandler->tick();
 
+		Game::getInstance().rotateAllGameObjects(0.02 * updatedRotation);
 		//TODO implement gamelogic
 		Game::getInstance().update();
 	}
@@ -229,23 +233,25 @@ void connectionClosed() {
 
 void messageReceived(const void* data, size_t length) {
 	std::string_view msg = std::string_view(reinterpret_cast<const char*>(data), length);
-	Log::Info("Message received: %s", msg.data());
+	//Log::Info("Message received: %s", msg.data());
 
-    std::string temp = msg.data();
+	std::string temp = msg.data();
 
-    std::istringstream iss(temp);
-    char msgType;
-    iss >> msgType;
+	std::istringstream iss(temp);
+	char msgType;
+	iss >> msgType;
 
-    // If first slot is 'N', a name has been sent
-    if (msgType == 'N') {
-        Log::Info("Name feedback");
-    }
-    
-    // If first slot is 'C', the rotation angle has been sent
-    if (msgType == 'C') {
-        Log::Info("Controller feedback");
-        int rotAngle;
-        iss >> rotAngle;
-    }
+	// If first slot is 'N', a name has been sent
+	if (msgType == 'N') {
+		//Log::Info("Name feedback");
+	}
+	
+	// If first slot is 'C', the rotation angle has been sent
+	if (msgType == 'C') {
+		//Log::Info("Controller feedback");
+		float rotAngle;
+		iss >> rotAngle;
+
+		updatedRotation = rotAngle;
+	}
 }

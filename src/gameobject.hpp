@@ -83,7 +83,7 @@ public:
 	void setScale(float scale) { mScale = scale; }
 	void setPosition(const glm::quat position) { mPosition = position; }
 	void setOrientation(float orientation) { mOrientation = orientation; }
-	virtual void setSpeed(float speed) = 0;
+	virtual void setSpeed(float speed) = 0; // this is very much a hack, and it would probably be better to 
 	//TODO setSpeed in here probably
 
 private:
