@@ -1,7 +1,7 @@
 // joystick.js
 // Handles joystick-like input for character controls on a mobile device
 // This is a back-up solution to the device orientation controls idea
-// Excuse the somewhat messy code for now 
+// Excuse the somewhat messy code for now
 
 // Coordinates of inital touch
 var x0, y0;
@@ -50,8 +50,12 @@ function handleTouchMove(event) {
 
     // Calculate angle to send via socket,
     // might be interesting to calculate and send distance too
-    // TODO: Send data via socket
+    var rotAngle = Math.atan2(yDiff, xDiff);
     console.log(Math.atan2(yDiff, xDiff));
+
+    if(connected && socket.readyState === WebSocket.OPEN) {
+      socket.send(`C ${rotAngle}`)
+    }
 }
 
 function handleTouchEnd(event) {

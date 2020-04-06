@@ -1,4 +1,4 @@
-const serverAddress = 'ws://127.0.0.1/';
+const serverAddress = 'ws://192.168.10.207:81/';
 var socket;
 var screens = new Map();
 
@@ -8,24 +8,24 @@ function log(msg) {
 }
 
 // Set up everything the front-end application needs.
-// Called on load for <body>. 
+// Called on load for <body>.
 function initialize() {
-  // socket = new WebSocket(serverAddress);
-  // socket.onopen = function(event) {
-  //   log('Connection is opened');
-  // };
+  socket = new WebSocket(serverAddress);
+  socket.onopen = function(event) {
+    log('Connection is opened');
+  };
 
-  // socket.onerror = function (err) {
-  //   log(`Error: ${err}`);
-  // }
+  socket.onerror = function (err) {
+    log(`Error: ${err}`);
+  }
 
-  // socket.onclose = function() {
-  //   log('Connection is closed');
-  // }
+  socket.onclose = function() {
+    log('Connection is closed');
+  }
 
-  // socket.onmessage = function() {
-  //   log(event.data);
-  // }
+  socket.onmessage = function() {
+    log(event.data);
+  }
 
   // Push all screens into a map of [screen ID, screen]
   document.querySelectorAll('.screen').forEach(screen => {
@@ -34,7 +34,10 @@ function initialize() {
 
   // Set up event listeners
   var connectButton = document.querySelector('#connect');
-  //connectButton.addEventListener('click', () => setCurrentScreen('waitingScreen'))
+  connectButton.addEventListener('click', () => {
+    connected = true; // Mock connection state, should probably be handled in conjunction with the back-end
+    setCurrentScreen('gameRunningScreen')
+  })
 }
 
 // Set the currently visible screen to the matching screenID argument.
@@ -52,12 +55,19 @@ function setCurrentScreen(screenID) {
   }
 }
 
+// Send name-value to server
+function sendName() {
+  name = document.getElementById("lname").value.trim();
+  if (socket.readyState === WebSocket.OPEN)
+    socket.send(`N ${name}`);
+}
+
 // Enable the connect button if and only if the user has entered something
 // into the input form.
 function handleTextInputChange() {
   var connectButton = document.querySelector('#connect');
   var inputTextForm = document.querySelector('#lname');
-  
+
   if (inputTextForm.value === '') {
     connectButton.disabled = true;
     connectButton.classList.add('disabled');

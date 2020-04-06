@@ -16,6 +16,8 @@
 #include <iostream>
 #include <filesystem>
 #include <fstream>
+#include <sstream>
+
 
 namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
@@ -229,10 +231,21 @@ void messageReceived(const void* data, size_t length) {
 	std::string_view msg = std::string_view(reinterpret_cast<const char*>(data), length);
 	Log::Info("Message received: %s", msg.data());
 
-	//Feedback testing with ugly matrix handling
-	std::string temp = msg.data();
-	if (temp == "transform")
-	{
-		Log::Info("Transformation feedback");
-	}
+    std::string temp = msg.data();
+
+    std::istringstream iss(temp);
+    char msgType;
+    iss >> msgType;
+
+    // If first slot is 'N', a name has been sent
+    if (msgType == 'N') {
+        Log::Info("Name feedback");
+    }
+    
+    // If first slot is 'C', the rotation angle has been sent
+    if (msgType == 'C') {
+        Log::Info("Controller feedback");
+        int rotAngle;
+        iss >> rotAngle;
+    }
 }
