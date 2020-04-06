@@ -1,4 +1,4 @@
-const serverAddress = 'ws://192.168.10.207:81/';
+const serverAddress = 'ws://192.168.1.45:81/';
 var socket;
 var screens = new Map();
 
