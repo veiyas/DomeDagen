@@ -204,7 +204,6 @@ void decode(const std::vector<std::byte>& data, unsigned int pos) {
 
 	//Decode position data into states vector
 	deserializeObject(data, pos, states);
-	auto e = 2;
 }
 
 void cleanup() {
@@ -250,31 +249,20 @@ void messageReceived(const void* data, size_t length) {
 	char msgType;
 	iss >> msgType;
 
-<<<<<<< HEAD
-    // If first slot is 'N', a name and unique ID has been sent
-    if (message._Starts_with("N") && Engine::instance().isMaster()) {
-        Log::Info("Player connected: %s", message.c_str());
-=======
 	// If first slot is 'N', a name and unique ID has been sent
 	if (message._Starts_with("N")) {
 		Log::Info("Player connected: %s", message.c_str());
->>>>>>> 01eaef249375f21edf5dd7f60492efa1a65b139d
 		std::string playerName;
 		unsigned int playerId;
 		std::tie(playerId, playerName) = Utility::getNewPlayerData(message);
 
 		std::unique_ptr<GameObject> tempPlayer{
-<<<<<<< HEAD
-			new Player("fish", 50.f, glm::quat(glm::vec3(rng(gen), 0.f, rng(gen))), 0.f, playerName) };
-		tempPlayer->setSpeed(0.5f);
-=======
-			new Player("fish", 50.f, glm::quat(glm::vec3(rng(gen), 0.f, rng(gen))), 0.f, playerName, 0.1f) };
->>>>>>> 01eaef249375f21edf5dd7f60492efa1a65b139d
-		Game::getInstance().addGameObject(std::move(tempPlayer), playerId);
+			new Player("fish", 50.f, glm::quat(glm::vec3(rng(gen), 0.f, rng(gen))), 0.f, playerName, 0.f) };
+		Game::getInstance().addGameObject(std::move(tempPlayer), playerId);		
 	}
 	
 	// If first slot is 'C', the rotation angle has been sent
-	if (message._Starts_with("C")) {
+	if(message._Starts_with("C")) {
 		Log::Info("Controller feedback");
 		float rotAngle;
 		iss >> rotAngle;

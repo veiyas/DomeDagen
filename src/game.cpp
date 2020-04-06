@@ -136,8 +136,6 @@ std::vector<std::byte> Game::getEncodedPositionData() const
 		std::vector<std::byte> tempEncodedData;
 
 		sgct::serializeObject(tempEncodedData, allPositionData);
-
-		std::cout << allPositionData.size() << "\n";
 		allPositionData.clear();
 
 		return tempEncodedData;
@@ -149,7 +147,6 @@ void Game::setDecodedPositionData(const std::vector<PositionData>& newState)
 	//TODO find out why newState has one too many slots
 	if (!sgct::Engine::instance().isMaster())
 	{
-		std::cout << "obj size: " << mInteractObjects.size() << ", newState size: " << newState.size() << "\n";
 		for (const auto& newData : newState)
 		{			
 			//If the object doesn't exist on this node yet
@@ -159,7 +156,7 @@ void Game::setDecodedPositionData(const std::vector<PositionData>& newState)
 				//TODO fix this ugly shit
 				while (mInteractObjects.size() != newState.size())
 				{
-					auto tempPlayer = std::unique_ptr<GameObject>{ new Player("fish", 10.f, glm::quat(glm::vec3(2.f, 0.f, 0.f)), 0.f, "hejhej") };
+					auto tempPlayer = std::unique_ptr<GameObject>{ new Player("fish", 10.f, glm::quat(glm::vec3(2.f, 0.f, 0.f)), 0.f, "hejhej", 0.f) };
 					mInteractObjects.push_back(std::make_pair(mUniqueId++, std::move(tempPlayer)));
 				}
 				std::cout << "obj size: " << mInteractObjects.size() << ", newState size: " << newState.size() << "\n";
