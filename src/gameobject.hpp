@@ -82,7 +82,8 @@ public:
 	void setRadius(float radius) { mRadius = radius; }
 	void setScale(float scale) { mScale = scale; }
 	void setPosition(const glm::quat position) { mPosition = position; }
-	void setOrientation(float orientation) { mOrientation = orientation; } //overflow?
+	void setOrientation(float orientation) { mOrientation = orientation; }
+	virtual void setSpeed(float speed) = 0;
 	//TODO setSpeed in here probably
 
 private:

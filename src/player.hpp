@@ -39,7 +39,7 @@ public:
 	const std::string& getName() const { return mName; };
 
 	//Mutators
-	void setSpeed(float speed) { mSpeed = speed; };
+	void setSpeed(float speed) override { mSpeed = speed; };
 	void setPoints(int points) { mPoints = points; };
 	void setIsAlive(bool isAlive) { mIsAlive = isAlive; };
 

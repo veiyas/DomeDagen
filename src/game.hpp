@@ -62,11 +62,14 @@ public:
 	//Set MVP matrix
 	void setMVP(const glm::mat4& mvp) { mMvp = mvp;};
 
+	//Add object in general
+	void addObject(std::shared_ptr<Renderable> obj);
+
 	//Add object to mInteractObjects
 	void addGameObject(std::unique_ptr<GameObject> obj);
 
 	//Add object to mRenderObjects
-	void addRenderable(Renderable* obj);
+	void addRenderable(std::unique_ptr<Renderable> obj);
 
 	//Update all gameobjects
 	void update();
@@ -84,7 +87,7 @@ public:
 	void rotateAllGameObjects(float newOrientation);
 
 	//Accessors
-	Model& getModel(const std::string& nameKey);
+	const Model& getModel(const std::string& nameKey);
 	glm::mat4& getMVP() { return mMvp; };
 
 private:

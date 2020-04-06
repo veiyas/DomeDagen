@@ -65,30 +65,34 @@ void Game::printLoadedAssets() const
 }
 
 void Game::render() const
-{
-	for (const std::unique_ptr<Renderable>& obj : mRenderObjects)
-	{		
-		obj->render();
-	}
+{	
+	//for (const std::unique_ptr<Renderable>& obj : mRenderObjects)
+	//{		
+	//	obj->render();
+	//}
 
 	for (auto& [id, obj] : mInteractObjects)
 	{
 		obj->render();
 	}
 }
+void Game::addObject(std::shared_ptr<Renderable> obj)
+{
+	//TODO implement shared ptr functionality between mInteractObjects and mRenderObjects
+}
 void Game::addGameObject(std::unique_ptr<GameObject> obj)
 {
 	mInteractObjects.push_back(std::make_pair(mUniqueId++, std::move(obj)));
 }
 
-void Game::addRenderable(Renderable* obj)
+void Game::addRenderable(std::unique_ptr<Renderable> obj)
 {
-	mRenderObjects.push_back(std::unique_ptr<Renderable>(std::move(obj)));
+	mRenderObjects.push_back(std::move(obj));
 }
 
 void Game::update()
 {
-	if (mLastFrameTime < 0) //First update?
+	if (mLastFrameTime == -1) //First update?
 	{
 		mLastFrameTime = static_cast<float>(sgct::Engine::getTime());
 		return;
@@ -109,7 +113,7 @@ void Game::update()
 
 std::vector<std::byte> Game::getEncodedPositionData() const
 {
-	std::vector<PositionData> allPositionData;
+	std::vector<PositionData> allPositionData(mInteractObjects.size());
 	for (auto& objPair : mInteractObjects)
 	{
 		allPositionData.push_back(objPair.second->getMovementData(objPair.first));
@@ -138,7 +142,7 @@ void Game::rotateAllGameObjects(float newOrientation)
 	}
 }
 
-Model& Game::getModel(const std::string& nameKey)
+const Model& Game::getModel(const std::string& nameKey)
 {
 	return mModels[nameKey];
 }
@@ -166,7 +170,7 @@ void Game::loadShader(const std::string& shaderName)
 	}
 	else
 	{
-		sgct::Log::Error("%s", std::string{ "ERROR OPENING SHADER FILE: " + shaderName }.c_str());
+		sgct::Log::Error("ERROR OPENING SHADER FILE: %s", shaderName.c_str());
 	}
 	in_vert.close(); in_frag.close();
 

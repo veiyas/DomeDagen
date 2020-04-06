@@ -18,7 +18,7 @@
 #include <fstream>
 
 namespace {
-    std::unique_ptr<WebSocketHandler> wsHandler;
+	std::unique_ptr<WebSocketHandler> wsHandler;
 
 	//Container for deserialized game state info
 	std::vector<PositionData> states{ 0 };
@@ -54,8 +54,8 @@ const std::string rootDir = Utility::findRootDir();
 			MAIN
 *****************************/
 int main(int argc, char** argv) {
-    std::vector<std::string> arg(argv + 1, argv + argc);
-    Configuration config = sgct::parseArguments(arg);
+	std::vector<std::string> arg(argv + 1, argv + argc);
+	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
 	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
@@ -63,49 +63,49 @@ int main(int argc, char** argv) {
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
 	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
 
-    config::Cluster cluster = sgct::loadCluster(config.configFilename);
+	config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
 	//Provide functions to engine handles
-    Engine::Callbacks callbacks;
-    callbacks.initOpenGL = initOGL;
-    callbacks.preSync = preSync;
-    callbacks.encode = encode;
-    callbacks.decode = decode;
-    callbacks.postSyncPreDraw = postSyncPreDraw;
-    callbacks.draw = draw;
-    callbacks.cleanup = cleanup;
+	Engine::Callbacks callbacks;
+	callbacks.initOpenGL = initOGL;
+	callbacks.preSync = preSync;
+	callbacks.encode = encode;
+	callbacks.decode = decode;
+	callbacks.postSyncPreDraw = postSyncPreDraw;
+	callbacks.draw = draw;
+	callbacks.cleanup = cleanup;
 	callbacks.keyboard = keyboard;
 
 	//Initialize engine
-    try {
-        Engine::create(cluster, callbacks, config);
-    }
-    catch (const std::runtime_error & e) {
-        Log::Error("%s", e.what());
-        Engine::destroy();
-        return EXIT_FAILURE;
-    }
+	try {
+		Engine::create(cluster, callbacks, config);
+	}
+	catch (const std::runtime_error & e) {
+		Log::Error("%s", e.what());
+		Engine::destroy();
+		return EXIT_FAILURE;
+	}
 
-    if (Engine::instance().isMaster()) {
-        wsHandler = std::make_unique<WebSocketHandler>(
-            "localhost",
-            81,
-            connectionEstablished,
-            connectionClosed,
-            messageReceived
-        );
-        constexpr const int MessageSize = 1024;
-        wsHandler->connect("example-protocol", MessageSize);
-    }	
+	if (Engine::instance().isMaster()) {
+		wsHandler = std::make_unique<WebSocketHandler>(
+			"localhost",
+			81,
+			connectionEstablished,
+			connectionClosed,
+			messageReceived
+		);
+		constexpr const int MessageSize = 1024;
+		wsHandler->connect("example-protocol", MessageSize);
+	}	
 	/**********************************/
 	/*			 Test Area			  */
 	/**********************************/
 
-    Engine::instance().render();
+	Engine::instance().render();
 
 	//Game::destroy();
-    Engine::destroy();
-    return EXIT_SUCCESS;
+	Engine::destroy();
+	return EXIT_SUCCESS;
 }
 
 void draw(const RenderData& data) {
@@ -136,9 +136,8 @@ void initOGL(GLFWwindow*) {
 
 	for (size_t i = 0; i < 20; i++)
 	{
-		std::unique_ptr<GameObject> temp{ new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, -1.f + 0.05 * i)), 0.f, "hejhej") };
-		//Perhaps setSpeed in GameObject would fit better?
-		//temp->setSpeed(0.3f);
+		std::unique_ptr<GameObject> temp{ new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, -1.f + 0.05 * i)), 0.f, "Player " + std::to_string(i+1)) };
+		temp->setSpeed(1.f);
 		Game::getInstance().addGameObject(std::move(temp));
 	}
 }
