@@ -60,10 +60,10 @@ int main(int argc, char** argv) {
 	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
-	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
-	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
+	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
 
 	config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
@@ -137,12 +137,12 @@ void initOGL(GLFWwindow*) {
 	//Game::getInstance().addGameObject(temp1);
 	//Game::getInstance().addGameObject(temp2);
 
-	for (size_t i = 0; i < 20; i++)
-	{
-		std::unique_ptr<GameObject> temp{ new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, -1.f + 0.05 * i)), 0.f, "Player " + std::to_string(i+1)) };
-		temp->setSpeed(1.f);
-		Game::getInstance().addGameObject(std::move(temp));
-	}
+	//for (size_t i = 0; i < 20; i++)
+	//{
+	//	std::unique_ptr<GameObject> temp{ new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, -1.f + 0.05 * i)), 0.f, "Player " + std::to_string(i+1)) };
+	//	temp->setSpeed(1.f);
+	//	Game::getInstance().addGameObject(std::move(temp));
+	//}
 
 }
 
@@ -231,19 +231,31 @@ void messageReceived(const void* data, size_t length) {
 	std::string_view msg = std::string_view(reinterpret_cast<const char*>(data), length);
 	Log::Info("Message received: %s", msg.data());
 
-    std::string temp = msg.data();
+    std::string message = msg.data();
 
-    std::istringstream iss(temp);
+	//Ignore the "remote connection from <ip>" message
+	if (message._Starts_with("R")) {
+		return;
+	}
+
+    std::istringstream iss(message);
     char msgType;
     iss >> msgType;
 
-    // If first slot is 'N', a name has been sent
-    if (msgType == 'N') {
-        Log::Info("Name feedback");
+    // If first slot is 'N', a name and unique ID has been sent
+    if (message._Starts_with("N")) {
+        Log::Info("Player connected: %s", message.c_str());
+		std::string playerName;
+		unsigned int playerId;
+		std::tie(playerId, playerName) = Utility::getNewPlayerData(message);
+
+		std::unique_ptr<GameObject> tempPlayer{
+			new Player("fish", 50.f, glm::quat(glm::vec3(1.f, 0.f, -1.f)), 0.f, playerName) };
+		Game::getInstance().addGameObject(std::move(tempPlayer), playerId);
     }
     
     // If first slot is 'C', the rotation angle has been sent
-    if (msgType == 'C') {
+    if (message._Starts_with("C")) {
         Log::Info("Controller feedback");
         int rotAngle;
         iss >> rotAngle;

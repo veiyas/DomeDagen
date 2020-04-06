@@ -3,12 +3,12 @@
 #include <string>
 #include <filesystem>
 #include <iostream>
+#include <tuple>
+
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <stb_image.h>
-
-
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -29,6 +29,14 @@ public:
 		}
 		return "";
 	}
+
+	static std::tuple<unsigned, std::string> getNewPlayerData(std::string input)
+	{
+		std::string name = input.substr(input.find(" ") + 1, input.find("|") - 2);
+		unsigned id = std::stoi(input.substr(input.find("|") + 1, input.find("|") + 2));
+		return std::make_tuple(id, name);
+	}
+
 	static unsigned int textureFromFile(const char* path, const std::string& directory, bool gamma = false)
 	{
 		std::string filename = std::string(path);

@@ -1,5 +1,4 @@
-#ifndef PLAYER_H_
-#define PLAYER_H_
+#pragma once
 
 #include <string>
 #include <iostream>
@@ -8,7 +7,6 @@
 
 #include "gameobject.hpp"
 #include "geometryhandler.hpp"
-
 
 class Player : public GameObject, private GeometryHandler
 {
@@ -50,5 +48,3 @@ private:
 	float mSpeed;
 	const std::string mName;
 };
-
-#endif

@@ -85,6 +85,11 @@ void Game::addGameObject(std::unique_ptr<GameObject> obj)
 	mInteractObjects.push_back(std::make_pair(mUniqueId++, std::move(obj)));
 }
 
+void Game::addGameObject(std::unique_ptr<GameObject> obj, unsigned id)
+{
+	mInteractObjects.push_back(std::make_pair(id, std::move(obj)));
+}
+
 void Game::addRenderable(std::unique_ptr<Renderable> obj)
 {
 	mRenderObjects.push_back(std::move(obj));

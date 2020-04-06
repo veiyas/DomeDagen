@@ -7,7 +7,7 @@
 #include <map>
 #include <memory>
 #include <utility>
-#include <mutex>
+#include <tuple>
 
 #include "sgct/mutexes.h"
 #include "sgct/shareddata.h"
@@ -67,6 +67,9 @@ public:
 
 	//Add object to mInteractObjects
 	void addGameObject(std::unique_ptr<GameObject> obj);
+
+	//Add object to mInteractObjects with id
+	void addGameObject(std::unique_ptr<GameObject> obj, unsigned id);
 
 	//Add object to mRenderObjects
 	void addRenderable(std::unique_ptr<Renderable> obj);

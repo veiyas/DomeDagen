@@ -3,9 +3,8 @@
 
 #include "glm/gtc/type_ptr.hpp"
 
-#include "geometryhandler.hpp"
 #include "gameobject.hpp"
-
+#include "geometryhandler.hpp"
 
 //For movable non-interactible objects, e.g fish in background
 class SceneObject : public GameObject, private GeometryHandler

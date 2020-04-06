@@ -1,4 +1,4 @@
-const serverAddress = 'ws://192.168.10.207:81/';
+const serverAddress = 'ws://192.168.10.225:00081/';
 var socket;
 var screens = new Map();
 
@@ -55,11 +55,19 @@ function setCurrentScreen(screenID) {
   }
 }
 
+var uniqueIdInt = 0;
 // Send client's name to server
 function sendName() {
+  
   name = document.getElementById("lname").value.trim();
   if (socket.readyState === WebSocket.OPEN)
-    socket.send(`N ${name}`);
+  {
+    var stringToSend = `N ${name}` + "|" + uniqueIdInt;
+    console.log(stringToSend);
+    socket.send(stringToSend);
+    uniqueIdInt += 1;
+    console.log(uniqueIdInt);
+  }
 }
 
 // Enable the connect button if and only if the user has entered something
