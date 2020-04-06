@@ -55,18 +55,14 @@ function setCurrentScreen(screenID) {
   }
 }
 
-var uniqueIdInt = 0;
 // Send client's name to server
 function sendName() {
   
   name = document.getElementById("lname").value.trim();
   if (socket.readyState === WebSocket.OPEN)
-  {
-    var stringToSend = `N ${name}` + "|" + uniqueIdInt;
-    console.log(stringToSend);
+  {    
+    var stringToSend = `N ${name}`;;
     socket.send(stringToSend);
-    uniqueIdInt += 1;
-    console.log(uniqueIdInt);
   }
 }
 

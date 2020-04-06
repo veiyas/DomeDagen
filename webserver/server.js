@@ -11,6 +11,8 @@ const app = express();
 const server = require('http').Server(app);
 const WebSocketServer = require('websocket').server;
 
+global.uniqueId = 0;
+
 //
 //
 var config = JSON.parse(fs.readFileSync('config.json'));
@@ -78,7 +80,8 @@ wsServer.on('request', function (req) {
           // Testing if first slot has value "N", if so --> send name
           if (temp[0] === "N") {
             console.log("Sending name: " + temp);
-            gameSocket.send("N " + temp[1]);
+            gameSocket.send("N " + temp[1] + "|" + uniqueId);
+            uniqueId++;
           }
 
           // Testing if first slot has value "C", if so --> send rotation data

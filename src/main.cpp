@@ -1,6 +1,14 @@
 //
 //  Main.cpp provided under CC0 license
 //
+#include <memory>
+#include <string>
+#include <vector>
+#include <iostream>
+#include <filesystem>
+#include <fstream>
+#include <sstream>
+#include <random>
 
 #include "sgct/sgct.h"
 
@@ -10,20 +18,16 @@
 #include "sceneobject.hpp"
 #include "player.hpp"
 
-#include <memory>
-#include <string>
-#include <vector>
-#include <iostream>
-#include <filesystem>
-#include <fstream>
-#include <sstream>
-
-
 namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
 
 	//Container for deserialized game state info
 	std::vector<PositionData> states{ 0 };
+
+	//RNG stuff
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> rng(-1.0f, 1.0f);
 
 } // namespace
 
@@ -223,8 +227,6 @@ void connectionEstablished() {
 
 void connectionClosed() {
 	Log::Info("Connection closed");
-
-
 }
 
 void messageReceived(const void* data, size_t length) {
@@ -250,7 +252,7 @@ void messageReceived(const void* data, size_t length) {
 		std::tie(playerId, playerName) = Utility::getNewPlayerData(message);
 
 		std::unique_ptr<GameObject> tempPlayer{
-			new Player("fish", 50.f, glm::quat(glm::vec3(1.f, 0.f, -1.f)), 0.f, playerName) };
+			new Player("fish", 50.f, glm::quat(glm::vec3(rng(gen), 0.f, rng(gen))), 0.f, playerName) };
 		Game::getInstance().addGameObject(std::move(tempPlayer), playerId);
     }
     

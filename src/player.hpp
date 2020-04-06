@@ -2,6 +2,7 @@
 
 #include <string>
 #include <iostream>
+#include <tuple>
 
 #include "sgct/log.h"
 
