@@ -1,4 +1,5 @@
 #include "game.hpp"
+#include "player.hpp"
 #include <sgct/engine.h>
 
 
@@ -82,17 +83,23 @@ void Game::addObject(std::shared_ptr<Renderable> obj)
 }
 void Game::addGameObject(std::unique_ptr<GameObject> obj)
 {
-	mInteractObjects.push_back(std::make_pair(mUniqueId++, std::move(obj)));
+	if (sgct::Engine::instance().isMaster())
+		mInteractObjects.push_back(std::make_pair(mUniqueId++, std::move(obj)));
 }
 
 void Game::addGameObject(std::unique_ptr<GameObject> obj, unsigned id)
 {
-	mInteractObjects.push_back(std::make_pair(id, std::move(obj)));
+	if (sgct::Engine::instance().isMaster())
+	{
+		mInteractObjects.push_back(std::make_pair(id, std::move(obj)));
+		mUniqueId++;
+	}
 }
 
 void Game::addRenderable(std::unique_ptr<Renderable> obj)
 {
-	mRenderObjects.push_back(std::move(obj));
+	if (sgct::Engine::instance().isMaster())
+		mRenderObjects.push_back(std::move(obj));
 }
 
 void Game::update()
@@ -118,24 +125,47 @@ void Game::update()
 
 std::vector<std::byte> Game::getEncodedPositionData() const
 {
-	std::vector<PositionData> allPositionData(mInteractObjects.size());
-	for (auto& objPair : mInteractObjects)
+	if (sgct::Engine::instance().isMaster())
 	{
-		allPositionData.push_back(objPair.second->getMovementData(objPair.first));
+		std::vector<PositionData> allPositionData(mInteractObjects.size());
+		for (size_t i = 0; i < mInteractObjects.size(); i++)
+		{
+			allPositionData[i] = mInteractObjects[i].second->getMovementData(mInteractObjects[i].first);
+		}
+
+		std::vector<std::byte> tempEncodedData;
+
+		sgct::serializeObject(tempEncodedData, allPositionData);
+
+		std::cout << allPositionData.size() << "\n";
+		allPositionData.clear();
+
+		return tempEncodedData;
 	}
-
-	std::vector<std::byte> tempEncodedData;
-
-	sgct::serializeObject(tempEncodedData, allPositionData);
-
-	return tempEncodedData;
 }
 
 void Game::setDecodedPositionData(const std::vector<PositionData>& newState)
 {
-	for (const auto& newData : newState)
+	//TODO find out why newState has one too many slots
+	if (!sgct::Engine::instance().isMaster())
 	{
-		mInteractObjects[newData.mId].second->setMovementData(newData);
+		std::cout << "obj size: " << mInteractObjects.size() << ", newState size: " << newState.size() << "\n";
+		for (const auto& newData : newState)
+		{			
+			//If the object doesn't exist on this node yet
+			if (newState.size() != mInteractObjects.size() && !sgct::Engine::instance().isMaster())
+			{
+				//UGLY SOLUTION, create temp objects to update afterwards
+				//TODO fix this ugly shit
+				while (mInteractObjects.size() != newState.size())
+				{
+					auto tempPlayer = std::unique_ptr<GameObject>{ new Player("fish", 10.f, glm::quat(glm::vec3(2.f, 0.f, 0.f)), 0.f, "hejhej") };
+					mInteractObjects.push_back(std::make_pair(mUniqueId++, std::move(tempPlayer)));
+				}
+				std::cout << "obj size: " << mInteractObjects.size() << ", newState size: " << newState.size() << "\n";
+			}
+			mInteractObjects[newData.mId].second->setMovementData(newData);
+		}
 	}
 }
 

@@ -22,7 +22,7 @@ namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
 
 	//Container for deserialized game state info
-	std::vector<PositionData> states{ 0 };
+	std::vector<PositionData> states;
 
 	//RNG stuff
 	std::random_device rd;
@@ -64,10 +64,10 @@ int main(int argc, char** argv) {
 	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
-	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
-	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
+	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
 
 	config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
@@ -141,13 +141,12 @@ void initOGL(GLFWwindow*) {
 	//Game::getInstance().addGameObject(temp1);
 	//Game::getInstance().addGameObject(temp2);
 
-	//for (size_t i = 0; i < 20; i++)
+	//for (size_t i = 0; i < 5; i++)
 	//{
-	//	std::unique_ptr<GameObject> temp{ new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, -1.f + 0.05 * i)), 0.f, "Player " + std::to_string(i+1)) };
+	//	std::unique_ptr<GameObject> temp{ new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, 0.f + 0.05*i)), 0.f, "hejhej") };
 	//	temp->setSpeed(1.f);
 	//	Game::getInstance().addGameObject(std::move(temp));
 	//}
-
 }
 
 void keyboard(Key key, Modifier modifier, Action action, int)
@@ -199,6 +198,7 @@ void decode(const std::vector<std::byte>& data, unsigned int pos) {
 
 	//Decode position data into states vector
 	deserializeObject(data, pos, states);
+	auto e = 2;
 }
 
 void cleanup() {
@@ -245,7 +245,7 @@ void messageReceived(const void* data, size_t length) {
     iss >> msgType;
 
     // If first slot is 'N', a name and unique ID has been sent
-    if (message._Starts_with("N")) {
+    if (message._Starts_with("N") && Engine::instance().isMaster()) {
         Log::Info("Player connected: %s", message.c_str());
 		std::string playerName;
 		unsigned int playerId;
@@ -253,6 +253,7 @@ void messageReceived(const void* data, size_t length) {
 
 		std::unique_ptr<GameObject> tempPlayer{
 			new Player("fish", 50.f, glm::quat(glm::vec3(rng(gen), 0.f, rng(gen))), 0.f, playerName) };
+		tempPlayer->setSpeed(0.5f);
 		Game::getInstance().addGameObject(std::move(tempPlayer), playerId);
     }
     

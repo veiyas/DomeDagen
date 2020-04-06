@@ -13,7 +13,7 @@ class Player : public GameObject, private GeometryHandler
 {
 public:
 	//No default ctor
-	Player() = delete;
+	Player();
 
 	//Ctor + Dtor
 	Player(const std::string & objectModelName, float radius, 
