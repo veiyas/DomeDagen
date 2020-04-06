@@ -55,7 +55,7 @@ function setCurrentScreen(screenID) {
   }
 }
 
-// Send name-value to server
+// Send client's name to server
 function sendName() {
   name = document.getElementById("lname").value.trim();
   if (socket.readyState === WebSocket.OPEN)
@@ -75,10 +75,4 @@ function handleTextInputChange() {
     connectButton.disabled = false;
     connectButton.classList.remove('disabled');
   }
-}
-
-//Testing purposes to change transform matrix
-function message() {
-  if (socket)
-    socket.send("transform");
 }
