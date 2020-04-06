@@ -10,8 +10,8 @@
 #include "glad/glad.h"
 #include "utility.hpp"
 
-
-//This class was written with help of tutorial 
+//This class was written with help of tutorial
+//https://learnopengl.com/Model-Loading/Assimp
 class Model
 {
 public:

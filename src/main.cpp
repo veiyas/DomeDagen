@@ -128,6 +128,7 @@ void initOGL(GLFWwindow*) {
 	//Player* temp1 = new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, 0.f)), 0.f, "hejhej");
 	//Player* temp2 = new Player("fish", radius, glm::quat(glm::vec3(0.f, 0.f, 0.f)), 0.f, "hejhej");
 
+
 	//temp2->setSpeed(0.3f);
 	//temp2->setScale(20.f);
 
@@ -140,6 +141,7 @@ void initOGL(GLFWwindow*) {
 		temp->setSpeed(1.f);
 		Game::getInstance().addGameObject(std::move(temp));
 	}
+
 }
 
 void keyboard(Key key, Modifier modifier, Action action, int)

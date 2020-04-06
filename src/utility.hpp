@@ -9,6 +9,11 @@
 #include <stb_image.h>
 
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include <stb_image.h>
+
 class Utility
 {
 public:
@@ -64,5 +69,6 @@ public:
 		return textureID;
 	}
 
-
+        return textureID;
+    }
 };
