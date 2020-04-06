@@ -166,6 +166,18 @@ void Game::setDecodedPositionData(const std::vector<PositionData>& newState)
 	}
 }
 
+void Game::updateTurnSpeed(unsigned int id, float rotAngle)
+{
+	//Unsure if this is a good way of finding GameObject
+	//Looks kinda ugly and could probably be put in seperate method
+	auto it = std::find_if(mInteractObjects.begin(), mInteractObjects.end(),
+		[id](std::pair<unsigned int, std::unique_ptr<GameObject>>& pair)
+			{ return pair.first == id; });
+
+	(*it).second->setTurnSpeed(rotAngle);
+	
+}
+
 void Game::rotateAllGameObjects(float newOrientation)
 {
 	for (auto& [id, obj] : mInteractObjects)

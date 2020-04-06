@@ -34,6 +34,7 @@ public:
 
 	//Accessors
 	float getSpeed() const { return mSpeed; };
+	float getTurnSpeed() const { return mTurnSpeed; }
 	const int getPoints() const { return mPoints; };
 	const bool isAlive() const { return mIsAlive; };
 	const std::string& getName() const { return mName; };
@@ -42,11 +43,13 @@ public:
 	void setSpeed(float speed) override { mSpeed = speed; };
 	void setPoints(int points) { mPoints = points; };
 	void setIsAlive(bool isAlive) { mIsAlive = isAlive; };
+	void setTurnSpeed(float turnSpeed) override { mTurnSpeed = turnSpeed; };
 
 private:
 	//Player information/data
-	int mPoints;
-	bool mIsAlive;
+	float mTurnSpeed = 0.2;
+	int   mPoints;
+	bool  mIsAlive;
 	float mSpeed;
 	const std::string mName;
 };

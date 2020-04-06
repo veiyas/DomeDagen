@@ -12,6 +12,7 @@ const server = require('http').Server(app);
 const WebSocketServer = require('websocket').server;
 
 global.uniqueId = 0;
+global.playerList = new Map(); // {"ip", id}
 
 //
 //
@@ -80,6 +81,9 @@ wsServer.on('request', function (req) {
           // Testing if first slot has value "N", if so --> send name
           if (temp[0] === "N") {
             console.log("Sending name: " + temp);
+
+            playerList.set(req.remoteAddress, uniqueId);
+            console.log(playerList);
             gameSocket.send("N " + temp[1] + "|" + uniqueId);
             uniqueId++;
           }
@@ -87,8 +91,9 @@ wsServer.on('request', function (req) {
           // Testing if first slot has value "C", if so --> send rotation data
           else if (temp[0] === "C") {
             // Test sending some rotation data from the user's mobile device
-            console.log(`(Rotation data) ${msg.utf8Data}`)
-            gameSocket.send("C " + temp[1]);
+            const playerId = playerList.get(req.remoteAddress);
+            console.log(`(Rotation data) ${playerId} ${msg.utf8Data}`)
+            gameSocket.send(`C ${playerId} ${temp[1]}`);
           }
         }
       });

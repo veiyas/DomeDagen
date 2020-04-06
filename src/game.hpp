@@ -86,6 +86,9 @@ public:
 	//Set position data from inputted data
 	void setDecodedPositionData(const std::vector<PositionData>& newState);
 
+	//Set the turn speed of player player with id id
+	void updateTurnSpeed(unsigned int id, float rotAngle);
+
 	//DEBUGGING TOOL: apply orientation to all GameObjects
 	void rotateAllGameObjects(float newOrientation);
 
