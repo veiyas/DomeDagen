@@ -68,7 +68,4 @@ public:
 
 		return textureID;
 	}
-
-        return textureID;
-    }
 };
