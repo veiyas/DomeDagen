@@ -52,6 +52,7 @@ function handleTouchMove(event) {
     // might be interesting to calculate and send distance too
     // angle is in radians and 0 is up
     var rotAngle = Math.atan2(-xDiff, -yDiff);
+    rotAngle = Number(Math.round(rotAngle+'e2')+'e-2');
     console.log(rotAngle);
 
     if(connected && socket.readyState === WebSocket.OPEN) {

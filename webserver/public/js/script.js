@@ -57,9 +57,13 @@ function setCurrentScreen(screenID) {
 
 // Send client's name to server
 function sendName() {
+  
   name = document.getElementById("lname").value.trim();
   if (socket.readyState === WebSocket.OPEN)
-    socket.send(`N ${name}`);
+  {    
+    var stringToSend = `N ${name}`;;
+    socket.send(stringToSend);
+  }
 }
 
 // Enable the connect button if and only if the user has entered something

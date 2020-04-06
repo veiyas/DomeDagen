@@ -1,14 +1,13 @@
-#ifndef PLAYER_H_
-#define PLAYER_H_
+#pragma once
 
 #include <string>
 #include <iostream>
+#include <tuple>
 
 #include "sgct/log.h"
 
 #include "gameobject.hpp"
 #include "geometryhandler.hpp"
-
 
 class Player : public GameObject, private GeometryHandler
 {
@@ -18,7 +17,8 @@ public:
 
 	//Ctor + Dtor
 	Player(const std::string & objectModelName, float radius, 
-		   const glm::quat& position, float orientation, const std::string& name);
+		   const glm::quat& position, float orientation,
+		   const std::string& name, float speed);
 
 	~Player();
 
@@ -50,5 +50,3 @@ private:
 	float mSpeed;
 	const std::string mName;
 };
-
-#endif

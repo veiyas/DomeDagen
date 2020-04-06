@@ -5,16 +5,20 @@
 // @gunnarsdotter @Anondod @ylvaselling @SimonKallberg
 // When you see them, buy them a beer; they saved you about 2 weeks of work
 //
-
+const fs = require('fs');
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 const WebSocketServer = require('websocket').server;
 
+global.uniqueId = 0;
+
 //
 //
-const port = 81;
-const gameAddress = '::ffff:127.0.0.1';
+var config = JSON.parse(fs.readFileSync('config.json'));
+console.log(config.gameAddress);
+const port = config.serverPort;
+const gameAddress = config.gameAddress;
 
 app.use(express.static(__dirname + '/public'));
 
@@ -58,7 +62,7 @@ wsServer.on('request', function (req) {
     });
   }
   else {
-    console.log(`Other connection from ${req.remoteAddress}`);
+    console.log(`Other connection from ${req.remoteAddress}`);    
 
     const addresses = connectionArray.map(c => c.socket.remoteAddress);
     if (addresses.indexOf(req.remoteAddress) === -1 || connectionArray.length === 0) {
@@ -73,14 +77,16 @@ wsServer.on('request', function (req) {
         if (msg.type === 'utf8') {
           var temp = msg.utf8Data.split(' ');
 
-          // If first slot has value "N", send name
+          // Testing if first slot has value "N", if so --> send name
           if (temp[0] === "N") {
             console.log("Sending name: " + temp);
-            gameSocket.send("N " + temp[1]);
+            gameSocket.send("N " + temp[1] + "|" + uniqueId);
+            uniqueId++;
           }
-          // If first slot has value "C", send rotation data
+
+          // Testing if first slot has value "C", if so --> send rotation data
           else if (temp[0] === "C") {
-            // Send rotation data from the user's mobile device to game
+            // Test sending some rotation data from the user's mobile device
             console.log(`(Rotation data) ${msg.utf8Data}`)
             gameSocket.send("C " + temp[1]);
           }
