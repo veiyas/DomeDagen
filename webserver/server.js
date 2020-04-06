@@ -80,7 +80,7 @@ wsServer.on('request', function (req) {
             console.log("Sending name: " + temp);
             gameSocket.send("N " + temp[1]);
           }
-          
+
           // Testing if first slot has value "C", if so --> send rotation data
           else if (temp[0] === "C") {
             // Test sending some rotation data from the user's mobile device
