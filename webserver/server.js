@@ -5,7 +5,7 @@
 // @gunnarsdotter @Anondod @ylvaselling @SimonKallberg
 // When you see them, buy them a beer; they saved you about 2 weeks of work
 //
-
+const fs = require('fs');
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
@@ -13,8 +13,10 @@ const WebSocketServer = require('websocket').server;
 
 //
 //
-const port = 81;
-const gameAddress = '::ffff:127.0.0.1';
+var config = JSON.parse(fs.readFileSync('config.json'));
+console.log(config.gameAddress);
+const port = config.serverPort;
+const gameAddress = config.gameAddress;
 
 app.use(express.static(__dirname + '/public'));
 
