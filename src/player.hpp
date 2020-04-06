@@ -17,7 +17,8 @@ public:
 
 	//Ctor + Dtor
 	Player(const std::string & objectModelName, float radius, 
-		   const glm::quat& position, float orientation, const std::string& name);
+		   const glm::quat& position, float orientation,
+		   const std::string& name, float speed);
 
 	~Player();
 

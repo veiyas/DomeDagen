@@ -11,10 +11,11 @@ Player::Player()
 }
 
 Player::Player(const std::string & objectModelName, float radius,
-	           const glm::quat & position, float orientation, const std::string & name)
+	           const glm::quat & position, float orientation,
+	           const std::string & name, float speed)
 	: GameObject{ GameObject::PLAYER, radius, position, orientation },
 	  GeometryHandler("player", objectModelName),
-	  mName { name }, mPoints{ 0 }, mIsAlive{ true }, mSpeed{ 0.0 }
+	  mName { name }, mPoints{ 0 }, mIsAlive{ true }, mSpeed{ speed }
 {
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
 
