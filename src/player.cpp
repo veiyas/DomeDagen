@@ -34,16 +34,17 @@ Player::~Player()
 
 void Player::update(float deltaTime)
 {
+	//Update orientation
+	setOrientation(getOrientation() + deltaTime * mTurnSpeed);
+
+	//Update position on sphere
 	glm::quat newPos = getPosition();
 	newPos *= glm::quat(
 		mSpeed * deltaTime * glm::vec3(cos(getOrientation()), sin(getOrientation()), 0.f)
 	);
-
 	setPosition(glm::normalize(newPos)); //Normalize might not be necessary?
 
 	//TODO Constrain to visible area
-
-	//sgct::Log::Info("Updated");
 }
 
 void Player::render() const

@@ -187,7 +187,6 @@ void preSync() {
 		// This doesn't have to happen every frame, but why not?
 		wsHandler->tick();
 
-		Game::getInstance().rotateAllGameObjects(0.02 * updatedRotation);
 		//TODO implement gamelogic
 		Game::getInstance().update();
 	}
@@ -257,16 +256,18 @@ void messageReceived(const void* data, size_t length) {
 		std::tie(playerId, playerName) = Utility::getNewPlayerData(message);
 
 		std::unique_ptr<GameObject> tempPlayer{
-			new Player("fish", 50.f, glm::quat(glm::vec3(rng(gen), 0.f, rng(gen))), 0.f, playerName, 0.f) };
+			new Player("fish", 50.f, glm::quat(glm::vec3(rng(gen), 0.f, rng(gen))), 0.f, playerName, 0.2f) };
 		Game::getInstance().addGameObject(std::move(tempPlayer), playerId);		
 	}
 	
 	// If first slot is 'C', the rotation angle has been sent
 	if(message._Starts_with("C")) {
-		Log::Info("Controller feedback");
+		//Log::Info("Controller feedback");
+		unsigned int id;
+		iss >> id;
 		float rotAngle;
 		iss >> rotAngle;
 
-		updatedRotation = rotAngle;
+		Game::getInstance().updateTurnSpeed(id, rotAngle);
 	}
 }
