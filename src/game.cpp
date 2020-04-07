@@ -67,47 +67,50 @@ void Game::printLoadedAssets() const
 
 void Game::render() const
 {	
-	//for (const std::unique_ptr<Renderable>& obj : mRenderObjects)
-	//{		
-	//	obj->render();
-	//}
-
-	for (auto& [id, obj] : mInteractObjects)
-	{
+	for (const std::shared_ptr<Renderable>& obj : mRenderObjects)
+	{		
 		obj->render();
 	}
+
+	//for (auto& [id, obj] : mInteractObjects)
+	//{
+	//	obj->render();
+	//}
 }
 void Game::addObject(std::shared_ptr<Renderable> obj)
 {
 	//TODO implement shared ptr functionality between mInteractObjects and mRenderObjects
 }
-void Game::addGameObject(std::unique_ptr<GameObject> obj)
+void Game::addGameObject(std::shared_ptr<GameObject> obj)
 {
 	if (sgct::Engine::instance().isMaster())
-		mInteractObjects.push_back(std::make_pair(mUniqueId++, std::move(obj)));
+		addGameObject(std::move(obj), mUniqueId);
 }
 
 void Game::addGameObject(std::tuple<unsigned int, std::string>&& inputTuple)
 {
 	if (sgct::Engine::instance().isMaster())
 	{
-		std::unique_ptr<GameObject> tempPlayer{
+		std::shared_ptr<GameObject> tempPlayer{
 		new Player("fish", 50.f, glm::quat(glm::vec3(0.f,0.f,0.f)), 0.f, std::get<1>(inputTuple) , 0.5f) };
 		
 		addGameObject(std::move(tempPlayer), std::get<0>(inputTuple));
 	}
 }
 
-void Game::addGameObject(std::unique_ptr<GameObject> obj, unsigned id)
+void Game::addGameObject(std::shared_ptr<GameObject> obj, unsigned& id)
 {
 	if (sgct::Engine::instance().isMaster())
 	{
+		//Copy the shared_ptr to renderables
+		addRenderable(obj);
+
 		mInteractObjects.push_back(std::make_pair(id, std::move(obj)));
 		mUniqueId++;
 	}
 }
 
-void Game::addRenderable(std::unique_ptr<Renderable> obj)
+void Game::addRenderable(std::shared_ptr<Renderable> obj)
 {
 	if (sgct::Engine::instance().isMaster())
 		mRenderObjects.push_back(std::move(obj));
@@ -192,7 +195,7 @@ void Game::updateTurnSpeed(std::tuple<unsigned int, float>&& input)
 	//Looks kinda ugly and could probably be put in seperate method
 	//TODO implemented faster search function (mInteractObjects should be sorted)
 	auto it = std::find_if(mInteractObjects.begin(), mInteractObjects.end(),
-		[id](std::pair<unsigned int, std::unique_ptr<GameObject>>& pair)
+		[id](std::pair<unsigned int, std::shared_ptr<GameObject>>& pair)
 			{ return pair.first == id; });
 
 	//If object is not found something has gone wrong
