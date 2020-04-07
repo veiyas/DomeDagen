@@ -27,6 +27,10 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/public/index.html');
 });
 
+app.get('/config', function(req, res, next) {
+  res.json(config);
+});
+
 server.listen(port, function () {
   console.log(`Server is listening on: ${server.address().address}:${port}`);
 })
