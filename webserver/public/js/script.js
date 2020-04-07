@@ -7,6 +7,7 @@ $.ajax({
     serverAddress = data.responseJSON.serverAddress + ":" + data.responseJSON.serverPort;
   }
 });
+// const serverAddress = 'ws://192.168.10.225:81/';
 var socket;
 var screens = new Map();
 
