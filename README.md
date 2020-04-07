@@ -16,7 +16,7 @@ In the current version, it is necessary to start the server *before* starting th
 Currently, the server and application addresses are encoded in several places that all have to be changed:
 1. Create `config.json` in `/webserver` without comments
 
-    ```json
+    ```
     {
         "serverAddress":"ws://192.168.0.103",   //ip to your local server
         "gameAddress":"::ffff:127.0.0.1",       //ip to gameserver localhost when on your own machine
