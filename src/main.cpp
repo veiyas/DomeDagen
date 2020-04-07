@@ -99,7 +99,7 @@ int main(int argc, char** argv) {
 	if (Engine::instance().isMaster()) {
 		wsHandler = std::make_unique<WebSocketHandler>(
 			"localhost",
-			8081,
+			81,
 			connectionEstablished,
 			connectionClosed,
 			messageReceived
@@ -135,28 +135,16 @@ void initOGL(GLFWwindow*) {
 	Game::init();
 
 	/**********************************/
-	/*			 Test Area			  */
+	/*			 Debug Area			  */
 	/**********************************/
 	constexpr float radius = 50.f;
 
-	//Player* temp1 = new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, 0.f)), 0.f, "hejhej");
-	//Player* temp2 = new Player("fish", radius, glm::quat(glm::vec3(0.f, 0.f, 0.f)), 0.f, "hejhej");
-
-
-	//temp2->setSpeed(0.3f);
-	//temp2->setScale(20.f);
-
-	//Game::getInstance().addGameObject(temp1);
-	//Game::getInstance().addGameObject(temp2);
-
-
-	//for (size_t i = 0; i < 10; i++)
-	//{
-	//	std::unique_ptr<GameObject> temp{ new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, -1.f + 0.05 * i)), 0.f, "Player " + std::to_string(i+1)) };
-	//	temp->setSpeed(0.2f);
-	//	Game::getInstance().addGameObject(std::move(temp));
-	//}
-
+	for (size_t i = 0; i < 10; i++)
+	{
+		std::unique_ptr<GameObject> temp{
+		new Player("bottle1", radius, glm::quat(glm::vec3(1.f, 0.f, -1.f + 0.05 * i)), 0.f, "Player " + std::to_string(i+1), 0.5f) };
+		Game::getInstance().addGameObject(std::move(temp));
+	}
 }
 
 
@@ -231,8 +219,6 @@ void postSyncPreDraw() {
 
 void connectionEstablished() {
 	Log::Info("Connection established");
-
-
 }
 
 void connectionClosed() {

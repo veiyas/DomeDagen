@@ -94,8 +94,7 @@ void Game::addGameObject(std::tuple<unsigned int, std::string>&& inputTuple)
 		std::unique_ptr<GameObject> tempPlayer{
 		new Player("fish", 50.f, glm::quat(glm::vec3(0.f,0.f,0.f)), 0.f, std::get<1>(inputTuple) , 0.5f) };
 		
-		mInteractObjects.push_back(std::make_pair(std::get<0>(inputTuple), std::move(tempPlayer)));
-		mUniqueId++;
+		addGameObject(std::move(tempPlayer), std::get<0>(inputTuple));
 	}
 }
 
@@ -158,15 +157,14 @@ std::vector<std::byte> Game::getEncodedPositionData() const
 
 void Game::setDecodedPositionData(const std::vector<PositionData>& newState)
 {
-	//TODO find out why newState has one too many slots
 	if (!sgct::Engine::instance().isMaster())
 	{
 		for (const auto& newData : newState)
 		{			
 			//If the object doesn't exist on this node yet
-			if (newState.size() != mInteractObjects.size() && !sgct::Engine::instance().isMaster())
+			if (newState.size() != mInteractObjects.size())
 			{
-				//UGLY SOLUTION, create temp objects to update afterwards
+				//Create temp objects to update afterwards [UGLY SOLUTION]
 				//TODO fix this ugly shit
 				while (mInteractObjects.size() != newState.size())
 				{
