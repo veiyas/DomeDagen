@@ -30,7 +30,7 @@ public:
 	void update(float deltaTime) override;
 
 	//Render obejct
-	void render() const override;
+	void render(const glm::mat4& mvp) const override;
 
 	//Accessors
 	float getSpeed() const { return mSpeed; };

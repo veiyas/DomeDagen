@@ -15,7 +15,7 @@ public:
 	            float radius, const glm::quat & position, const float orientation);
 
 	//Render
-	void render() const;
+	void render(const glm::mat4& mvp) const;
 
 	void setSpeed(float speed) override {  };
 

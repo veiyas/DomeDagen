@@ -101,7 +101,6 @@ wsServer.on('request', function (req) {
           else if (temp[0] === "C") {
             // Test sending some rotation data from the user's mobile device
             const playerId = playerList.get(req.remoteAddress);
-            console.log(`(Rotation data) ${playerId} ${msg.utf8Data}`)
             gameSocket.send(`C ${playerId} ${temp[1]}`);
           }
         }

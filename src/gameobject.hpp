@@ -57,7 +57,7 @@ public:
 	virtual ~GameObject() override = default;
 
 	//Render object, implemented by subclass
-	virtual void render() const = 0;
+	virtual void render(const glm::mat4& mvp) const = 0;
 
 	//Retrieve position data as plain-old data struct
 	PositionData getMovementData(unsigned int id);

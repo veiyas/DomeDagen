@@ -40,11 +40,11 @@ void Player::update(float deltaTime)
 	//TODO Constrain to visible area
 }
 
-void Player::render() const
+void Player::render(const glm::mat4& mvp) const
 {
 	mShaderProgram.bind();
 
-	glUniformMatrix4fv(mMvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(Game::getInstance().getMVP()));
+	glUniformMatrix4fv(mMvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(mvp));
 	glUniformMatrix4fv(mTransMatrixLoc, 1, GL_FALSE, glm::value_ptr(getTransformation()));
 	this->renderModel();
 

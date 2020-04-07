@@ -66,10 +66,10 @@ void Game::printLoadedAssets() const
 }
 
 void Game::render() const
-{	
+{
 	for (const std::shared_ptr<Renderable>& obj : mRenderObjects)
 	{		
-		obj->render();
+		obj->render(getInstance().getMVP());
 	}
 }
 
@@ -125,7 +125,6 @@ std::vector<std::byte> Game::getEncodedPositionData() const
 {
 	std::vector<PositionData> allPositionData(mInteractObjects.size());
 
-	//HOPEFULLY THIS ACCESS THE CORRECT OBJECT
 	for (size_t i = 0; i < mInteractObjects.size(); i++)
 	{
 		allPositionData[i] = mInteractObjects[i].second->getMovementData(mInteractObjects[i].first);

@@ -62,16 +62,13 @@ public:
 	//Set MVP matrix
 	void setMVP(const glm::mat4& mvp) { mMvp = mvp;};
 
-	//Add object in general
-	void addObject(std::shared_ptr<Renderable> obj);
-
-	//Add object to mInteractObjects
+	//Add object to mInteractObjects and mRenderObjects
 	void addGameObject(std::shared_ptr<GameObject> obj);
 
-	//Add object to mInteractObjects from tuple
+	//Add object to mInteractObjects and mRenderObjects from tuple
 	void addGameObject(std::tuple<unsigned int, std::string>&& inputTuple);
 
-	//Add object to mInteractObjects with id
+	//Add object to mInteractObjects and mRenderObjects with id
 	void addGameObject(std::shared_ptr<GameObject> obj, unsigned& id);
 
 	//Update all gameobjects
@@ -94,7 +91,6 @@ public:
 
 	//Accessors
 	const Model& getModel(const std::string& nameKey);
-	glm::mat4& getMVP() { return mMvp; };
 
 private:
 //Members
@@ -142,4 +138,6 @@ private:
 
 	//Display current list of models, called by printLoadedAssets()
 	void printModelNames() const;
+
+	const glm::mat4& getMVP() { return mMvp; };
 };
