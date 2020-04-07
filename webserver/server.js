@@ -5,21 +5,35 @@
 // @gunnarsdotter @Anondod @ylvaselling @SimonKallberg
 // When you see them, buy them a beer; they saved you about 2 weeks of work
 //
-
+const fs = require('fs');
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 const WebSocketServer = require('websocket').server;
+const assert = require('assert').strict;
+
+//Give each player a unique id, gets incremented on every new connection
+global.uniqueId = 0;
+
+//Store all players and their id
+global.playerList = new Map(); // {"ip", id}
 
 //
 //
-const port = 81;
-const gameAddress = '::ffff:127.0.0.1';
+var config = JSON.parse(fs.readFileSync('config.json'));
+console.log(config.gameAddress);
+const port = config.serverPort;
+const gameAddress = config.gameAddress;
+
 
 app.use(express.static(__dirname + '/public'));
 
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/public/index.html');
+});
+
+app.get('/config', function(req, res, next) {
+  res.json(config);
 });
 
 server.listen(port, function () {
@@ -70,18 +84,43 @@ wsServer.on('request', function (req) {
 
       // Do something with the connection
       connection.on('message', function(msg) {
+        assert(gameSocket, 'Tried to pass message to game but no connection was open');
+
         if (msg.type === 'utf8') {
-        	if(msg.utf8Data === "transform") {
-            console.log("Sending transformation request");
-            gameSocket.send("transform");
+          var temp = msg.utf8Data.split(' ');
+
+          // Testing if first slot has value "N", if so --> send name
+          if (temp[0] === "N") {
+            console.log("Sending name: " + temp);
+
+            playerList.set(connection.socket.remoteAddress, uniqueId);
+            console.log(playerList);
+            // gameSocket.send("N " + temp[1] + "|" + uniqueId);
+            gameSocket.send(`N ${uniqueId} ${temp[1]}`);
+            uniqueId++;
+          }
+
+          // Testing if first slot has value "C", if so --> send rotation data
+          else if (temp[0] === "C") {
+            // Test sending some rotation data from the user's mobile device
+            const playerId = playerList.get(req.remoteAddress);
+            gameSocket.send(`C ${playerId} ${temp[1]}`);
           }
         }
       });
 
       // When the connection closes
       connection.on('close', function(reason, desc) {
+        const remoteAddress = connection.socket.remoteAddress;
         const addresses = connectionArray.map(c => c.socket.remoteAddress);
-        connectionArray.splice(addresses.indexOf(connection.socket.remoteAddress), 1);
+        connectionArray.splice(addresses.indexOf(remoteAddress), 1);
+        const id = playerList.get(remoteAddress);
+
+        if (playerList.delete(remoteAddress)) {
+          console.log(`Removed player ${id} with ip ${remoteAddress}`);
+          
+          // TODO Let the game know a player has disconnected
+        }
       });
     }
     // More connections form same device

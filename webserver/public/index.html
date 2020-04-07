@@ -1,15 +1,16 @@
 <html>
 
 <head>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   <script type="text/javascript" src="./js/script.js"></script>
   <link rel="stylesheet" type="text/css" href="./css/main.css">
   <link rel="stylesheet" type="text/css" href="./css/welcomeScreen.css">
   <link rel="stylesheet" type="text/css" href="./css/waitingScreen.css">
   <link rel="stylesheet" type="text/css" href="./css/gameRunningScreen.css">
-  <link rel="stylesheet" type="text/css" href="./css/gameOverScreen.css">
+  <link rel="stylesheet" type="text/css" href="./css/gameOverScreen.css"> 
 </head>
 
-<body onload="initialize()">
+<body>
 
   <div id="welcomeScreen" class="screen">
     <div class="row centered">
@@ -18,7 +19,7 @@
     <div class="row">
       <div class="col">
         <input type="text" id="lname" name="lname" placeholder="Enter your name..." oninput="handleTextInputChange()">
-        <button id="connect" class="disabled" disabled="true">Connect</button>
+        <button id="connect" class="disabled" disabled="true" onclick="sendName()">Connect</button>
       </div>
     </div>
     <!-- Add connection to get name in input, in initialize() function -->
@@ -43,12 +44,14 @@
   <div class="screen centered" id="gameRunningScreen">
     <div class="row centered">
       <p>Score: <span id="currentScore">100</span></p>
-      <div id="steeringInstruction">
-        <!-- TODO: Animation or similar graphic to show steering controls -->
-        <p>Tilt to steer</p>         
+      <!-- <div id="steeringInstruction">
+        Animation or similar graphic to show steering controls
+        <p>Tilt to steer</p>
       </div>
-      <button>Hold to swim</button>
+      <button>Hold to swim</button> -->
     </div>
+    <canvas id="joystickArea">
+    </canvas>
   </div>
 
   <div class="screen" id="gameOverScreen">
@@ -60,6 +63,8 @@
       </div>
     </div>
   </div>
+
+  <script type="text/javascript" src="./js/joystick.js"></script>
 
 </body>
 

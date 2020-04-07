@@ -57,6 +57,10 @@ add_executable(${PROJECT_NAME}
   src/shaders/sceneobjectfrag.glsl
   src/shaders/testingvert.glsl
   src/shaders/testingfrag.glsl
+  src/configs/fisheye_testing.xml
+  src/configs/simple.xml
+  src/configs/six_nodes.xml
+  src/configs/two_fisheye_nodes.xml
 )
 target_include_directories(${PROJECT_NAME} PRIVATE
   src

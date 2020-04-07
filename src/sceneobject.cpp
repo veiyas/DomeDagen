@@ -12,11 +12,11 @@ SceneObject::SceneObject(const std::string & objectModelName,
 	mShaderProgram.unbind();
 }
 
-void SceneObject::render() const
+void SceneObject::render(const glm::mat4& mvp) const
 {
 	mShaderProgram.bind();
 
-	glUniformMatrix4fv(mMvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(Game::getInstance().getMVP()*getTransformation()));
+	glUniformMatrix4fv(mMvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(mvp));
 	glUniformMatrix4fv(mTransMatrixLoc, 1, GL_FALSE, glm::value_ptr(getTransformation()));
 	this->renderModel();
 

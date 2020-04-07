@@ -1,4 +1,18 @@
-const serverAddress = 'ws://127.0.0.1/';
+
+var serverAddress;
+
+//Request server adress when document is loaded
+$($.ajax({
+  url: '/config',
+  complete: function(data) {
+    console.log(data.responseJSON.serverAddress);
+    serverAddress = data.responseJSON.serverAddress + ":" + data.responseJSON.serverPort;
+
+    initialize();
+  }
+}));
+
+// const serverAddress = 'ws://192.168.10.225:81/';
 var socket;
 var screens = new Map();
 
@@ -8,8 +22,12 @@ function log(msg) {
 }
 
 // Set up everything the front-end application needs.
-// Called on load for <body>. 
+// Called on load for <body>.
 function initialize() {
+  if (!serverAddress) {
+    log('Error: Connection tried to open before adress was set');
+  }
+
   socket = new WebSocket(serverAddress);
   socket.onopen = function(event) {
     log('Connection is opened');
@@ -34,7 +52,10 @@ function initialize() {
 
   // Set up event listeners
   var connectButton = document.querySelector('#connect');
-  connectButton.addEventListener('click', () => setCurrentScreen('waitingScreen'))
+  connectButton.addEventListener('click', () => {
+    connected = true; // Mock connection state, should probably be handled in conjunction with the back-end
+    setCurrentScreen('gameRunningScreen');
+  })
 }
 
 // Set the currently visible screen to the matching screenID argument.
@@ -52,12 +73,24 @@ function setCurrentScreen(screenID) {
   }
 }
 
+// Send client's name to server
+function sendName() {
+  // TODO Add input validation (no spaces, char limit, etc)
+  // Should ofc be validated server-side as well
+  name = document.getElementById("lname").value.trim();
+  if (socket.readyState === WebSocket.OPEN)
+  {    
+    var stringToSend = `N ${name}`;
+    socket.send(stringToSend);
+  }
+}
+
 // Enable the connect button if and only if the user has entered something
 // into the input form.
 function handleTextInputChange() {
   var connectButton = document.querySelector('#connect');
   var inputTextForm = document.querySelector('#lname');
-  
+
   if (inputTextForm.value === '') {
     connectButton.disabled = true;
     connectButton.classList.add('disabled');
@@ -65,10 +98,4 @@ function handleTextInputChange() {
     connectButton.disabled = false;
     connectButton.classList.remove('disabled');
   }
-}
-
-//Testing purposes to change transform matrix
-function message() {
-  if (socket)
-    socket.send("transform");
 }

@@ -1,6 +1,14 @@
 //
 //  Main.cpp provided under CC0 license
 //
+#include <memory>
+#include <string>
+#include <vector>
+#include <iostream>
+#include <filesystem>
+#include <fstream>
+#include <sstream>
+#include <random>
 
 #include "sgct/sgct.h"
 
@@ -10,21 +18,20 @@
 #include "sceneobject.hpp"
 #include "player.hpp"
 
-#include <memory>
-#include <string>
-#include <vector>
-#include <iostream>
-#include <filesystem>
-#include <fstream>
-
 namespace {
-    std::unique_ptr<WebSocketHandler> wsHandler;
+	std::unique_ptr<WebSocketHandler> wsHandler;
 
-    int64_t exampleInt = 0;
-	std::string exampleString;
-	double currentTime = 0.0;
+	//Container for deserialized game state info
+	std::vector<PositionData> states;
 
-	GameObject* temp2; //For testing
+
+	//TEMPORARY used to control rotation of all players 
+	float updatedRotation{ 0 };
+
+	//RNG stuff
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> rng(-1.0f, 1.0f);
 
 } // namespace
 
@@ -39,7 +46,6 @@ void cleanup();
 
 std::vector<std::byte> encode();
 void decode(const std::vector<std::byte>& data, unsigned int pos);
-
 void preSync();
 void postSyncPreDraw();
 
@@ -58,187 +64,189 @@ const std::string rootDir = Utility::findRootDir();
 			MAIN
 *****************************/
 int main(int argc, char** argv) {
-    std::vector<std::string> arg(argv + 1, argv + argc);
-    Configuration config = sgct::parseArguments(arg);
+	std::vector<std::string> arg(argv + 1, argv + argc);
+	Configuration config = sgct::parseArguments(arg);
 
-	//Open config .xml
+	//Choose which config file (.xml) to open
 	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
-    config::Cluster cluster = sgct::loadCluster(config.configFilename);
+	//config.configFilename = rootDir + "/src/configs/simple.xml";
+	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
+	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
+
+	config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
 	//Provide functions to engine handles
-    Engine::Callbacks callbacks;
-    callbacks.initOpenGL = initOGL;
-    callbacks.preSync = preSync;
-    callbacks.encode = encode;
-    callbacks.decode = decode;
-    callbacks.postSyncPreDraw = postSyncPreDraw;
-    callbacks.draw = draw;
-    callbacks.cleanup = cleanup;
+	Engine::Callbacks callbacks;
+	callbacks.initOpenGL = initOGL;
+	callbacks.preSync = preSync;
+	callbacks.encode = encode;
+	callbacks.decode = decode;
+	callbacks.postSyncPreDraw = postSyncPreDraw;
+	callbacks.draw = draw;
+	callbacks.cleanup = cleanup;
 	callbacks.keyboard = keyboard;
 
 	//Initialize engine
-    try {
-        Engine::create(cluster, callbacks, config);
-    }
-    catch (const std::runtime_error & e) {
-        Log::Error("%s", e.what());
-        Engine::destroy();
-        return EXIT_FAILURE;
-    }
+	try {
+		Engine::create(cluster, callbacks, config);
+	}
+	catch (const std::runtime_error & e) {
+		Log::Error("%s", e.what());
+		Engine::destroy();
+		return EXIT_FAILURE;
+	}
 
-    if (Engine::instance().isMaster()) {
-        wsHandler = std::make_unique<WebSocketHandler>(
-            "localhost",
-            81,
-            connectionEstablished,
-            connectionClosed,
-            messageReceived
-        );
-        constexpr const int MessageSize = 1024;
-        wsHandler->connect("example-protocol", MessageSize);
-    }	
+	if (Engine::instance().isMaster()) {
+		wsHandler = std::make_unique<WebSocketHandler>(
+			"localhost",
+			81,
+			connectionEstablished,
+			connectionClosed,
+			messageReceived
+		);
+		constexpr const int MessageSize = 1024;
+		wsHandler->connect("example-protocol", MessageSize);
+	}	
 	/**********************************/
 	/*			 Test Area			  */
-	/**********************************/	
-	
-	wsHandler->queueMessage("game_connect");
-    Engine::instance().render();
+	/**********************************/
 
-	Game::destroy();
-    Engine::destroy();
-    return EXIT_SUCCESS;
+	Engine::instance().render();
+
+	//Game::destroy();
+	Engine::destroy();
+	return EXIT_SUCCESS;
 }
 
 void draw(const RenderData& data) {
-	const glm::mat4 mvp = data.modelViewProjectionMatrix;
-	Game::getInstance().setMVP(mvp);	
+	Game::getInstance().setMVP(data.modelViewProjectionMatrix);
 
 	glEnable(GL_DEPTH_TEST);
 	glCullFace(GL_BACK);
 
 	Game::getInstance().render();
+	while (glGetError() != GL_NO_ERROR)
+    {
+      std::cout << "GL Error: " << glGetError() << std::endl;
+    }
 }
 
 void initOGL(GLFWwindow*) {
 	Game::init();
 
 	/**********************************/
-	/*			 Test Area			  */
+	/*			 Debug Area			  */
 	/**********************************/
-	const float radius = 50.f;	
+	constexpr float radius = 50.f;
 
-	GameObject* temp1 = new SceneObject("fish", radius, glm::quat(glm::vec3(-1.f, -0.5f, 0)), 0.f);
-	            temp2 = new Player("fish", radius, glm::quat(glm::vec3(-0.7f, -0.5f, 0)), 10.f, "hejhej");
-	temp2->setScale(50.f);
-	Game::getInstance().addGameObject(temp1);
-	Game::getInstance().addGameObject(temp2);
+	for (size_t i = 0; i < 5; i++)
+	{
+		std::shared_ptr<GameObject> temp{
+		new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, -1.f + 0.3 * i)), 0.f, "Player " + std::to_string(i+1), 0.5f) };
+		Game::getInstance().addGameObject(std::move(temp));
+	}
 }
 
-void keyboard(Key key, Modifier modifier, Action action, int) {
+
+void keyboard(Key key, Modifier modifier, Action action, int)
+{
 	if (key == Key::Esc && action == Action::Press) {
 		Engine::instance().terminate();
 	}
-	if (key == Key::Space && modifier == Modifier::Shift && action == Action::Release) {
+	if (key == Key::Space && modifier == Modifier::Shift && action == Action::Release)
+	{
 		Log::Info("Released space key, disconnecting");
 		wsHandler->disconnect();
 	}
-	//Left
-	if (key == Key::A && (action == Action::Press || action == Action::Repeat)) {
-		temp2->setOrientation(temp2->getOrientation() - 0.1f);
-	}
-	//Right
-	if (key == Key::D && (action == Action::Press || action == Action::Repeat)) {
-		temp2->setOrientation(temp2->getOrientation() + 0.1f);
-	}
-	//Up
-	if (key == Key::W && (action == Action::Press || action == Action::Repeat)) {
-	}
-	//Right
-	if (key == Key::D && (action == Action::Press || action == Action::Repeat)) {
-	}
-	//Up
-	if (key == Key::W && (action == Action::Press || action == Action::Repeat)) {
-	}
-	//Down
-	if (key == Key::S && (action == Action::Press || action == Action::Repeat)) {
-	}
-	//In
-	if (key == Key::Space && (action == Action::Press || action == Action::Repeat)) {
-	}
-	//Out
-	if (key == Key::LeftControl && (action == Action::Press || action == Action::Repeat)) {
-	}
 
+	//Left
+	if (key == Key::A && (action == Action::Press || action == Action::Repeat))
+	{
+		Game::getInstance().rotateAllGameObjects(0.1f);
+	}
+	//Right
+	if (key == Key::D && (action == Action::Press || action == Action::Repeat))
+	{
+		Game::getInstance().rotateAllGameObjects(-0.1f);
+	}
 }
 
 void preSync() {
 	// Do the application simulation step on the server node in here and make sure that
-	// the computed state is serialized and deserialized in the encode/decode calls
+	// the computed state is serialized and deserialized in the encode/decode calls	
 
-
-	//if (Engine::instance().isMaster() && wsHandler->isConnected() &&
-	//    Engine::instance().currentFrameNumber() % 100 == 0)
-	//{
-	//    wsHandler->queueMessage("ping");
-	//}
-
-
-
-	if (Engine::instance().isMaster()) {
+	//Run game simulation on master only
+	if (Engine::instance().isMaster())
+	{
 		// This doesn't have to happen every frame, but why not?
 		wsHandler->tick();
+
+		//TODO implement gamelogic
+		Game::getInstance().update();
 	}
 }
 
 std::vector<std::byte> encode() {
-	// These are just two examples;  remove them and replace them with the logic of your
-	// application that you need to synchronize
-	std::vector<std::byte> data;
-	serializeObject(data, exampleInt);
-	serializeObject(data, exampleString);
 
-
-	return data;
+	return Game::getInstance().getEncodedPositionData();
 }
 
 void decode(const std::vector<std::byte>& data, unsigned int pos) {
 	// These are just two examples;  remove them and replace them with the logic of your
 	// application that you need to synchronize
-	deserializeObject(data, pos, exampleInt);
-	deserializeObject(data, pos, exampleString);
+
+	//Decode position data into states vector
+	deserializeObject(data, pos, states);
 }
 
 void cleanup() {
 	// Cleanup all of your state, particularly the OpenGL state in here.  This function
 	// should behave symmetrically to the initOGL function
-
-
 }
 
 void postSyncPreDraw() {
-	// Apply the (now synchronized) application state before the rendering will start
+	//Sync gameobjects' state on clients only
+	if (!Engine::instance().isMaster())
+	{
+		Game::getInstance().setDecodedPositionData(states);
+
+		//Clear states for next frame, not needed but it's polite
+		states.clear();
+	}
+	else
+		return;
 }
 
 void connectionEstablished() {
 	Log::Info("Connection established");
-
-
 }
 
 void connectionClosed() {
 	Log::Info("Connection closed");
-
-
 }
 
 void messageReceived(const void* data, size_t length) {
 	std::string_view msg = std::string_view(reinterpret_cast<const char*>(data), length);
-	Log::Info("Message received: %s", msg.data());
+	//Log::Info("Message received: %s", msg.data());
 
-	//Feedback testing with ugly matrix handling
-	std::string temp = msg.data();
-	if (temp == "transform")
+	std::string message = msg.data();
+
+	if (!message.empty())
 	{
-		Log::Info("Transformation feedback");
+		//Get an easily manipulated stream of the message and read type of message
+		std::istringstream iss(message);
+		char msgType;
+		iss >> msgType;
+
+		// If first slot is 'N', a name and unique ID has been sent
+		if (msgType == 'N') {
+			Log::Info("Player connected: %s", message.c_str());
+			Game::getInstance().addGameObject(Utility::getNewPlayerData(iss));
+		}
+
+		// If first slot is 'C', the rotation angle has been sent
+		if (msgType == 'C') {
+			Game::getInstance().updateTurnSpeed(Utility::getTurnSpeed(iss));
+		}
 	}
 }

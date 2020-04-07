@@ -1,17 +1,18 @@
 #include "game.hpp"
+#include "player.hpp"
+#include <sgct/engine.h>
 
 
 //Define instance
 Game* Game::mInstance = nullptr;
-std::map<std::string, Model> Game::mModels;
+unsigned int Game::mUniqueId = 0;
 
 Game::Game()
-	: mMvp{ glm::mat4{1.f} }
+	: mMvp{ glm::mat4{1.f} }, mLastFrameTime{ -1 }
 {
 	//Loads all models and shaders into pool
 	for (const std::string& modelName : allModelNames)
 		loadModel(modelName);
-
 	for (const std::string& shaderName : allShaderNames)
 		loadShader(shaderName);
 }
@@ -33,7 +34,8 @@ Game& Game::getInstance()
 
 void Game::destroy()
 {
-	delete mInstance;
+	if(mInstance->instanceExists())
+		delete mInstance;
 }
 
 void Game::printShaderPrograms() const
@@ -49,11 +51,12 @@ void Game::printShaderPrograms() const
 void Game::printModelNames() const
 {
 	std::string output = "Loaded models:";
-	for (const std::pair<std::string, Model>& p : mModels)
+
+	for (const std::pair<const std::string, Model>& p : mModels)
 	{
 		output += "\n       " + p.first;
 	}
-	sgct::Log::Info(output.c_str());
+	sgct::Log::Info("%s", output.c_str());
 }
 
 void Game::printLoadedAssets() const
@@ -64,22 +67,130 @@ void Game::printLoadedAssets() const
 
 void Game::render() const
 {
-	//TODO This method needs some thoughts regarding renderable vs gameobject rendering
-	for (const Renderable* obj : mRenderObjects)
+	for (const std::shared_ptr<Renderable>& obj : mRenderObjects)
 	{		
-		obj->render();
+		obj->render(getInstance().getMVP());
 	}
-	for (const GameObject* obj : mInteractObjects)
-	{
-		obj->render();
-	}
-}
-void Game::addGameObject(GameObject* obj)
-{
-	mInteractObjects.push_back(obj);
 }
 
-Model& Game::getModel(const std::string& nameKey)
+void Game::addGameObject(std::shared_ptr<GameObject> obj)
+{
+	addGameObject(std::move(obj), mUniqueId);
+}
+
+void Game::addGameObject(std::tuple<unsigned int, std::string>&& inputTuple)
+{
+	std::shared_ptr<GameObject> tempPlayer{
+	new Player("fish", 50.f, glm::quat(glm::vec3(0.f,0.f,0.f)), 0.f, std::get<1>(inputTuple) , 0.5f) };
+		
+	addGameObject(std::move(tempPlayer), std::get<0>(inputTuple));	
+}
+
+void Game::addGameObject(std::shared_ptr<GameObject> obj, unsigned& id)
+{
+	//Copy the shared_ptr to renderables
+	addRenderable(obj);
+
+	mInteractObjects.push_back(std::make_pair(id, std::move(obj)));
+	mUniqueId++;
+}
+
+void Game::addRenderable(std::shared_ptr<Renderable> obj)
+{
+	mRenderObjects.push_back(std::move(obj));
+}
+
+void Game::update()
+{
+	if (mLastFrameTime == -1) //First update?
+	{
+		mLastFrameTime = static_cast<float>(sgct::Engine::getTime());
+		return;
+	}
+
+	float currentFrameTime = static_cast<float>(sgct::Engine::getTime());
+	float deltaTime = currentFrameTime - mLastFrameTime;
+
+	for (auto& [id, obj] : mInteractObjects)
+	{
+		obj->update(deltaTime);
+	}
+
+	//TODO check for collisions
+
+	mLastFrameTime = currentFrameTime;
+}
+
+std::vector<std::byte> Game::getEncodedPositionData() const
+{
+	std::vector<PositionData> allPositionData(mInteractObjects.size());
+
+	for (size_t i = 0; i < mInteractObjects.size(); i++)
+	{
+		allPositionData[i] = mInteractObjects[i].second->getMovementData(mInteractObjects[i].first);
+	}
+
+	std::vector<std::byte> tempEncodedData;
+
+	sgct::serializeObject(tempEncodedData, allPositionData);
+	allPositionData.clear();
+
+	return tempEncodedData;
+}
+
+void Game::setDecodedPositionData(const std::vector<PositionData>& newState)
+{
+	//TODO This function seems kind of error prone
+	if (!sgct::Engine::instance().isMaster())
+	{
+		for (const auto& newData : newState)
+		{			
+			if (newState.size() < mInteractObjects.size())
+				sgct::Log::Warning("newState.size() < mInteractObjects.size()");
+
+
+			if (newState.size() > mInteractObjects.size())
+			{
+				//UGLY SOLUTION, create temp objects to update afterwards
+				//TODO fix this ugly shit
+				while (mInteractObjects.size() != newState.size())
+				{
+					std::shared_ptr<GameObject> tempPlayer{ new Player("fish", 10.f, glm::quat(glm::vec3(2.f, 0.f, 0.f)), 0.f, "temp", 0.f) };
+					addGameObject(std::move(tempPlayer));
+				}
+			}
+			mInteractObjects[newData.mId].second->setMovementData(newData);
+		}
+	}
+}
+
+void Game::updateTurnSpeed(std::tuple<unsigned int, float>&& input)
+{
+	unsigned id = std::get<0>(input);
+	float rotAngle = std::get<1>(input);
+
+	//Unsure if this is a good way of finding GameObject
+	//Looks kinda ugly and could probably be put in seperate method
+	//TODO implemented faster search function (mInteractObjects is sorted)
+	auto it = std::find_if(mInteractObjects.begin(), mInteractObjects.end(),
+		[id](std::pair<unsigned int, std::shared_ptr<GameObject>>& pair)
+			{ return pair.first == id; });
+
+	//If object is not found something has gone wrong
+	assert(it != mInteractObjects.end());
+
+	(*it).second->setTurnSpeed(rotAngle);
+}
+
+void Game::rotateAllGameObjects(float newOrientation)
+{
+	for (auto& [id, obj] : mInteractObjects)
+	{
+		obj->setOrientation(obj->getOrientation() + newOrientation);
+	}
+}
+
+const Model& Game::getModel(const std::string& nameKey)
 {
 	return mModels[nameKey];
 }
@@ -94,8 +205,7 @@ void Game::loadShader(const std::string& shaderName)
 {
 	//Define path and strings to hold shaders
 	std::string path = Utility::findRootDir() + "/src/shaders/" + shaderName;
-	std::string vert = "";
-	std::string frag = "";
+	std::string vert, frag;
 
 	//Open streams to shader files
 	std::ifstream in_vert{ path + "vert.glsl" };
@@ -108,7 +218,7 @@ void Game::loadShader(const std::string& shaderName)
 	}
 	else
 	{
-		std::cout << "ERROR OPENING SHADER FILE: " + shaderName;
+		sgct::Log::Error("ERROR OPENING SHADER FILE: %s", shaderName.c_str());
 	}
 	in_vert.close(); in_frag.close();
 

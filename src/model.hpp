@@ -10,11 +10,6 @@
 #include "glad/glad.h"
 #include "utility.hpp"
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-#include <stb_image.h>
-
 //This class was written with help of tutorial
 //https://learnopengl.com/Model-Loading/Assimp
 class Model
