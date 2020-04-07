@@ -71,49 +71,33 @@ void Game::render() const
 	{		
 		obj->render();
 	}
+}
 
-	//for (auto& [id, obj] : mInteractObjects)
-	//{
-	//	obj->render();
-	//}
-}
-void Game::addObject(std::shared_ptr<Renderable> obj)
-{
-	//TODO implement shared ptr functionality between mInteractObjects and mRenderObjects
-}
 void Game::addGameObject(std::shared_ptr<GameObject> obj)
 {
-	if (sgct::Engine::instance().isMaster())
-		addGameObject(std::move(obj), mUniqueId);
+	addGameObject(std::move(obj), mUniqueId);
 }
 
 void Game::addGameObject(std::tuple<unsigned int, std::string>&& inputTuple)
 {
-	if (sgct::Engine::instance().isMaster())
-	{
-		std::shared_ptr<GameObject> tempPlayer{
-		new Player("fish", 50.f, glm::quat(glm::vec3(0.f,0.f,0.f)), 0.f, std::get<1>(inputTuple) , 0.5f) };
+	std::shared_ptr<GameObject> tempPlayer{
+	new Player("fish", 50.f, glm::quat(glm::vec3(0.f,0.f,0.f)), 0.f, std::get<1>(inputTuple) , 0.5f) };
 		
-		addGameObject(std::move(tempPlayer), std::get<0>(inputTuple));
-	}
+	addGameObject(std::move(tempPlayer), std::get<0>(inputTuple));	
 }
 
 void Game::addGameObject(std::shared_ptr<GameObject> obj, unsigned& id)
 {
-	if (sgct::Engine::instance().isMaster())
-	{
-		//Copy the shared_ptr to renderables
-		addRenderable(obj);
+	//Copy the shared_ptr to renderables
+	addRenderable(obj);
 
-		mInteractObjects.push_back(std::make_pair(id, std::move(obj)));
-		mUniqueId++;
-	}
+	mInteractObjects.push_back(std::make_pair(id, std::move(obj)));
+	mUniqueId++;
 }
 
 void Game::addRenderable(std::shared_ptr<Renderable> obj)
 {
-	if (sgct::Engine::instance().isMaster())
-		mRenderObjects.push_back(std::move(obj));
+	mRenderObjects.push_back(std::move(obj));
 }
 
 void Game::update()
@@ -139,23 +123,20 @@ void Game::update()
 
 std::vector<std::byte> Game::getEncodedPositionData() const
 {
-	if (sgct::Engine::instance().isMaster())
+	std::vector<PositionData> allPositionData(mInteractObjects.size());
+
+	//HOPEFULLY THIS ACCESS THE CORRECT OBJECT
+	for (size_t i = 0; i < mInteractObjects.size(); i++)
 	{
-		std::vector<PositionData> allPositionData(mInteractObjects.size());
-
-		//HOPEFULLY THIS ACCESS THE CORRECT OBJECT
-		for (size_t i = 0; i < mInteractObjects.size(); i++)
-		{
-			allPositionData[i] = mInteractObjects[i].second->getMovementData(mInteractObjects[i].first);
-		}
-
-		std::vector<std::byte> tempEncodedData;
-
-		sgct::serializeObject(tempEncodedData, allPositionData);
-		allPositionData.clear();
-
-		return tempEncodedData;
+		allPositionData[i] = mInteractObjects[i].second->getMovementData(mInteractObjects[i].first);
 	}
+
+	std::vector<std::byte> tempEncodedData;
+
+	sgct::serializeObject(tempEncodedData, allPositionData);
+	allPositionData.clear();
+
+	return tempEncodedData;
 }
 
 void Game::setDecodedPositionData(const std::vector<PositionData>& newState)
@@ -171,15 +152,13 @@ void Game::setDecodedPositionData(const std::vector<PositionData>& newState)
 
 			if (newState.size() > mInteractObjects.size())
 			{
-
 				//UGLY SOLUTION, create temp objects to update afterwards
 				//TODO fix this ugly shit
 				while (mInteractObjects.size() != newState.size())
 				{
-					auto tempPlayer = std::unique_ptr<GameObject>{ new Player("fish", 10.f, glm::quat(glm::vec3(2.f, 0.f, 0.f)), 0.f, "hejhej", 0.f) };
-					mInteractObjects.push_back(std::make_pair(mUniqueId++, std::move(tempPlayer)));
+					std::shared_ptr<GameObject> tempPlayer{ new Player("fish", 10.f, glm::quat(glm::vec3(2.f, 0.f, 0.f)), 0.f, "temp", 0.f) };
+					addGameObject(std::move(tempPlayer));
 				}
-				std::cout << "obj size: " << mInteractObjects.size() << ", newState size: " << newState.size() << "\n";
 			}
 			mInteractObjects[newData.mId].second->setMovementData(newData);
 		}
@@ -193,7 +172,7 @@ void Game::updateTurnSpeed(std::tuple<unsigned int, float>&& input)
 
 	//Unsure if this is a good way of finding GameObject
 	//Looks kinda ugly and could probably be put in seperate method
-	//TODO implemented faster search function (mInteractObjects should be sorted)
+	//TODO implemented faster search function (mInteractObjects is sorted)
 	auto it = std::find_if(mInteractObjects.begin(), mInteractObjects.end(),
 		[id](std::pair<unsigned int, std::shared_ptr<GameObject>>& pair)
 			{ return pair.first == id; });

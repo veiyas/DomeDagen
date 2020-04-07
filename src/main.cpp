@@ -68,10 +68,10 @@ int main(int argc, char** argv) {
 	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
-	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
-	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
+	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
 
 	config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
@@ -125,7 +125,7 @@ void draw(const RenderData& data) {
 	glCullFace(GL_BACK);
 
 	Game::getInstance().render();
-		while (glGetError() != GL_NO_ERROR)
+	while (glGetError() != GL_NO_ERROR)
     {
       std::cout << "GL Error: " << glGetError() << std::endl;
     }
@@ -139,12 +139,12 @@ void initOGL(GLFWwindow*) {
 	/**********************************/
 	constexpr float radius = 50.f;
 
-	for (size_t i = 0; i < 10; i++)
-	{
-		std::shared_ptr<GameObject> temp{
-		new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, -1.f + 0.05 * i)), 0.f, "Player " + std::to_string(i+1), 0.5f) };
-		Game::getInstance().addGameObject(std::move(temp));
-	}
+	//for (size_t i = 0; i < 10; i++)
+	//{
+	//	std::shared_ptr<GameObject> temp{
+	//	new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, -1.f + 0.05 * i)), 0.f, "Player " + std::to_string(i+1), 0.5f) };
+	//	Game::getInstance().addGameObject(std::move(temp));
+	//}
 }
 
 
