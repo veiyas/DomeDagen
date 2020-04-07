@@ -1,4 +1,12 @@
-const serverAddress = 'ws://192.168.10.225:81/';
+
+var serverAddress;
+$.ajax({
+  url: '/config',
+  complete: function(data) {
+    console.log(data.responseJSON.serverAddress);
+    serverAddress = data.responseJSON.serverAddress + ":" + data.responseJSON.serverPort;
+  }
+});
 var socket;
 var screens = new Map();
 

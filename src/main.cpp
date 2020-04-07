@@ -99,7 +99,7 @@ int main(int argc, char** argv) {
 	if (Engine::instance().isMaster()) {
 		wsHandler = std::make_unique<WebSocketHandler>(
 			"localhost",
-			81,
+			8081,
 			connectionEstablished,
 			connectionClosed,
 			messageReceived
@@ -125,6 +125,10 @@ void draw(const RenderData& data) {
 	glCullFace(GL_BACK);
 
 	Game::getInstance().render();
+		while (glGetError() != GL_NO_ERROR)
+    {
+      std::cout << "GL Error: " << glGetError() << std::endl;
+    }
 }
 
 void initOGL(GLFWwindow*) {
@@ -152,7 +156,9 @@ void initOGL(GLFWwindow*) {
 	//	temp->setSpeed(0.2f);
 	//	Game::getInstance().addGameObject(std::move(temp));
 	//}
+
 }
+
 
 void keyboard(Key key, Modifier modifier, Action action, int)
 {

@@ -17,3 +17,11 @@ Currently, the server and application addresses are encoded in several places th
 1. `webserver/server.js` has a `port` and `gameAddress` that have to point at the machine that is running the application.
 2. The application's `src/main.cpp` creates a `WebSocketHandler`, whose constructor requires the IP address and port of the webserver.
 3. The `webserver/public/script.js` sets a `serverAddress` variable that has to point to the game server location.
+
+create config.json in /webserver without comments
+{
+    "serverAddress":"ws://192.168.0.103",   //ip to your local server
+    "gameAddress":"::ffff:127.0.0.1",       //ip to gameserver localhost when on your own machine
+    "gamePort":"8081",                      //port to gameserver
+    "serverPort":"8081"                     //port to your local server
+}
