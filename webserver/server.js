@@ -10,6 +10,7 @@ const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 const WebSocketServer = require('websocket').server;
+const assert = require('assert').strict;
 
 //Give each player a unique id, gets incremented on every new connection
 global.uniqueId = 0;
@@ -83,6 +84,8 @@ wsServer.on('request', function (req) {
 
       // Do something with the connection
       connection.on('message', function(msg) {
+        assert(gameSocket, 'Tried to pass message to game but no connection was open');
+
         if (msg.type === 'utf8') {
           var temp = msg.utf8Data.split(' ');
 
@@ -90,7 +93,7 @@ wsServer.on('request', function (req) {
           if (temp[0] === "N") {
             console.log("Sending name: " + temp);
 
-            playerList.set(req.remoteAddress, uniqueId);
+            playerList.set(connection.socket.remoteAddress, uniqueId);
             console.log(playerList);
             // gameSocket.send("N " + temp[1] + "|" + uniqueId);
             gameSocket.send(`N ${uniqueId} ${temp[1]}`);
@@ -108,8 +111,16 @@ wsServer.on('request', function (req) {
 
       // When the connection closes
       connection.on('close', function(reason, desc) {
+        const remoteAddress = connection.socket.remoteAddress;
         const addresses = connectionArray.map(c => c.socket.remoteAddress);
-        connectionArray.splice(addresses.indexOf(connection.socket.remoteAddress), 1);
+        connectionArray.splice(addresses.indexOf(remoteAddress), 1);
+        const id = playerList.get(remoteAddress);
+
+        if (playerList.delete(remoteAddress)) {
+          console.log(`Removed player ${id} with ip ${remoteAddress}`);
+          
+          // TODO Let the game know a player has disconnected
+        }
       });
     }
     // More connections form same device
