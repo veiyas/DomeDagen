@@ -13,7 +13,7 @@ class Player : public GameObject, private GeometryHandler
 {
 public:
 	//No default ctor
-	Player();
+	Player() = delete;
 
 	//Ctor + Dtor
 	Player(const std::string & objectModelName, float radius, 
@@ -47,7 +47,7 @@ public:
 
 private:
 	//Player information/data
-	float mTurnSpeed = 0.2;
+	float mTurnSpeed = 0.2f;
 	int   mPoints;
 	bool  mIsAlive;
 	float mSpeed;

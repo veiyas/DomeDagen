@@ -68,10 +68,10 @@ int main(int argc, char** argv) {
 	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
-	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
-	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
+	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
 
 	config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
@@ -235,37 +235,26 @@ void connectionClosed() {
 
 void messageReceived(const void* data, size_t length) {
 	std::string_view msg = std::string_view(reinterpret_cast<const char*>(data), length);
-	Log::Info("Message received: %s", msg.data());
+	//Log::Info("Message received: %s", msg.data());
 
 	std::string message = msg.data();
 
 	if (!message.empty())
 	{
+		//Get an easily manipulated stream of the message and read type of message
 		std::istringstream iss(message);
 		char msgType;
 		iss >> msgType;
 
 		// If first slot is 'N', a name and unique ID has been sent
-		if (message.substr(0,1) == "N") {
+		if (msgType == 'N') {
 			Log::Info("Player connected: %s", message.c_str());
-			std::string playerName;
-			unsigned int playerId;
-			std::tie(playerId, playerName) = Utility::getNewPlayerData(message);
-
-			std::unique_ptr<GameObject> tempPlayer{
-				new Player("fish", 50.f, glm::quat(glm::vec3(rng(gen), 0.f, rng(gen))), 0.f, playerName, 0.5f) };
-			Game::getInstance().addGameObject(std::move(tempPlayer), playerId);
+			Game::getInstance().addGameObject(Utility::getNewPlayerData(iss));
 		}
 
 		// If first slot is 'C', the rotation angle has been sent
-		if (message.substr(0, 1) == "C") {
-			//Log::Info("Controller feedback");
-			unsigned int id;
-			iss >> id;
-			float rotAngle;
-			iss >> rotAngle;
-
-			Game::getInstance().updateTurnSpeed(id, rotAngle);
+		if (msgType == 'C') {
+			Game::getInstance().updateTurnSpeed(Utility::getTurnSpeed(iss));
 		}
 	}
 }

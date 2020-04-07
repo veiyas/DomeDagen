@@ -3,13 +3,6 @@
 #include<glm/gtx/string_cast.hpp>
 #include<iostream>
 
-Player::Player()
-	: GameObject{ GameObject::PLAYER, 10.f, glm::vec3(1.f, 0.f, 0.f), 0.f },
-	GeometryHandler("player", "fish"),
-	mName{ "testes" }, mPoints{ 0 }, mIsAlive{ true }, mSpeed{ 1.f }
-{
-}
-
 Player::Player(const std::string & objectModelName, float radius,
 	           const glm::quat & position, float orientation,
 	           const std::string & name, float speed)

@@ -68,6 +68,9 @@ public:
 	//Add object to mInteractObjects
 	void addGameObject(std::unique_ptr<GameObject> obj);
 
+	//Add object to mInteractObjects from tuple
+	void addGameObject(std::tuple<unsigned int, std::string>&& inputTuple);
+
 	//Add object to mInteractObjects with id
 	void addGameObject(std::unique_ptr<GameObject> obj, unsigned id);
 
@@ -87,7 +90,7 @@ public:
 	void setDecodedPositionData(const std::vector<PositionData>& newState);
 
 	//Set the turn speed of player player with id id
-	void updateTurnSpeed(unsigned int id, float rotAngle);
+	void updateTurnSpeed(std:: tuple<unsigned int, float>&& input);
 
 	//DEBUGGING TOOL: apply orientation to all GameObjects
 	void rotateAllGameObjects(float newOrientation);

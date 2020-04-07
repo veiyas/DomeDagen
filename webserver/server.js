@@ -11,7 +11,10 @@ const app = express();
 const server = require('http').Server(app);
 const WebSocketServer = require('websocket').server;
 
+//Give each player a unique id, gets incremented on every new connection
 global.uniqueId = 0;
+
+//Store all players and their id
 global.playerList = new Map(); // {"ip", id}
 
 //
@@ -20,6 +23,7 @@ var config = JSON.parse(fs.readFileSync('config.json'));
 console.log(config.gameAddress);
 const port = config.serverPort;
 const gameAddress = config.gameAddress;
+
 
 app.use(express.static(__dirname + '/public'));
 
@@ -84,7 +88,8 @@ wsServer.on('request', function (req) {
 
             playerList.set(req.remoteAddress, uniqueId);
             console.log(playerList);
-            gameSocket.send("N " + temp[1] + "|" + uniqueId);
+            // gameSocket.send("N " + temp[1] + "|" + uniqueId);
+            gameSocket.send(`N ${uniqueId} ${temp[1]}`);
             uniqueId++;
           }
 
