@@ -67,51 +67,37 @@ void Game::printLoadedAssets() const
 
 void Game::render() const
 {	
-	//for (const std::unique_ptr<Renderable>& obj : mRenderObjects)
-	//{		
-	//	obj->render();
-	//}
-
-	for (auto& [id, obj] : mInteractObjects)
-	{
+	for (const std::shared_ptr<Renderable>& obj : mRenderObjects)
+	{		
 		obj->render();
 	}
 }
-void Game::addObject(std::shared_ptr<Renderable> obj)
+
+void Game::addGameObject(std::shared_ptr<GameObject> obj)
 {
-	//TODO implement shared ptr functionality between mInteractObjects and mRenderObjects
-}
-void Game::addGameObject(std::unique_ptr<GameObject> obj)
-{
-	if (sgct::Engine::instance().isMaster())
-		mInteractObjects.push_back(std::make_pair(mUniqueId++, std::move(obj)));
+	addGameObject(std::move(obj), mUniqueId);
 }
 
 void Game::addGameObject(std::tuple<unsigned int, std::string>&& inputTuple)
 {
-	if (sgct::Engine::instance().isMaster())
-	{
-		std::unique_ptr<GameObject> tempPlayer{
-		new Player("fish", 50.f, glm::quat(glm::vec3(0.f,0.f,0.f)), 0.f, std::get<1>(inputTuple) , 0.5f) };
+	std::shared_ptr<GameObject> tempPlayer{
+	new Player("fish", 50.f, glm::quat(glm::vec3(0.f,0.f,0.f)), 0.f, std::get<1>(inputTuple) , 0.5f) };
 		
-		mInteractObjects.push_back(std::make_pair(std::get<0>(inputTuple), std::move(tempPlayer)));
-		mUniqueId++;
-	}
+	addGameObject(std::move(tempPlayer), std::get<0>(inputTuple));	
 }
 
-void Game::addGameObject(std::unique_ptr<GameObject> obj, unsigned id)
+void Game::addGameObject(std::shared_ptr<GameObject> obj, unsigned& id)
 {
-	if (sgct::Engine::instance().isMaster())
-	{
-		mInteractObjects.push_back(std::make_pair(id, std::move(obj)));
-		mUniqueId++;
-	}
+	//Copy the shared_ptr to renderables
+	addRenderable(obj);
+
+	mInteractObjects.push_back(std::make_pair(id, std::move(obj)));
+	mUniqueId++;
 }
 
-void Game::addRenderable(std::unique_ptr<Renderable> obj)
+void Game::addRenderable(std::shared_ptr<Renderable> obj)
 {
-	if (sgct::Engine::instance().isMaster())
-		mRenderObjects.push_back(std::move(obj));
+	mRenderObjects.push_back(std::move(obj));
 }
 
 void Game::update()
@@ -137,43 +123,42 @@ void Game::update()
 
 std::vector<std::byte> Game::getEncodedPositionData() const
 {
-	if (sgct::Engine::instance().isMaster())
+	std::vector<PositionData> allPositionData(mInteractObjects.size());
+
+	//HOPEFULLY THIS ACCESS THE CORRECT OBJECT
+	for (size_t i = 0; i < mInteractObjects.size(); i++)
 	{
-		std::vector<PositionData> allPositionData(mInteractObjects.size());
-
-		//HOPEFULLY THIS ACCESS THE CORRECT OBJECT
-		for (size_t i = 0; i < mInteractObjects.size(); i++)
-		{
-			allPositionData[i] = mInteractObjects[i].second->getMovementData(mInteractObjects[i].first);
-		}
-
-		std::vector<std::byte> tempEncodedData;
-
-		sgct::serializeObject(tempEncodedData, allPositionData);
-		allPositionData.clear();
-
-		return tempEncodedData;
+		allPositionData[i] = mInteractObjects[i].second->getMovementData(mInteractObjects[i].first);
 	}
+
+	std::vector<std::byte> tempEncodedData;
+
+	sgct::serializeObject(tempEncodedData, allPositionData);
+	allPositionData.clear();
+
+	return tempEncodedData;
 }
 
 void Game::setDecodedPositionData(const std::vector<PositionData>& newState)
 {
-	//TODO find out why newState has one too many slots
+	//TODO This function seems kind of error prone
 	if (!sgct::Engine::instance().isMaster())
 	{
 		for (const auto& newData : newState)
 		{			
-			//If the object doesn't exist on this node yet
-			if (newState.size() != mInteractObjects.size() && !sgct::Engine::instance().isMaster())
+			if (newState.size() < mInteractObjects.size())
+				sgct::Log::Warning("newState.size() < mInteractObjects.size()");
+
+
+			if (newState.size() > mInteractObjects.size())
 			{
 				//UGLY SOLUTION, create temp objects to update afterwards
 				//TODO fix this ugly shit
 				while (mInteractObjects.size() != newState.size())
 				{
-					auto tempPlayer = std::unique_ptr<GameObject>{ new Player("fish", 10.f, glm::quat(glm::vec3(2.f, 0.f, 0.f)), 0.f, "hejhej", 0.f) };
-					mInteractObjects.push_back(std::make_pair(mUniqueId++, std::move(tempPlayer)));
+					std::shared_ptr<GameObject> tempPlayer{ new Player("fish", 10.f, glm::quat(glm::vec3(2.f, 0.f, 0.f)), 0.f, "temp", 0.f) };
+					addGameObject(std::move(tempPlayer));
 				}
-				std::cout << "obj size: " << mInteractObjects.size() << ", newState size: " << newState.size() << "\n";
 			}
 			mInteractObjects[newData.mId].second->setMovementData(newData);
 		}
@@ -187,13 +172,15 @@ void Game::updateTurnSpeed(std::tuple<unsigned int, float>&& input)
 
 	//Unsure if this is a good way of finding GameObject
 	//Looks kinda ugly and could probably be put in seperate method
-	//TODO implemented faster search function (mInteractObjects should be sorted)
+	//TODO implemented faster search function (mInteractObjects is sorted)
 	auto it = std::find_if(mInteractObjects.begin(), mInteractObjects.end(),
-		[id](std::pair<unsigned int, std::unique_ptr<GameObject>>& pair)
+		[id](std::pair<unsigned int, std::shared_ptr<GameObject>>& pair)
 			{ return pair.first == id; });
 
+	//If object is not found something has gone wrong
+	assert(it != mInteractObjects.end());
+
 	(*it).second->setTurnSpeed(rotAngle);
-	
 }
 
 void Game::rotateAllGameObjects(float newOrientation)

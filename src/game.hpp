@@ -66,16 +66,13 @@ public:
 	void addObject(std::shared_ptr<Renderable> obj);
 
 	//Add object to mInteractObjects
-	void addGameObject(std::unique_ptr<GameObject> obj);
+	void addGameObject(std::shared_ptr<GameObject> obj);
 
 	//Add object to mInteractObjects from tuple
 	void addGameObject(std::tuple<unsigned int, std::string>&& inputTuple);
 
 	//Add object to mInteractObjects with id
-	void addGameObject(std::unique_ptr<GameObject> obj, unsigned id);
-
-	//Add object to mRenderObjects
-	void addRenderable(std::unique_ptr<Renderable> obj);
+	void addGameObject(std::shared_ptr<GameObject> obj, unsigned& id);
 
 	//Update all gameobjects
 	void update();
@@ -107,11 +104,11 @@ private:
 	//All models loaded into a pool (vertices + textures, see mesh.hpp)
 	std::map<std::string, Model> mModels;
 
-	//All renderable objects
-	std::vector<std::unique_ptr<Renderable>> mRenderObjects;
+	//All renderable objects, ptrs point to same obj as mInteractObjects
+	std::vector<std::shared_ptr<Renderable>> mRenderObjects;
 
 	//All interactble objects in pair for id access/searching
-	std::vector<std::pair<unsigned int, std::unique_ptr<GameObject>>> mInteractObjects;
+	std::vector<std::pair<unsigned int, std::shared_ptr<GameObject>>> mInteractObjects;
 
 	//GameObjects unique id generator
 	static unsigned int mUniqueId;
@@ -130,6 +127,9 @@ private:
 //Functions
 	//Constructor
 	Game();
+
+	//Add object to mRenderObjects
+	void addRenderable(std::shared_ptr<Renderable> obj);
 
 	//Load model into pool
 	void loadModel(const std::string& modelName);
