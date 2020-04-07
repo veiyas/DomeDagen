@@ -257,7 +257,7 @@ void messageReceived(const void* data, size_t length) {
 
 		std::unique_ptr<GameObject> tempPlayer{
 			new Player("fish", 50.f, glm::quat(glm::vec3(rng(gen), 0.f, rng(gen))), 0.f, playerName, 0.2f) };
-		Game::getInstance().addGameObject(std::move(tempPlayer), playerId);		
+		Game::getInstance().addGameObject(std::move(tempPlayer), playerId);
 	}
 	
 	// If first slot is 'C', the rotation angle has been sent
