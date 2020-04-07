@@ -239,35 +239,33 @@ void messageReceived(const void* data, size_t length) {
 
 	std::string message = msg.data();
 
-	//Ignore the "remote connection from <ip>" message
-	if (message._Starts_with("R")) {
-		return;
-	}
+	if (!message.empty())
+	{
+		std::istringstream iss(message);
+		char msgType;
+		iss >> msgType;
 
-	std::istringstream iss(message);
-	char msgType;
-	iss >> msgType;
+		// If first slot is 'N', a name and unique ID has been sent
+		if (message.substr(0,1) == "N") {
+			Log::Info("Player connected: %s", message.c_str());
+			std::string playerName;
+			unsigned int playerId;
+			std::tie(playerId, playerName) = Utility::getNewPlayerData(message);
 
-	// If first slot is 'N', a name and unique ID has been sent
-	if (message._Starts_with("N")) {
-		Log::Info("Player connected: %s", message.c_str());
-		std::string playerName;
-		unsigned int playerId;
-		std::tie(playerId, playerName) = Utility::getNewPlayerData(message);
+			std::unique_ptr<GameObject> tempPlayer{
+				new Player("fish", 50.f, glm::quat(glm::vec3(rng(gen), 0.f, rng(gen))), 0.f, playerName, 0.5f) };
+			Game::getInstance().addGameObject(std::move(tempPlayer), playerId);
+		}
 
-		std::unique_ptr<GameObject> tempPlayer{
-			new Player("fish", 50.f, glm::quat(glm::vec3(rng(gen), 0.f, rng(gen))), 0.f, playerName, 0.2f) };
-		Game::getInstance().addGameObject(std::move(tempPlayer), playerId);		
-	}
-	
-	// If first slot is 'C', the rotation angle has been sent
-	if(message._Starts_with("C")) {
-		//Log::Info("Controller feedback");
-		unsigned int id;
-		iss >> id;
-		float rotAngle;
-		iss >> rotAngle;
+		// If first slot is 'C', the rotation angle has been sent
+		if (message.substr(0, 1) == "C") {
+			//Log::Info("Controller feedback");
+			unsigned int id;
+			iss >> id;
+			float rotAngle;
+			iss >> rotAngle;
 
-		Game::getInstance().updateTurnSpeed(id, rotAngle);
+			Game::getInstance().updateTurnSpeed(id, rotAngle);
+		}
 	}
 }
