@@ -1,5 +1,7 @@
 
 var serverAddress;
+
+//Request server adress when document is loaded
 $($.ajax({
   url: '/config',
   complete: function(data) {
@@ -9,6 +11,7 @@ $($.ajax({
     initialize();
   }
 }));
+
 // const serverAddress = 'ws://192.168.10.225:81/';
 var socket;
 var screens = new Map();
@@ -21,6 +24,10 @@ function log(msg) {
 // Set up everything the front-end application needs.
 // Called on load for <body>.
 function initialize() {
+  if (!serverAddress) {
+    log('Error: Connection tried to open before adress was set');
+  }
+
   socket = new WebSocket(serverAddress);
   socket.onopen = function(event) {
     log('Connection is opened');
@@ -47,7 +54,7 @@ function initialize() {
   var connectButton = document.querySelector('#connect');
   connectButton.addEventListener('click', () => {
     connected = true; // Mock connection state, should probably be handled in conjunction with the back-end
-    setCurrentScreen('gameRunningScreen')
+    setCurrentScreen('gameRunningScreen');
   })
 }
 
@@ -68,11 +75,12 @@ function setCurrentScreen(screenID) {
 
 // Send client's name to server
 function sendName() {
-  
+  // TODO Add input validation (no spaces, char limit, etc)
+  // Should ofc be validated server-side as well
   name = document.getElementById("lname").value.trim();
   if (socket.readyState === WebSocket.OPEN)
   {    
-    var stringToSend = `N ${name}`;;
+    var stringToSend = `N ${name}`;
     socket.send(stringToSend);
   }
 }
