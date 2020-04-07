@@ -87,6 +87,18 @@ void Game::addGameObject(std::unique_ptr<GameObject> obj)
 		mInteractObjects.push_back(std::make_pair(mUniqueId++, std::move(obj)));
 }
 
+void Game::addGameObject(std::tuple<unsigned int, std::string>&& inputTuple)
+{
+	if (sgct::Engine::instance().isMaster())
+	{
+		std::unique_ptr<GameObject> tempPlayer{
+		new Player("fish", 50.f, glm::quat(glm::vec3(0.f,0.f,0.f)), 0.f, std::get<1>(inputTuple) , 0.5f) };
+		
+		mInteractObjects.push_back(std::make_pair(std::get<0>(inputTuple), std::move(tempPlayer)));
+		mUniqueId++;
+	}
+}
+
 void Game::addGameObject(std::unique_ptr<GameObject> obj, unsigned id)
 {
 	if (sgct::Engine::instance().isMaster())
@@ -128,6 +140,8 @@ std::vector<std::byte> Game::getEncodedPositionData() const
 	if (sgct::Engine::instance().isMaster())
 	{
 		std::vector<PositionData> allPositionData(mInteractObjects.size());
+
+		//HOPEFULLY THIS ACCESS THE CORRECT OBJECT
 		for (size_t i = 0; i < mInteractObjects.size(); i++)
 		{
 			allPositionData[i] = mInteractObjects[i].second->getMovementData(mInteractObjects[i].first);
@@ -170,10 +184,14 @@ void Game::setDecodedPositionData(const std::vector<PositionData>& newState)
 	}
 }
 
-void Game::updateTurnSpeed(unsigned int id, float rotAngle)
+void Game::updateTurnSpeed(std::tuple<unsigned int, float>&& input)
 {
+	unsigned id = std::get<0>(input);
+	float rotAngle = std::get<1>(input);
+
 	//Unsure if this is a good way of finding GameObject
 	//Looks kinda ugly and could probably be put in seperate method
+	//TODO implemented faster search function (mInteractObjects should be sorted)
 	auto it = std::find_if(mInteractObjects.begin(), mInteractObjects.end(),
 		[id](std::pair<unsigned int, std::unique_ptr<GameObject>>& pair)
 			{ return pair.first == id; });

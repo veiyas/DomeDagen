@@ -23,7 +23,7 @@
 #include "utility.hpp"
 
 //Temp name holders for easier file reading
-const std::vector<std::string> allModelNames{ "fish" };
+const std::vector<std::string> allModelNames{ "fish", "can1", "can2", "can3", "can4", "bottle1", "bottle2", "bottle3", "sixpack1", "sixpack2", "sixpack3" };
 const std::vector<std::string> allShaderNames{ "player", "testing", "sceneobject" };
 
 // abock;  consider implementing all of this as an "implicit" singleton.  Instead of
@@ -68,6 +68,9 @@ public:
 	//Add object to mInteractObjects
 	void addGameObject(std::unique_ptr<GameObject> obj);
 
+	//Add object to mInteractObjects from tuple
+	void addGameObject(std::tuple<unsigned int, std::string>&& inputTuple);
+
 	//Add object to mInteractObjects with id
 	void addGameObject(std::unique_ptr<GameObject> obj, unsigned id);
 
@@ -87,7 +90,7 @@ public:
 	void setDecodedPositionData(const std::vector<PositionData>& newState);
 
 	//Set the turn speed of player player with id id
-	void updateTurnSpeed(unsigned int id, float rotAngle);
+	void updateTurnSpeed(std:: tuple<unsigned int, float>&& input);
 
 	//DEBUGGING TOOL: apply orientation to all GameObjects
 	void rotateAllGameObjects(float newOrientation);

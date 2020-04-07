@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <iostream>
 #include <tuple>
+#include <sstream>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -30,11 +31,26 @@ public:
 		return "";
 	}
 
-	static std::tuple<unsigned, std::string> getNewPlayerData(std::string input)
+	static std::tuple<unsigned, std::string> getNewPlayerData(std::istringstream& input)
 	{
-		std::string name = input.substr(input.find(" ") + 1, input.find("|") - 2);
-		unsigned id = std::stoi(input.substr(input.find("|") + 1, input.find("|") + 2));
+		unsigned int id;
+		std::string name;
+
+		input >> id;
+		input >> name;
+
 		return std::make_tuple(id, name);
+	}
+
+	static std::tuple<unsigned int, float> getTurnSpeed(std::istringstream& input)
+	{
+		unsigned int id;
+		float rotAngle;
+
+		input >> id;		
+		input >> rotAngle;
+
+		return std::make_tuple(id, rotAngle);
 	}
 
 	static unsigned int textureFromFile(const char* path, const std::string& directory, bool gamma = false)
