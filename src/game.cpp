@@ -128,6 +128,8 @@ std::vector<std::byte> Game::getEncodedPositionData() const
 	if (sgct::Engine::instance().isMaster())
 	{
 		std::vector<PositionData> allPositionData(mInteractObjects.size());
+
+		//HOPEFULLY THIS ACCESS THE CORRECT OBJECT
 		for (size_t i = 0; i < mInteractObjects.size(); i++)
 		{
 			allPositionData[i] = mInteractObjects[i].second->getMovementData(mInteractObjects[i].first);
