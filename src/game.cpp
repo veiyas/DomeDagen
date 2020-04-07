@@ -157,14 +157,19 @@ std::vector<std::byte> Game::getEncodedPositionData() const
 
 void Game::setDecodedPositionData(const std::vector<PositionData>& newState)
 {
+	//TODO This function seems kind of error prone
 	if (!sgct::Engine::instance().isMaster())
 	{
 		for (const auto& newData : newState)
 		{			
-			//If the object doesn't exist on this node yet
-			if (newState.size() != mInteractObjects.size())
+			if (newState.size() < mInteractObjects.size())
+				sgct::Log::Warning("newState.size() < mInteractObjects.size()");
+
+
+			if (newState.size() > mInteractObjects.size())
 			{
-				//Create temp objects to update afterwards [UGLY SOLUTION]
+
+				//UGLY SOLUTION, create temp objects to update afterwards
 				//TODO fix this ugly shit
 				while (mInteractObjects.size() != newState.size())
 				{
@@ -190,8 +195,10 @@ void Game::updateTurnSpeed(std::tuple<unsigned int, float>&& input)
 		[id](std::pair<unsigned int, std::unique_ptr<GameObject>>& pair)
 			{ return pair.first == id; });
 
+	//If object is not found something has gone wrong
+	assert(it != mInteractObjects.end());
+
 	(*it).second->setTurnSpeed(rotAngle);
-	
 }
 
 void Game::rotateAllGameObjects(float newOrientation)
