@@ -27,6 +27,8 @@ set_property(TARGET sgct PROPERTY FOLDER "Dependencies")
 
 add_subdirectory(ext/assimp)
 set_property(TARGET assimp PROPERTY FOLDER "Dependencies")
+set_property(TARGET assimp PROPERTY CXX_STANDARD 17)
+set_property(TARGET assimp PROPERTY CXX_STANDARD_REQUIRED ON)
 
 
 #
