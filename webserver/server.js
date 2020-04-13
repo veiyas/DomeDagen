@@ -22,6 +22,7 @@ global.playerList = new Map(); // {"ip", id}
 //
 var config = JSON.parse(fs.readFileSync('config.json'));
 console.log(config.gameAddress);
+console.log(config.serverAddress);
 const port = config.serverPort;
 const gameAddress = config.gameAddress;
 

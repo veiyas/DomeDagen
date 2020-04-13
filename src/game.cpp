@@ -17,6 +17,38 @@ Game::Game()
 		loadShader(shaderName);
 }
 
+void Game::detectCollisions()
+{
+	if (mInteractObjects.size() > 1)
+	{
+		for (size_t i = 0; i < mInteractObjects.size(); i++)
+		{
+			for (size_t j = i + 1; j < mInteractObjects.size(); j++)
+			{
+				auto quat1 = (mInteractObjects[i].second->getPosition());
+				auto quat2 = (mInteractObjects[j].second->getPosition());
+
+				auto z = glm::normalize(glm::inverse(quat1) * quat2);
+
+				//Collision detection by comparing how small the angle between the fishes are
+				//From https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+				auto sinxPart = 2.f * (z.w * z.x + z.y * z.z);
+				auto cosxPart = 1.f - 2.f * (z.x*z.x + z.y*z.y);
+				auto xAngle = std::atan2(sinxPart, cosxPart);
+				
+				auto sinyPart = 2.f * (z.w * z.y - z.z * z.x);
+				auto yAngle = std::asin(sinyPart);
+
+				if (std::abs(xAngle) <= collisionDistance && std::abs(yAngle) <= collisionDistance)
+				{
+					//TODO collision interactions
+					std::cout << i << " <=> " << j << " collided\n";
+				}
+			}
+		}
+	}
+}
+
 void Game::init()
 {
 	mInstance = new Game{};
@@ -110,6 +142,8 @@ void Game::update()
 
 	float currentFrameTime = static_cast<float>(sgct::Engine::getTime());
 	float deltaTime = currentFrameTime - mLastFrameTime;
+
+	detectCollisions();
 
 	for (auto& [id, obj] : mInteractObjects)
 	{

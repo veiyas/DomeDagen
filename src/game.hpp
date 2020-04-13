@@ -8,6 +8,7 @@
 #include <memory>
 #include <utility>
 #include <tuple>
+#include <cmath>
 
 #include "sgct/mutexes.h"
 #include "sgct/shareddata.h"
@@ -120,9 +121,14 @@ private:
 	//The time of the last update (in seconds)
 	float mLastFrameTime;
 
+	static constexpr double collisionDistance = 0.2f;
+
 //Functions
 	//Constructor
 	Game();
+
+	//Collision detection in mInteractObjects, bubble style
+	void detectCollisions();
 
 	//Add object to mRenderObjects
 	void addRenderable(std::shared_ptr<Renderable> obj);

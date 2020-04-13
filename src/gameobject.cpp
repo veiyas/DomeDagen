@@ -49,7 +49,7 @@ void GameObject::setMovementData(const PositionData& newState)
 
 void GameObject::update(float deltaTime)
 {
-
+	
 }
 
 glm::mat4 GameObject::getTransformation() const
