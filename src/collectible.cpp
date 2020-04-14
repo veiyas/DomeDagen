@@ -18,3 +18,13 @@ void Collectible::render(const glm::mat4& mvp) const
 
 	mShaderProgram.unbind();
 }
+
+void Collectible::setNext(Collectible* node)
+{
+	mNext = node;
+}
+
+Collectible* Collectible::getNext()
+{
+	return mNext;
+}

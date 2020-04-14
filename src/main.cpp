@@ -134,6 +134,7 @@ void draw(const RenderData& data) {
 
 void initOGL(GLFWwindow*) {
 	Game::init();
+	CollectiblePool::init();
 
 	/**********************************/
 	/*			 Debug Area			  */
@@ -146,9 +147,6 @@ void initOGL(GLFWwindow*) {
 	//	new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, -1.f + 0.3 * i)), 0.f, "Player " + std::to_string(i+1), 0.5f) };
 	//	Game::getInstance().addGameObject(std::move(temp));
 	//}
-
-	CollectiblePool testPool{};
-	std::cout << "stop\n";
 }
 
 

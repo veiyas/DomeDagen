@@ -1,4 +1,5 @@
 #pragma once
+
 #include "gameobject.hpp"
 #include "geometryhandler.hpp"
 
@@ -16,12 +17,21 @@ public:
 	void update(float deltaTime) override {};
 	void setSpeed(float speed) override {};
 
+	//Set next node in list
+	void setNext(Collectible* node);
+
+	//Get next node
+	Collectible* getNext();
+
 	//Give collectiblepool access to privates
 	friend class CollectiblePool;
 
 private:
 	bool mEnabled = false;
 	float mSpeed;
+
+	//Pointer used to implement free list functionality (constant time access!)
+	Collectible* mNext = nullptr;
 
 	constexpr bool isEnabled() const { return mEnabled; }
 	void enable() { mEnabled = true; }

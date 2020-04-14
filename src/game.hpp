@@ -9,6 +9,7 @@
 #include <utility>
 #include <tuple>
 #include <cmath>
+#include <random>
 
 #include "sgct/mutexes.h"
 #include "sgct/shareddata.h"
@@ -21,11 +22,13 @@
 
 #include "renderable.hpp"
 #include "gameobject.hpp"
+#include "constants.hpp"
 #include "utility.hpp"
 
 //Temp name holders for easier file reading
-const std::vector<std::string> allModelNames{ "fish", "can1", "can2", "can3", "can4", "bottle1", "bottle2", "bottle3", "sixpack1", "sixpack2", "sixpack3" };
-const std::vector<std::string> allShaderNames{ "player", "testing", "sceneobject", "collectible" };
+//TODO add diver
+//const std::vector<std::string> allModelNames{ "fish", "can1", "can2", "can3", "can4", "bottle1", "bottle2", "bottle3", "sixpack1", "sixpack2", "sixpack3" };
+//const std::vector<std::string> allShaderNames{ "player", "testing", "sceneobject", "collectible" };
 
 // abock;  consider implementing all of this as an "implicit" singleton.  Instead of
 // making the functions static, you create a single instance of Game in the main.cpp and
@@ -100,6 +103,9 @@ private:
 
 	//All interactble objects in pair for id access/searching
 	std::vector<std::pair<unsigned int, std::shared_ptr<GameObject>>> mInteractObjects;
+
+	////Object pool of collectibles
+	//CollectiblePool mCPool;
 
 	//GameObjects unique id generator
 	static unsigned int mUniqueId;
