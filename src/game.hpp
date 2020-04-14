@@ -25,7 +25,7 @@
 
 //Temp name holders for easier file reading
 const std::vector<std::string> allModelNames{ "fish", "can1", "can2", "can3", "can4", "bottle1", "bottle2", "bottle3", "sixpack1", "sixpack2", "sixpack3" };
-const std::vector<std::string> allShaderNames{ "player", "testing", "sceneobject" };
+const std::vector<std::string> allShaderNames{ "player", "testing", "sceneobject", "collectible" };
 
 // abock;  consider implementing all of this as an "implicit" singleton.  Instead of
 // making the functions static, you create a single instance of Game in the main.cpp and
@@ -41,7 +41,7 @@ public:
 	//Init instance and print useful shader and model info
 	static void init();
 
-	//Get instance
+	//If Game doesnt exist, create one and return it
 	static Game& getInstance();
 
 	//Check if instance is running
@@ -69,14 +69,8 @@ public:
 	//Add object to mInteractObjects and mRenderObjects from tuple
 	void addGameObject(std::tuple<unsigned int, std::string>&& inputTuple);
 
-	//Add object to mInteractObjects and mRenderObjects with id
-	void addGameObject(std::shared_ptr<GameObject> obj, unsigned& id);
-
 	//Update all gameobjects
 	void update();
-
-	//ALEX'S WISDOM: LET'S NOT GIVE ACCESS TO THIS CLASS INTERNALS OUTSIDE
-	//WRAP EVERYTHING IN METHODS THAT WONT EXPOSE INTERNALS
 
 	//Get and encode position data
 	std::vector<std::byte> getEncodedPositionData() const;
@@ -126,6 +120,10 @@ private:
 //Functions
 	//Constructor
 	Game();
+
+	//Add object to mInteractObjects and mRenderObjects with id
+	//Called by public addGameObject methods
+	void addGameObject(std::shared_ptr<GameObject> obj, unsigned& id);
 
 	//Collision detection in mInteractObjects, bubble style
 	void detectCollisions();

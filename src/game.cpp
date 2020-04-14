@@ -3,7 +3,7 @@
 #include <sgct/engine.h>
 
 
-//Define instance
+//Define instance and id counter
 Game* Game::mInstance = nullptr;
 unsigned int Game::mUniqueId = 0;
 
@@ -57,7 +57,6 @@ void Game::init()
 
 Game& Game::getInstance()
 {
-	//If Game doesnt exist, create one. Return it.
 	if (!mInstance) {
 		mInstance = new Game{};
 	}
@@ -142,6 +141,8 @@ void Game::update()
 
 	float currentFrameTime = static_cast<float>(sgct::Engine::getTime());
 	float deltaTime = currentFrameTime - mLastFrameTime;
+
+	//TODO Spawn collectibles
 
 	detectCollisions();
 

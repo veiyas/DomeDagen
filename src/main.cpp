@@ -17,6 +17,7 @@
 #include "game.hpp"
 #include "sceneobject.hpp"
 #include "player.hpp"
+#include "collectiblepool.hpp"
 
 namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
@@ -139,12 +140,15 @@ void initOGL(GLFWwindow*) {
 	/**********************************/
 	constexpr float radius = 50.f;
 
-	for (size_t i = 0; i < 1; i++)
-	{
-		std::shared_ptr<GameObject> temp{
-		new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, -1.f + 0.3 * i)), 0.f, "Player " + std::to_string(i+1), 0.5f) };
-		Game::getInstance().addGameObject(std::move(temp));
-	}
+	//for (size_t i = 0; i < 1; i++)
+	//{
+	//	std::shared_ptr<GameObject> temp{
+	//	new Player("fish", radius, glm::quat(glm::vec3(1.f, 0.f, -1.f + 0.3 * i)), 0.f, "Player " + std::to_string(i+1), 0.5f) };
+	//	Game::getInstance().addGameObject(std::move(temp));
+	//}
+
+	CollectiblePool testPool{};
+	std::cout << "stop\n";
 }
 
 
