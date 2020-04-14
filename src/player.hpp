@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <iostream>
 #include <tuple>
 
@@ -8,6 +9,8 @@
 
 #include "gameobject.hpp"
 #include "geometryhandler.hpp"
+
+const std::vector<glm::vec3> allPlayerColours{ {1.f, 1.f, 0.f}, {1.f, 0.f, 1.f}, {0.f, 1.f, 1.f}, {0.5f, 1.f, 0.f}, {1.f, 0.5f, 0.f}, {0.f, 0.5f, 1.f} };
 
 class Player : public GameObject, private GeometryHandler
 {
@@ -52,4 +55,10 @@ private:
 	bool  mIsAlive;
 	float mSpeed;
 	const std::string mName;
+
+	// frans; Trying something with colors
+	const glm::vec3 mPrimaryColour;
+	const glm::vec3 mSecondaryColour;
+	GLint mPrimaryColLoc;
+	GLint mSecondaryColLoc;
 };
