@@ -1,6 +1,6 @@
 #pragma once
 
-#include "game.hpp"
+#include "modelhandler.hpp"
 
 //This class is privately inherited to classes needing models and accompanied functionality
 class GeometryHandler
@@ -8,7 +8,7 @@ class GeometryHandler
 public:
 	GeometryHandler(const std::string& shaderProgramName, const std::string& objectModelName)
 		:mShaderProgram{sgct::ShaderManager::instance().shaderProgram(shaderProgramName)},
-		 mModel{Game::getInstance().getModel(objectModelName)} {}
+		 mModel{ModelManager::instance().getModel(objectModelName)} {}
 
 	//Shader matrix locations
 	GLint mTransMatrixLoc = -1;

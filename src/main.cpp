@@ -17,6 +17,7 @@
 #include "game.hpp"
 #include "sceneobject.hpp"
 #include "player.hpp"
+#include "modelhandler.hpp"
 
 namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
@@ -88,7 +89,7 @@ int main(int argc, char** argv) {
 
 	//Initialize engine
 	try {
-		Engine::create(cluster, callbacks, config);
+		Engine::create(cluster, callbacks, config);		
 	}
 	catch (const std::runtime_error & e) {
 		Log::Error("%s", e.what());
@@ -132,6 +133,7 @@ void draw(const RenderData& data) {
 }
 
 void initOGL(GLFWwindow*) {
+	ModelManager::init();
 	Game::init();
 
 	/**********************************/

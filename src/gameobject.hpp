@@ -12,7 +12,6 @@
 #include "glad/glad.h"
 
 #include "renderable.hpp"
-#include "model.hpp"
 
 //POD struct to encode/decode game state data
 //Ctor, initialisation disallowed to KEEP IT POD

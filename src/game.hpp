@@ -23,10 +23,6 @@
 #include "gameobject.hpp"
 #include "utility.hpp"
 
-//Temp name holders for easier file reading
-const std::vector<std::string> allModelNames{ "fish", "can1", "can2", "can3", "can4", "bottle1", "bottle2", "bottle3", "sixpack1", "sixpack2", "sixpack3" };
-const std::vector<std::string> allShaderNames{ "player", "testing", "sceneobject" };
-
 // abock;  consider implementing all of this as an "implicit" singleton.  Instead of
 // making the functions static, you create a single instance of Game in the main.cpp and
 // then pass this around.  Personally, I enjoy that method of handling singletons better
@@ -90,9 +86,6 @@ public:
 	//DEBUGGING TOOL: apply orientation to all GameObjects
 	void rotateAllGameObjects(float newOrientation);
 
-	//Accessors
-	const Model& getModel(const std::string& nameKey);
-
 private:
 //Members
 	//Singleton instance of game
@@ -141,9 +134,6 @@ private:
 
 	//Display current list of shaders, called by printLoadedAssets()
 	void printShaderPrograms() const;
-
-	//Display current list of models, called by printLoadedAssets()
-	void printModelNames() const;
 
 	const glm::mat4& getMVP() { return mMvp; };
 };

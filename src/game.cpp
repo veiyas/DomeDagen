@@ -11,8 +11,6 @@ Game::Game()
 	: mMvp{ glm::mat4{1.f} }, mLastFrameTime{ -1 }
 {
 	//Loads all models and shaders into pool
-	for (const std::string& modelName : allModelNames)
-		loadModel(modelName);
 	for (const std::string& shaderName : allShaderNames)
 		loadShader(shaderName);
 }
@@ -80,20 +78,8 @@ void Game::printShaderPrograms() const
 	sgct::Log::Info(output.c_str());
 }
 
-void Game::printModelNames() const
-{
-	std::string output = "Loaded models:";
-
-	for (const std::pair<const std::string, Model>& p : mModels)
-	{
-		output += "\n       " + p.first;
-	}
-	sgct::Log::Info("%s", output.c_str());
-}
-
 void Game::printLoadedAssets() const
 {
-	mInstance->printModelNames();
 	mInstance->printShaderPrograms();
 }
 
@@ -149,8 +135,6 @@ void Game::update()
 	{
 		obj->update(deltaTime);
 	}
-
-	//TODO check for collisions
 
 	mLastFrameTime = currentFrameTime;
 }
@@ -222,11 +206,6 @@ void Game::rotateAllGameObjects(float newOrientation)
 	{
 		obj->setOrientation(obj->getOrientation() + newOrientation);
 	}
-}
-
-const Model& Game::getModel(const std::string& nameKey)
-{
-	return mModels[nameKey];
 }
 
 void Game::loadModel(const std::string& modelName)
