@@ -51,6 +51,10 @@ body {
     padding: 30px;
 }
 
+.hidden {
+    display: none !important;
+}
+
 /* GUI ELEMENTS */
 input {
     background-color: var(--guiLight);

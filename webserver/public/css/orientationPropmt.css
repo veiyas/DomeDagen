@@ -1,0 +1,35 @@
+@media (orientation: landscape) {
+    #orientationPrompt {
+        display: none;
+    }
+
+    #promptBackground {
+        display: none;
+    }
+}
+
+#orientationPrompt {
+    height: 100%;
+    padding: 100px 150px;
+    position: absolute;
+    width: 100%;
+}
+
+#promptBackground {
+    background-color: var(--guiDark);
+    height: 100%;
+    opacity: 50%;
+    position: absolute;
+    width: 100%;
+}
+
+#orientationPrompt p {
+    font-size: 5rem;
+    text-align: center;
+}
+
+#orientationPrompt img {
+    height: 33vh;
+    object-fit: contain;
+    width: 33vh;
+}
