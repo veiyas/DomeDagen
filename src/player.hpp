@@ -4,13 +4,15 @@
 #include <vector>
 #include <iostream>
 #include <tuple>
+#include <algorithm>
+#include <random>
+#include <chrono>
 
 #include "sgct/log.h"
 
 #include "gameobject.hpp"
 #include "geometryhandler.hpp"
 
-const std::vector<glm::vec3> allPlayerColours{ {1.f, 1.f, 0.f}, {1.f, 0.f, 1.f}, {0.f, 1.f, 1.f}, {0.5f, 1.f, 0.f}, {1.f, 0.5f, 0.f}, {0.f, 0.5f, 1.f} };
 
 class Player : public GameObject, private GeometryHandler
 {
@@ -57,8 +59,41 @@ private:
 	const std::string mName;
 
 	// frans; Trying something with colors
-	const glm::vec3 mPrimaryColour;
-	const glm::vec3 mSecondaryColour;
+	const std::pair<glm::vec3, glm::vec3> mPlayerColours;
 	GLint mPrimaryColLoc;
 	GLint mSecondaryColLoc;
+
+	struct ColourSelector
+	{
+		ColourSelector();
+
+		std::vector<glm::vec3> mPrimaryColours{
+			{0.2f, 0.2f, 0.2f},		// Dark gray
+			{0.3f, 0.3f, 0.5f},		// Navy blue
+			{0.8f, 0.9f, 0.9f},		// Pale sky blue
+			{0.1f, 0.3f, 0.3f},		// Dark green
+			{0.5f, 0.2f, 0.2f},		// Brown
+			{0.9f, 0.9f, 0.8f},		// Beige
+			{0.3f, 0.2f, 0.3f},		// Mauve
+			{0.4f, 0.1f, 0.2f},		// Wine red
+		};
+		std::vector<glm::vec3> mSecondaryColours{
+			{1.f, 0.2f, 0.2f},		// Red
+			{1.f, 0.4f, 0.8f},		// Pink
+			{0.4f, 0.8f, 1.f},		// Cyan
+			{1.f, 1.f, 0.1f},		// Yellow
+			{0.4f, 1.f, 0.2f},		// Green
+			{1.f, 0.7f, 0.2f},		// Orange
+			{0.8f, 0.6f, 1.f},		// Lavender
+			{0.8f, 0.8f, 0.8f}		// Silver
+		};
+
+		std::vector<glm::vec3>::iterator mPrimaryIt;
+		std::vector<glm::vec3>::iterator mSecondaryIt;
+
+		std::pair<glm::vec3, glm::vec3> getNextPair();
+		void shuffle();
+		void reset();
+	};
+	static ColourSelector mColourSelector;
 };
