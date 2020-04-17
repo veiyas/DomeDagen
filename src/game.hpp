@@ -58,12 +58,13 @@ public:
 	//Set MVP matrix
 	void setMVP(const glm::mat4& mvp) { mMvp = mvp;};
 
-	//Use data oriented approach for interactable objects
+	//Mostly used for debugging
 	void addPlayer();
 
-	//Reduces memory accesses & cache misses when objects are sequential in memory
+	//Add player from playerdata for instant sync
 	void addPlayer(const PlayerData& p);
 
+	//Add player from server request
 	void addPlayer(std::tuple<unsigned int, std::string>&& inputTuple);
 
 	//Update all gameobjects
@@ -95,8 +96,10 @@ private:
 	//All players stored sequentually
 	std::vector<Player> mPlayers;
 
-	//GameObjects unique id generator
-	static unsigned int mUniqueId;
+	//TODO add collectible storage
+
+	//GameObjects unique id generator for player tagging
+	static unsigned int mUniqueId;	
 
 	//Track all loaded shaders' names
 	std::vector<std::string> mShaderNames;
@@ -120,9 +123,6 @@ private:
 
 	//Collision detection in mInteractObjects, bubble style
 	void detectCollisions();
-
-	//Add object to mRenderObjects
-	void addRenderable(std::shared_ptr<Renderable> obj);
 
 	//Read shader into ShaderManager
 	void loadShader(const std::string& shaderName);

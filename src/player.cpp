@@ -35,13 +35,12 @@ Player::Player(const std::string & objectModelName, float radius,
 Player::Player(const PlayerData& input)
 	: GameObject{ GameObject::PLAYER, input.mRadius, glm::quat{}, input.mOrientation },
 	GeometryHandler("player", "fish"),
-	mName{ std::string{input.mPlayerName} }, mPoints{ input.mPoints }, mIsAlive{ input.mIsAlive }, mSpeed{ input.mSpeed }
+	mName{ std::string(input.mNameLength, ' ') }, mPoints{ input.mPoints }, mIsAlive{ input.mIsAlive }, mSpeed{ input.mSpeed }
 {
 	//Copy new player name
-	std::string tempName(input.mNameLength, '_');
 	for (size_t i = 0; i < input.mNameLength; i++)
 	{
-		tempName[i] = input.mPlayerName[i];
+		mName[i] = input.mPlayerName[i];
 	}
 
 	glm::quat temp{};
@@ -51,7 +50,7 @@ Player::Player(const PlayerData& input)
 		temp.z = input.mZ;
 	setPosition(temp);
 
-	sgct::Log::Info("Player with name=\"%s\" created", tempName.c_str());
+	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
 	setShaderData();
 }
 

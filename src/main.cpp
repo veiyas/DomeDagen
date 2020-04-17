@@ -196,7 +196,6 @@ void preSync() {
 		// This doesn't have to happen every frame, but why not?
 		wsHandler->tick();
 
-		//TODO implement gamelogic
 		Game::getInstance().update();
 	}
 }

@@ -40,7 +40,6 @@ void Game::detectCollisions()
 
 	//			if (std::abs(xAngle) <= collisionDistance && std::abs(yAngle) <= collisionDistance)
 	//			{
-	//				//TODO collision interactions
 	//				std::cout << i << " <=> " << j << " collided\n";
 	//			}
 	//		}

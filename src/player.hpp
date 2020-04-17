@@ -12,6 +12,7 @@
 //POD struct to encode/decode game state data
 //Ctor, initialisation disallowed to KEEP IT POD
 constexpr unsigned NAMELIMIT = 20;
+
 struct PlayerData
 {
 public:
@@ -31,8 +32,10 @@ public:
 	int   mPoints;
 	bool  mEnabled;
 	bool  mIsAlive;
-	char mPlayerName[NAMELIMIT];
 
+	//These are only used when a new player is created on nodes
+	//C-style array because of POD
+	char mPlayerName[NAMELIMIT];
 	bool mNewPlayer;
 	unsigned mNameLength;
 };
@@ -40,16 +43,18 @@ public:
 class Player : public GameObject, private GeometryHandler
 {
 public:
-	//Default ctor used for creating temp objects before syncing new data
+	//Default ctor used for debugging
 	Player();
 
-	//Used for creating from tuple
+	//Used for creating from tuple (server requested)
 	Player(const std::string name);
-	//Ctor + Dtor
+
+	//Big ctor
 	Player(const std::string & objectModelName, float radius, 
 		   const glm::quat& position, float orientation,
 		   const std::string& name, float speed);
-	//Creating from positiondata
+
+	//Ctor from positiondata (syncing new players on nodes)
 	Player(const PlayerData& input);
 
 	//Dtor
@@ -69,8 +74,8 @@ public:
 	//Render obejct
 	void render(const glm::mat4& mvp) const override;
 
-	//Activator + deactivator
-	void setEnabled(bool state) { mEnabled = state; }
+	//Activator + deactivator	
+	void enablePlayer() { mEnabled = true; }
 	void disablePlayer() { mEnabled = false; }
 
 	//Accessors
@@ -82,6 +87,7 @@ public:
 	const std::string& getName() const { return mName; };
 
 	//Mutators
+	void setEnabled(bool state) { mEnabled = state; }
 	void setSpeed(float speed) override { mSpeed = speed; };
 	void setPoints(int points) { mPoints = points; };
 	void setIsAlive(bool isAlive) { mIsAlive = isAlive; };
@@ -93,7 +99,7 @@ private:
 	int   mPoints;
 	bool  mIsAlive;
 	float mSpeed;
-	const std::string mName;
+	std::string mName;
 
 	//If person disconnect/reconnect
 	bool mEnabled = true;
