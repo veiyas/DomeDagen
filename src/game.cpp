@@ -133,7 +133,7 @@ void Game::addRenderable(std::shared_ptr<Renderable> obj)
 	mRenderObjects.push_back(std::move(obj));
 }
 
-//DEBUGGING PURPOSES
+//DEBUGGING PURPOSES, TODO REMOVE WHEN DONE
 bool outputted = false;
 void Game::update()
 {
@@ -146,7 +146,7 @@ void Game::update()
 	float currentFrameTime = static_cast<float>(sgct::Engine::getTime());
 	float deltaTime = currentFrameTime - mLastFrameTime;
 	
-
+	//DEBUGGING PURPOSES, TODO REMOVE WHEN DONE
 	std::random_device randomDevice;
 	std::mt19937 gen(randomDevice());
 	std::uniform_real_distribution<> rng(-0.7f, 0.7f);
