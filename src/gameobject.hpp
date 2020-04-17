@@ -13,26 +13,6 @@
 
 #include "renderable.hpp"
 
-//POD struct to encode/decode game state data
-//Ctor, initialisation disallowed to KEEP IT POD
-struct PositionData
-{
-public:
-	//Unique identifier
-	unsigned int mId;
-	
-	float mRadius;
-	float mOrientation;
-	float mScale;
-	unsigned int mObjType;	
-
-	//Quat stuff
-	float mW;
-	float mX;
-	float mY;
-	float mZ;
-};
-
 //A GameObject is located att the surface of a sphere
 //and it has a side that is always facing origin.
 class GameObject : public Renderable
@@ -57,12 +37,6 @@ public:
 
 	//Render object, implemented by subclass
 	virtual void render(const glm::mat4& mvp) const = 0;
-
-	//Retrieve position data as plain-old data struct
-	PositionData getMovementData(unsigned int id);
-
-	//Write new position data from plain-old data struct
-	void setMovementData(const PositionData& newState);
 
 	//Update object (position, collision?)
 	virtual void update(float deltaTime);

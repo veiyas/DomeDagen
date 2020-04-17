@@ -9,12 +9,15 @@
 #include "constants.hpp"
 #include "model.hpp"
 
-//Singleton class to store models to reduce coupling
+//Explicit singleton class to store models to reduce coupling
 class ModelManager
 {
 public:
 	//Initialize instance and loads models
 	static void init();
+
+	//Dtor for cleanup
+	~ModelManager() { delete mInstance; }
 
 	//Get instance
 	static ModelManager& instance();
@@ -23,9 +26,9 @@ public:
 	const Model& getModel(const std::string& nameKey);
 
 private:
-	//The instance, ctor that loads models
+	//The singleton instance, ctor that loads models
 	static ModelManager* mInstance;
-	ModelManager();
+	ModelManager();	
 
 	//All models loaded into a pool (vertices + textures, see mesh.hpp)
 	void loadModel(const std::string& modelName);

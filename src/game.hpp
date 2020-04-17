@@ -19,8 +19,7 @@
 #include "sgct/shaderprogram.h"
 #include "glm/matrix.hpp"
 
-#include "renderable.hpp"
-#include "gameobject.hpp"
+#include "player.hpp"
 #include "utility.hpp"
 
 // abock;  consider implementing all of this as an "implicit" singleton.  Instead of
@@ -59,14 +58,13 @@ public:
 	//Set MVP matrix
 	void setMVP(const glm::mat4& mvp) { mMvp = mvp;};
 
-	//Add object to mInteractObjects and mRenderObjects
-	void addGameObject(std::shared_ptr<GameObject> obj);
+	//Use data oriented approach for interactable objects
+	void addPlayer();
 
-	//Add object to mInteractObjects and mRenderObjects from tuple
-	void addGameObject(std::tuple<unsigned int, std::string>&& inputTuple);
+	//Reduces memory accesses & cache misses when objects are sequential in memory
+	void addPlayer(const PlayerData& p);
 
-	//Add object to mInteractObjects and mRenderObjects with id
-	void addGameObject(std::shared_ptr<GameObject> obj, unsigned& id);
+	void addPlayer(std::tuple<unsigned int, std::string>&& inputTuple);
 
 	//Update all gameobjects
 	void update();
@@ -75,38 +73,30 @@ public:
 	//WRAP EVERYTHING IN METHODS THAT WONT EXPOSE INTERNALS
 
 	//Get and encode position data
-	std::vector<std::byte> getEncodedPositionData() const;
+	std::vector<std::byte> getEncodedPlayerData();
 
 	//Set position data from inputted data
-	void setDecodedPositionData(const std::vector<PositionData>& newState);
+	void setDecodedPositionData(const std::vector<PlayerData>& newState);
 
 	//Set the turn speed of player player with id id
 	void updateTurnSpeed(std:: tuple<unsigned int, float>&& input);
     
     //Remove player 
-    void removeGameObject(unsigned int& id);
+    void disablePlayer(unsigned id);
 
 	//DEBUGGING TOOL: apply orientation to all GameObjects
-	void rotateAllGameObjects(float newOrientation);
+	void rotateAllPlayers(float newOrientation);
 
 private:
 //Members
 	//Singleton instance of game
 	static Game* mInstance;
 
-	//All models loaded into a pool (vertices + textures, see mesh.hpp)
-	std::map<std::string, Model> mModels;
-
-	//All renderable objects, ptrs point to same obj as mInteractObjects
-	std::vector<std::shared_ptr<Renderable>> mRenderObjects;
-
-	//All interactble objects in pair for id access/searching
-	std::vector<std::pair<unsigned int, std::shared_ptr<GameObject>>> mInteractObjects;
+	//All players stored sequentually
+	std::vector<Player> mPlayers;
 
 	//GameObjects unique id generator
 	static unsigned int mUniqueId;
-
-	//TODO maybe a separate vector for objects with collision only (performance enhancement)
 
 	//Track all loaded shaders' names
 	std::vector<std::string> mShaderNames;
@@ -114,10 +104,15 @@ private:
 	//MVP matrix used for rendering
 	glm::mat4 mMvp;
 
+	//Slot after which players only present on master node exist
+	size_t mLastSyncedPlayer;
+
 	//The time of the last update (in seconds)
 	float mLastFrameTime;
 
-	static constexpr double collisionDistance = 0.2f;
+	static constexpr double collisionDistance = 0.2f; //TODO make this object specific
+	static constexpr size_t mMAXPLAYERS = 110;
+	static constexpr size_t mMAXCOLLECTIBLES = 300;
 
 //Functions
 	//Constructor
@@ -128,9 +123,6 @@ private:
 
 	//Add object to mRenderObjects
 	void addRenderable(std::shared_ptr<Renderable> obj);
-
-	//Load model into pool
-	void loadModel(const std::string& modelName);
 
 	//Read shader into ShaderManager
 	void loadShader(const std::string& shaderName);
