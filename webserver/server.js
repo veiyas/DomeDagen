@@ -73,7 +73,7 @@ wsServer.on('request', function (req) {
     });
   }
   else {
-    console.log(`Other connection from ${req.remoteAddress}`);    
+    console.log(`Other connection from ${req.remoteAddress}`);
 
     const addresses = connectionArray.map(c => c.socket.remoteAddress);
     if (addresses.indexOf(req.remoteAddress) === -1 || connectionArray.length === 0) {
@@ -117,10 +117,10 @@ wsServer.on('request', function (req) {
         connectionArray.splice(addresses.indexOf(remoteAddress), 1);
         const id = playerList.get(remoteAddress);
 
+        // TODO Let the game know a player has disconnected
         if (playerList.delete(remoteAddress)) {
+          gameSocket.send(`R ${id}`);
           console.log(`Removed player ${id} with ip ${remoteAddress}`);
-          
-          // TODO Let the game know a player has disconnected
         }
       });
     }

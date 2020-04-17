@@ -82,6 +82,9 @@ public:
 
 	//Set the turn speed of player player with id id
 	void updateTurnSpeed(std:: tuple<unsigned int, float>&& input);
+    
+    //Remove player 
+    void removeGameObject(unsigned int& id);
 
 	//DEBUGGING TOOL: apply orientation to all GameObjects
 	void rotateAllGameObjects(float newOrientation);

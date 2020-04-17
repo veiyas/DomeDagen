@@ -200,6 +200,19 @@ void Game::updateTurnSpeed(std::tuple<unsigned int, float>&& input)
 	(*it).second->setTurnSpeed(rotAngle);
 }
 
+void Game::removeGameObject(unsigned int& id)
+{
+    //TODO implemented faster search function (mInteractObjects is sorted)
+    auto it = std::find_if(mInteractObjects.begin(), mInteractObjects.end(),
+        [id](std::pair<unsigned int, std::shared_ptr<GameObject>>& pair)
+            { return pair.first == id; });
+    
+    //If object is not found something has gone wrong
+    assert(it != mInteractObjects.end());
+
+    //TODO remove the found player
+}
+
 void Game::rotateAllGameObjects(float newOrientation)
 {
 	for (auto& [id, obj] : mInteractObjects)
