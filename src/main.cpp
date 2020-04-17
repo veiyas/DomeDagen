@@ -248,5 +248,12 @@ void messageReceived(const void* data, size_t length) {
 		if (msgType == 'C') {
 			Game::getInstance().updateTurnSpeed(Utility::getTurnSpeed(iss));
 		}
+        
+        // If first slot is 'R', player to be removed has been sent
+        if (msgType == 'R') {
+            unsigned int playerId;
+            iss >> playerId;
+            Game::getInstance().removeGameObject(playerId);
+        }
 	}
 }
