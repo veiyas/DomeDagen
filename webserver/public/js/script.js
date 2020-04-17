@@ -56,6 +56,13 @@ function initialize() {
     connected = true; // Mock connection state, should probably be handled in conjunction with the back-end
     setCurrentScreen('gameRunningScreen');
   })
+
+  // Testing if deviceorientation is supported by browser
+  if (window.DeviceOrientationEvent) {
+    window.addEventListener('deviceorientation', sendDeviceOrientation, true);
+  } else {
+    console.log("DeviceOrientationEvent is not supported");
+  }
 }
 
 // Set the currently visible screen to the matching screenID argument.
@@ -79,7 +86,7 @@ function sendName() {
   // Should ofc be validated server-side as well
   name = document.getElementById("lname").value.trim();
   if (socket.readyState === WebSocket.OPEN)
-  {    
+  {
     var stringToSend = `N ${name}`;
     socket.send(stringToSend);
   }
@@ -98,4 +105,16 @@ function handleTextInputChange() {
     connectButton.disabled = false;
     connectButton.classList.remove('disabled');
   }
+}
+
+// Passes device orientation data via the websocket to the back-end
+// Listens for orientation data from the window
+// Should only pass orientation data if the client is "connected" to the game
+function sendDeviceOrientation(event) {
+  var {alpha, beta, gamma} = event;
+
+  if(connected && socket.readyState === WebSocket.OPEN)
+    // Only using gamma at the moment
+    socket.send(`C ${gamma}`)
+    //socket.send(`alpha ${10} beta ${20} gamma ${30}`)
 }
