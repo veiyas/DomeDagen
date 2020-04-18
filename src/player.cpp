@@ -3,6 +3,8 @@
 #include<glm/gtx/string_cast.hpp>
 #include<iostream>
 
+#include"balljointconstraint.hpp"
+
 Player::Player(const std::string & objectModelName, float radius,
 	           const glm::quat & position, float orientation,
 	           const std::string & name, float speed)
@@ -18,6 +20,9 @@ Player::Player(const std::string & objectModelName, float radius,
 	mTransMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "transformation");
 
 	mShaderProgram.unbind();
+
+	//FIXME put this where it should be. Use shared ptr?
+	mConstraint = BallJointConstraint{ 160.f, 27.f };
 }
 
 Player::~Player()
@@ -27,6 +32,8 @@ Player::~Player()
 
 void Player::update(float deltaTime)
 {
+	using namespace glm;
+
 	//Update orientation
 	setOrientation(getOrientation() + deltaTime * mTurnSpeed);
 
@@ -35,9 +42,31 @@ void Player::update(float deltaTime)
 	newPos *= glm::quat(
 		mSpeed * deltaTime * glm::vec3(cos(getOrientation()), sin(getOrientation()), 0.f)
 	);
-	setPosition(glm::normalize(newPos)); //Normalize might not be necessary?
 
-	//TODO Constrain to visible area
+
+	mConstraint.clamp(newPos);
+
+
+	//glm::vec3 mPlanePos = glm::vec3(0.f, 0.f, -0.1f);
+	//glm::vec3 mZ = glm::vec3(0.f, 0.f, -1.f); // ????
+	///////////////////////////////////
+	//using namespace glm;
+
+
+	////Direction of q
+	//const vec3 direction = newPos * vec3(0.f, 0.f, -1.f);
+
+	////Vector from ??? to direction
+	//const vec3 relation = direction - mPlanePos;
+
+	//const float dotProd = dot(relation, mPlanePos);
+	////sgct::Log::Info("%d", dotProd);
+
+	//if (dotProd < 0)
+	//	return;
+
+
+	setPosition(glm::normalize(newPos)); //Normalize might not be necessary?
 }
 
 void Player::render(const glm::mat4& mvp) const

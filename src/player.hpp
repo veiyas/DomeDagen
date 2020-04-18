@@ -9,6 +9,8 @@
 #include "gameobject.hpp"
 #include "geometryhandler.hpp"
 
+#include "balljointconstraint.hpp"
+
 class Player : public GameObject, private GeometryHandler
 {
 public:
@@ -52,4 +54,7 @@ private:
 	bool  mIsAlive;
 	float mSpeed;
 	const std::string mName;
+
+	//TODO Move!
+	BallJointConstraint mConstraint;
 };
