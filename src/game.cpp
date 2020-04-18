@@ -54,7 +54,7 @@ void Game::init()
 	mInstance->printLoadedAssets();
 }
 
-Game& Game::getInstance()
+Game& Game::instance()
 {
 	//If Game doesnt exist, create one. Return it.
 	if (!mInstance) {
@@ -119,13 +119,13 @@ void Game::update()
 	}
 
 	float currentFrameTime = static_cast<float>(sgct::Engine::getTime());
-	float deltaTime = currentFrameTime - mLastFrameTime;
-
-	detectCollisions();
+	float deltaTime = currentFrameTime - mLastFrameTime;	
 
 	//Update players
 	for (auto& player : mPlayers)
 		player.update(deltaTime);
+
+	detectCollisions();
 
 	//TODO Update other type of objects
 
@@ -139,11 +139,11 @@ std::vector<std::byte> Game::getEncodedPlayerData()
 	//Sync data for players present on all nodes first
 	for (size_t i = 0; i < mLastSyncedPlayer; ++i)
 	{
-		allPositionData[i] = mPlayers[i].getMovementData(false);
+		allPositionData[i] = mPlayers[i].getPlayerData(false);
 	}
 	for (size_t i = mLastSyncedPlayer; i < mPlayers.size(); ++i)
 	{
-		allPositionData[i] = mPlayers[i].getMovementData(true);
+		allPositionData[i] = mPlayers[i].getPlayerData(true);
 	}
 
 	std::vector<std::byte> tempEncodedData;
@@ -174,7 +174,7 @@ void Game::setDecodedPositionData(const std::vector<PlayerData>& newState)
 
 		for (size_t i = 0; i < nUnsyncedPlayers; ++i)
 		{
-			mPlayers[i].setMovementData(newState[i]);
+			mPlayers[i].setPlayerData(newState[i]);
 		}
 	}
 }
@@ -187,6 +187,12 @@ void Game::updateTurnSpeed(std::tuple<unsigned int, float>&& input)
 	assert(id < mPlayers.size() && "Player update turn speed desync (id out of bounds mPlayers");
 
 	mPlayers[id].setTurnSpeed(rotAngle);
+}
+
+void Game::enablePlayer(unsigned id)
+{
+	assert(id < mPlayers.size() && "Player disable desync (id out of bounds mPlayers");
+	mPlayers[id].enablePlayer();
 }
 
 void Game::disablePlayer(unsigned id)

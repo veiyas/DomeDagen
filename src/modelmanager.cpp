@@ -1,4 +1,4 @@
-#include "modelhandler.hpp"
+#include "modelmanager.hpp"
 
 ModelManager* ModelManager::mInstance = nullptr;
 

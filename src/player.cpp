@@ -59,7 +59,7 @@ Player::~Player()
 	sgct::Log::Info("Player with name=\"%s\" removed", mName.c_str());
 }
 
-PlayerData Player::getMovementData(bool isNewPlayer) const
+PlayerData Player::getPlayerData(bool isNewPlayer) const
 {
 	PlayerData temp;
 	temp.mNewPlayer = isNewPlayer;
@@ -94,7 +94,7 @@ PlayerData Player::getMovementData(bool isNewPlayer) const
 	return temp;
 }
 
-void Player::setMovementData(const PlayerData& newState)
+void Player::setPlayerData(const PlayerData& newState)
 {
 	//Position data
 	setOrientation(newState.mOrientation);
@@ -118,6 +118,8 @@ void Player::setMovementData(const PlayerData& newState)
 
 void Player::update(float deltaTime)
 {
+	if (!mEnabled)
+		return;
 	//Update orientation
 	setOrientation(getOrientation() + deltaTime * mTurnSpeed);
 

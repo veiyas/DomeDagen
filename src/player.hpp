@@ -65,8 +65,8 @@ public:
 	Player& operator=(const Player&) = delete;
 
 	//Get/set playerdata during synchronisation
-	PlayerData getMovementData(bool isNewPlayer) const;
-	void setMovementData(const PlayerData& newState);
+	PlayerData getPlayerData(bool isNewPlayer) const;
+	void setPlayerData(const PlayerData& newState);
 
 	//Update position
 	void update(float deltaTime) override;

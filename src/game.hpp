@@ -37,7 +37,7 @@ public:
 	static void init();
 
 	//Get instance
-	static Game& getInstance();
+	static Game& instance();
 
 	//Check if instance is running
 	static bool instanceExists() { return mInstance != nullptr; }
@@ -82,11 +82,12 @@ public:
 	//Set the turn speed of player player with id id
 	void updateTurnSpeed(std:: tuple<unsigned int, float>&& input);
     
-    //Remove player 
+    //enable/disable player 
+    void enablePlayer(unsigned id);
     void disablePlayer(unsigned id);
 
 	//DEBUGGING TOOL: apply orientation to all GameObjects
-	void rotateAllPlayers(float newOrientation);
+	void rotateAllPlayers(float deltaOrientation);
 
 private:
 //Members

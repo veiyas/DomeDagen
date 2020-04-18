@@ -17,7 +17,7 @@
 #include "game.hpp"
 #include "sceneobject.hpp"
 #include "player.hpp"
-#include "modelhandler.hpp"
+#include "modelmanager.hpp"
 
 namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
@@ -120,12 +120,12 @@ int main(int argc, char** argv) {
 }
 
 void draw(const RenderData& data) {
-	Game::getInstance().setMVP(data.modelViewProjectionMatrix);
+	Game::instance().setMVP(data.modelViewProjectionMatrix);
 
 	glEnable(GL_DEPTH_TEST);
 	glCullFace(GL_BACK);
 
-	Game::getInstance().render();
+	Game::instance().render();
 	while (glGetError() != GL_NO_ERROR)
     {
       std::cout << "GL Error: " << glGetError() << std::endl;
@@ -176,13 +176,14 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 	//Left
 	if (key == Key::A && (action == Action::Press || action == Action::Repeat))
 	{
-		Game::getInstance().rotateAllPlayers(0.1f);
-		Game::getInstance().disablePlayer(0);
+		Game::instance().rotateAllPlayers(0.1f);
+		Game::instance().disablePlayer(0);
 	}
 	//Right
 	if (key == Key::D && (action == Action::Press || action == Action::Repeat))
 	{
-		Game::getInstance().rotateAllPlayers(-0.1f);
+		Game::instance().rotateAllPlayers(-0.1f);
+		Game::instance().enablePlayer(0);
 	}
 }
 
@@ -196,13 +197,13 @@ void preSync() {
 		// This doesn't have to happen every frame, but why not?
 		wsHandler->tick();
 
-		Game::getInstance().update();
+		Game::instance().update();
 	}
 }
 
 std::vector<std::byte> encode() {
 
-	return Game::getInstance().getEncodedPlayerData();
+	return Game::instance().getEncodedPlayerData();
 }
 
 void decode(const std::vector<std::byte>& data, unsigned int pos) {
@@ -222,7 +223,7 @@ void postSyncPreDraw() {
 	//Sync gameobjects' state on clients only
 	if (!Engine::instance().isMaster())
 	{
-		Game::getInstance().setDecodedPositionData(states);
+		Game::instance().setDecodedPositionData(states);
 
 		//Clear states for next frame, not needed but it's polite
 		states.clear();
@@ -255,19 +256,19 @@ void messageReceived(const void* data, size_t length) {
 		// If first slot is 'N', a name and unique ID has been sent
 		if (msgType == 'N') {
 			Log::Info("Player connected: %s", message.c_str());
-			Game::getInstance().addPlayer(Utility::getNewPlayerData(iss));
+			Game::instance().addPlayer(Utility::getNewPlayerData(iss));
 		}
 
 		// If first slot is 'C', the rotation angle has been sent
 		if (msgType == 'C') {
-			Game::getInstance().updateTurnSpeed(Utility::getTurnSpeed(iss));
+			Game::instance().updateTurnSpeed(Utility::getTurnSpeed(iss));
 		}
         
         // If first slot is 'D', player to be removed has been sent
         if (msgType == 'D') {
             unsigned int playerId;
             iss >> playerId;
-            Game::getInstance().disablePlayer(playerId);
+            Game::instance().disablePlayer(playerId);
         }
 	}
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "modelhandler.hpp"
+#include "modelmanager.hpp"
 
 //This class is privately inherited to classes needing models and accompanied functionality
 class GeometryHandler

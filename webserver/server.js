@@ -119,7 +119,7 @@ wsServer.on('request', function (req) {
 
         // TODO Let the game know a player has disconnected
         if (playerList.delete(remoteAddress)) {
-          gameSocket.send(`R ${id}`);
+          gameSocket.send(`D ${id}`);
           console.log(`Removed player ${id} with ip ${remoteAddress}`);
         }
       });
