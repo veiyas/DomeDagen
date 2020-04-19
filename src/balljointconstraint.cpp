@@ -8,92 +8,54 @@
 #include<cassert>
 
 BallJointConstraint::BallJointConstraint()
-{
-	//TEMPORARY STUFF/////////////////
-	//mPlanePos 
-	mPlanePos = glm::vec3(0.f, 0.f, -0.1f);
-	mZ = glm::vec3(0.f, 0.f, 1.f); // ???? should be negated in calculations probbaly
-
-	/////////////////////////////////
-}
+	: mPlanePos{ 0.f, 0.f, -1.0f }, mCenter{ 0.f, 0.f, -0.7f } { }
 
 BallJointConstraint::BallJointConstraint(float fov, float tilt)
-	: BallJointConstraint{ }
 {
-	setConstraint(fov, tilt);
-}
-
-void BallJointConstraint::setConstraint(float fov, float tilt)
-{
-	//The distance from origin to the plane (at the closest point)
-	float distance = cos(glm::radians(fov / 2)); //TODO funkar ej för störa vinklar nog eller kankse?
+	float distance = cos(glm::radians(fov / 2));
 
 	float tiltRad = glm::radians(tilt);
-
-	//Unit vector specifying direction of the vector defining the plane
 	glm::vec3 direction(0.f, cos(tiltRad), -sin(tiltRad));
 
 	mPlanePos = direction * distance;
+	mCenter = direction;
 
-	//?
-	mZ = direction; //Is needed to avoid problems if distance=0 and also fov>180 (i think)
-
-	//mY = ...
-
-	std::cout << "mPlanePos=" << glm::to_string(mPlanePos)
-	          << " | mZ=" << glm::to_string(mZ) << '\n';
+	//std::cout << "mPlanePos=" << glm::to_string(mPlanePos)
+	//          << " | mZ=" << glm::to_string(mZ) << '\n';
 }
 
-void BallJointConstraint::setConstraint(glm::vec3 direction, float distance)
+void BallJointConstraint::apply(glm::quat& q) const
 {
-	//TODO fix all this, cause its probably not right for negative directions?
-	mZ = glm::normalize(direction);
-	mPlanePos = direction * mZ;
+	if (!isInRange(q))
+		q = closestAllowedQuat(q);
 }
 
-void BallJointConstraint::clamp(glm::quat& q) const
+bool BallJointConstraint::isInRange(const glm::quat& q) const
 {
-	using namespace glm;
-
-	//Unit vector pointing at the Object
-	const vec3 direction = q * vec3(0.f, 0.f, -1.f);
-
-	if (!isInRange(direction))
-	{
-		//Calculate the closest 
-
-		sgct::Log::Info("OUTSIDE ALLOWED AREA");
-
-		//Calculate the closest allowed position
-		float scale = sqrt(1.0f - length(mPlanePos) * length(mPlanePos));
-
-		vec3 hej = direction - (dot(direction, mPlanePos) / (length(mPlanePos) * length(mPlanePos))) * mPlanePos;
-
-		vec3 newPos = (scale * normalize(hej)) + mPlanePos;
-
-		vec3 up = q * vec3(0.f, 1.f, 0.f); //this should be close enough hopefully
-
-		//Set q to the calculated position
-		q = quatLookAt(newPos, up);
-	}
-	else
-	{
-		//std::cout << to_string(direction) << ' ';
-		sgct::Log::Info("inside ALLOWED AREA");
-	}
-}
-
-bool BallJointConstraint::isInRange(glm::vec3 direction) const
-{
-	glm::vec3 relation = direction - mPlanePos;
-	float dotProd = glm::dot(relation, mZ);
+	const glm::vec3 direction = q * glm::vec3(0.f, 0.f, -1.f);
+	const glm::vec3 relation = direction - mPlanePos;
+	float dotProd = glm::dot(relation, mCenter);
 
 	return !(dotProd < 0);
 }
 
+glm::quat BallJointConstraint::closestAllowedQuat(const glm::quat& q) const
+{
+	using namespace glm;
 
-// Useful debugging code:
+	//Direction pointing to the object
+	const vec3 dir = q * vec3(0.f, 0.f, -1.f);
+	
+	//The distance between the tip of mPlanePos and the surface of a unit sphere along a path
+	//that is orthogonal to mPlanePos
+	float scale = sqrt(1.0f - pow(length(mPlanePos), 2));
 
-//std::cout << to_string(newPos) << " with length: " << length(newPos) << '\n';
+	//The projection of dir unto a plane with normal mPlanePos
+	const vec3 proj = dir - (dot(dir, mPlanePos) / pow(length(mPlanePos), 2)) * mPlanePos;
 
-//std::cout << scale << '\n';
+	//Unit vector pointing at the new position
+	const vec3 newPos = (scale * normalize(proj)) + mPlanePos;
+	const vec3 up = q * vec3(0.f, 1.f, 0.f); //this should be close enough hopefully
+
+	return quatLookAt(newPos, up);
+}

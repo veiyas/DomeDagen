@@ -21,8 +21,8 @@ Player::Player(const std::string & objectModelName, float radius,
 
 	mShaderProgram.unbind();
 
-	//FIXME put this where it should be. Use shared ptr?
-	mConstraint = BallJointConstraint{ 160.f, 27.f };
+	//Could probably be handled in a better way
+	mConstraint = BallJointConstraint{ 170.f, 27.f };
 }
 
 Player::~Player()
@@ -34,39 +34,16 @@ void Player::update(float deltaTime)
 {
 	using namespace glm;
 
-	//Update orientation
-	setOrientation(getOrientation() + deltaTime * mTurnSpeed);
+	float oldOrient = getOrientation();
+	setOrientation(oldOrient + deltaTime * mTurnSpeed);
 
-	//Update position on sphere
 	glm::quat newPos = getPosition();
-	newPos *= glm::quat(
-		mSpeed * deltaTime * glm::vec3(cos(getOrientation()), sin(getOrientation()), 0.f)
-	);
+	newPos *= glm::quat(mSpeed * deltaTime * glm::vec3(cos(oldOrient), sin(oldOrient), 0.f));
 
+	//Make sure player does not leave visible area
+	mConstraint.apply(newPos);
 
-	mConstraint.clamp(newPos);
-
-
-	//glm::vec3 mPlanePos = glm::vec3(0.f, 0.f, -0.1f);
-	//glm::vec3 mZ = glm::vec3(0.f, 0.f, -1.f); // ????
-	///////////////////////////////////
-	//using namespace glm;
-
-
-	////Direction of q
-	//const vec3 direction = newPos * vec3(0.f, 0.f, -1.f);
-
-	////Vector from ??? to direction
-	//const vec3 relation = direction - mPlanePos;
-
-	//const float dotProd = dot(relation, mPlanePos);
-	////sgct::Log::Info("%d", dotProd);
-
-	//if (dotProd < 0)
-	//	return;
-
-
-	setPosition(glm::normalize(newPos)); //Normalize might not be necessary?
+	setPosition(glm::normalize(newPos));
 }
 
 void Player::render(const glm::mat4& mvp) const
