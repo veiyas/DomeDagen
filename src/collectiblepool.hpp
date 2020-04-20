@@ -22,18 +22,22 @@ public:
 	//Points mFirstAvailable to first element	
 	void init();
 
+	//Render enabled objects
+	void render(const glm::mat4& mvp) const;
+
 	//Returns shared_ptr and points mFirstAvailable to next in list. O(1)!
-	Collectible enableCollectible(const glm::vec3& pos);
+	Collectible& enableCollectible(const glm::vec3& pos);
 
 	//Deactivate and return the collectible to available list
-	void disableCollectible(Collectible& c);
+	void disableCollectible(const size_t index);
 
-	size_t numEnabled() const { return mNumEnabled; }
+	//Accessor
+	size_t getNumEnabled() const { return mNumEnabled; }
 
-private:
 	//The pool of collectible objects
 	std::vector<Collectible> mPool;
 
+private:
 	//Number of enabled objects
 	size_t mNumEnabled = 0;
 

@@ -36,6 +36,7 @@ set_property(TARGET assimp PROPERTY CXX_STANDARD_REQUIRED ON)
 #
 add_executable(${PROJECT_NAME}
   src/main.cpp
+  src/constants.hpp
   src/websockethandler.h
   src/websockethandler.cpp
   src/utility.hpp

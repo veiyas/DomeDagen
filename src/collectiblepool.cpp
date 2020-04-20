@@ -33,21 +33,35 @@ void CollectiblePool::init()
 	sgct::Log::Info("Collectible pool with %s elements created", sizeInfoString.c_str());
 }
 
-Collectible CollectiblePool::enableCollectible(const glm::vec3& pos)
+void CollectiblePool::render(const glm::mat4& mvp) const
 {
-	Collectible* newCollectible = mFirstAvailable;
-	mFirstAvailable = newCollectible->getNext();
+	for (size_t i = 0; i < mNumEnabled; i++)
+	{
+		mPool[i].render(mvp);
+	}
+}
 
-	newCollectible->setPosition(pos);
+Collectible& CollectiblePool::enableCollectible(const glm::vec3& pos)
+{
+	Collectible& newCollectible = *mFirstAvailable;
+	mFirstAvailable = newCollectible.getNext();
+
+	newCollectible.setPosition(pos);
+	newCollectible.enable();
 
 	++mNumEnabled;
 
-	return *newCollectible;
+	return newCollectible;
 }
 
-void CollectiblePool::disableCollectible(Collectible& c)
+void CollectiblePool::disableCollectible(const size_t index)
 {
-	c.setNext(mFirstAvailable);
-	mFirstAvailable = &c;
+	auto& disabledElement = mPool[index];
+	disabledElement.disable();
+	std::swap(mPool[index], mPool[mNumEnabled - 1]);
+
+	disabledElement.setNext(mFirstAvailable);
+	mFirstAvailable = &disabledElement;	
+
 	--mNumEnabled;
 }

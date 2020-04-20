@@ -6,11 +6,16 @@
 class Collectible : public GameObject, private GeometryHandler
 {
 public:	
+	Collectible();
 	//Ctor used to load all collectibles into vector in Game class
 	Collectible(const std::string objectModelName);
 
-	//Copy ctor used to copy from central pool in Game into game
-	Collectible(const Collectible&) = default;	
+	//WARNING: these ctors might be leaky
+	Collectible(const Collectible& src);
+	Collectible(Collectible&& src) noexcept;
+	Collectible& operator=(const Collectible& src);
+	Collectible& operator=(Collectible&& src) noexcept;
+	~Collectible() override = default;
 
 	//Inherited methods
 	void render(const glm::mat4& mvp) const override;
@@ -23,6 +28,8 @@ public:
 	//Get next node
 	Collectible* getNext();
 
+	const bool isEnabled() const { return mEnabled; }
+
 	//Give collectiblepool access to privates
 	friend class CollectiblePool;
 
@@ -34,8 +41,7 @@ private:
 
 	//Pointer to implement free list functionality (constant time access!)
 	Collectible* mNext;
-
-	constexpr bool isEnabled() const { return mEnabled; }
+	
 	void enable() { mEnabled = true; }
 	void disable() { mEnabled = false; }
 };

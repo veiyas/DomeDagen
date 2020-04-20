@@ -10,6 +10,9 @@ public:
 		:mShaderProgram{sgct::ShaderManager::instance().shaderProgram(shaderProgramName)},
 		 mModel{ModelManager::instance().getModel(objectModelName)} {}
 
+	GeometryHandler(const GeometryHandler&) = default;
+	GeometryHandler(GeometryHandler&&) = default;
+
 	//Shader matrix locations
 	GLint mTransMatrixLoc = -1;
 	GLint mMvpMatrixLoc = -1;

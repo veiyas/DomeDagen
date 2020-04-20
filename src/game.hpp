@@ -10,6 +10,7 @@
 #include <tuple>
 #include <cmath>
 #include <random>
+#include <mutex>
 
 #include "sgct/mutexes.h"
 #include "sgct/shareddata.h"
@@ -72,9 +73,6 @@ public:
 	void enablePlayer(unsigned id);
 	void disablePlayer(unsigned id);
 
-	//Add collectible to mCollectibles from mCollectPool
-	void addCollectible(const glm::vec3& pos);
-
 	//Update all gameobjects
 	void update();
 
@@ -98,9 +96,6 @@ private:
 
 	//All players stored sequentually
 	std::vector<Player> mPlayers;
-
-	//All collectibles
-	std::vector<Collectible> mCollectibles;
 
 	//Pool of collectibles for fast "generation" of objects
 	CollectiblePool mCollectPool;

@@ -25,9 +25,8 @@ public:
 		ENEMY,
 		COLLECTIBLE
 	};
-
-	//No default ctor
 	GameObject() = delete;
+	GameObject(const GameObject&) = default;
 
 	//Ctor
 	GameObject(const unsigned objType, float radius, const glm::quat& position, float orientation);

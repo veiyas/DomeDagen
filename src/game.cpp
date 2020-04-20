@@ -19,14 +19,14 @@ Game::Game()
 
 void Game::detectCollisions()
 {
-	if (mPlayers.size() > 0 && mCollectPool.numEnabled() > 0)
+	if (mPlayers.size() > 0 && mCollectPool.getNumEnabled() > 0)
 	{
 		for (size_t i = 0; i < mPlayers.size(); i++)
 		{
-			for (size_t j = i + 1; j < mCollectibles.size(); j++)
+			for (size_t j = 0; j < mCollectPool.mPool.size() && mCollectPool.mPool[j].isEnabled(); j++)
 			{
-				auto playerQuat = (mPlayers[i].getPosition());
-				auto collectibleQuat = (mCollectibles[j].getPosition());
+				auto playerQuat = mPlayers[i].getPosition();
+				auto collectibleQuat = mCollectPool.mPool[j].getPosition();
 
 				auto deltaQuat = glm::normalize(glm::inverse(playerQuat) * collectibleQuat);
 
@@ -41,7 +41,9 @@ void Game::detectCollisions()
 
 				if (std::abs(xAngle) <= collisionDistance && std::abs(yAngle) <= collisionDistance)
 				{
-					std::cout << mPlayers[i].getName() << " <=> " << j << " collided\n";
+					//ISSUE this if triggers more than once, big bug
+					std::cout << "Called up here\n";
+					mCollectPool.disableCollectible(j);
 				}
 			}
 		}
@@ -52,7 +54,6 @@ void Game::init()
 {
 	mInstance = new Game{};
 	mInstance->mPlayers.reserve(mMAXPLAYERS);
-	mInstance->mCollectibles.reserve(mMAXCOLLECTIBLES);
 	mInstance->printLoadedAssets();
 }
 
@@ -90,8 +91,7 @@ void Game::render() const
 	for (const Player& p : mPlayers)
 		p.render(mMvp);
 
-	for (const Collectible& c : mCollectibles)
-		c.render(mMvp);
+	mCollectPool.render(mMvp);
 }
 
 void Game::addPlayer()
@@ -140,7 +140,7 @@ void Game::update()
 	//COLLECTIBLE SPAWN DEBUGGING
 	if ((int)currentFrameTime % spawnTime == 0 && !outputted)
 	{
-		addCollectible(glm::vec3(1.5f + rng(gen), rng(gen), 0.f));
+		mCollectPool.enableCollectible(glm::vec3(1.5f + rng(gen), rng(gen), 0.f));
 		outputted = true;
 	}
 
@@ -224,11 +224,6 @@ void Game::disablePlayer(unsigned id)
 {
 	assert(id < mPlayers.size() && "Player disable desync (id out of bounds mPlayers");
 	mPlayers[id].disablePlayer();
-}
-
-void Game::addCollectible(const glm::vec3& pos)
-{
-	mCollectibles.push_back(mCollectPool.enableCollectible(pos));
 }
 
 void Game::rotateAllPlayers(float newOrientation)

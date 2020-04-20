@@ -147,7 +147,6 @@ void initOGL(GLFWwindow*) {
 	}
 }
 
-
 void keyboard(Key key, Modifier modifier, Action action, int)
 {
 	if (key == Key::Esc && action == Action::Press) {
