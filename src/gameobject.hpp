@@ -12,27 +12,6 @@
 #include "glad/glad.h"
 
 #include "renderable.hpp"
-#include "model.hpp"
-
-//POD struct to encode/decode game state data
-//Ctor, initialisation disallowed to KEEP IT POD
-struct PositionData
-{
-public:
-	//Unique identifier
-	unsigned int mId;
-	
-	float mRadius;
-	float mOrientation;
-	float mScale;
-	unsigned int mObjType;	
-
-	//Quat stuff
-	float mW;
-	float mX;
-	float mY;
-	float mZ;
-};
 
 //A GameObject is located att the surface of a sphere
 //and it has a side that is always facing origin.
@@ -61,7 +40,6 @@ public:
 
 	//Update object (position, collision?)
 	virtual void update(float deltaTime);
-
 	//HACK This is very much a hack, and it would probably be better to keep different
 	//types of gameobjects in different list to be able to use all functionality
 	virtual void setSpeed(float speed) = 0;

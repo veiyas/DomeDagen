@@ -9,11 +9,8 @@ Game* Game::mInstance = nullptr;
 unsigned int Game::mUniqueId = 0;
 
 Game::Game()
-	: mMvp{ glm::mat4{1.f} }, mLastFrameTime{ -1 }
-{	
-	//Loads all models and shaders into pool
-	for (const std::string& modelName : allModelNames)
-		loadModel(modelName);
+	: mMvp{ glm::mat4{1.f} }, mLastFrameTime{ -1 }, mLastSyncedPlayer{0}
+{
 	for (const std::string& shaderName : allShaderNames)
 		loadShader(shaderName);
 
@@ -21,43 +18,44 @@ Game::Game()
 
 void Game::detectCollisions()
 {
-	if (mInteractObjects.size() > 1)
-	{
-		for (size_t i = 0; i < mInteractObjects.size(); i++)
-		{
-			for (size_t j = i + 1; j < mInteractObjects.size(); j++)
-			{
-				auto quat1 = (mInteractObjects[i].second->getPosition());
-				auto quat2 = (mInteractObjects[j].second->getPosition());
+	//TODO Rework collision detection when collectibles are implemented
+	//if (mInteractObjects.size() > 1)
+	//{
+	//	for (size_t i = 0; i < mInteractObjects.size(); i++)
+	//	{
+	//		for (size_t j = i + 1; j < mInteractObjects.size(); j++)
+	//		{
+	//			auto quat1 = (mInteractObjects[i].second->getPosition());
+	//			auto quat2 = (mInteractObjects[j].second->getPosition());
 
-				auto z = glm::normalize(glm::inverse(quat1) * quat2);
+	//			auto z = glm::normalize(glm::inverse(quat1) * quat2);
 
-				//Collision detection by comparing how small the angle between the fishes are
-				//From https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
-				auto sinxPart = 2.f * (z.w * z.x + z.y * z.z);
-				auto cosxPart = 1.f - 2.f * (z.x*z.x + z.y*z.y);
-				auto xAngle = std::atan2(sinxPart, cosxPart);
-				
-				auto sinyPart = 2.f * (z.w * z.y - z.z * z.x);
-				auto yAngle = std::asin(sinyPart);
+	//			//Collision detection by comparing how small the angle between the fishes are
+	//			//From https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+	//			auto sinxPart = 2.f * (z.w * z.x + z.y * z.z);
+	//			auto cosxPart = 1.f - 2.f * (z.x*z.x + z.y*z.y);
+	//			auto xAngle = std::atan2(sinxPart, cosxPart);
+	//			
+	//			auto sinyPart = 2.f * (z.w * z.y - z.z * z.x);
+	//			auto yAngle = std::asin(sinyPart);
 
-				if (std::abs(xAngle) <= collisionDistance && std::abs(yAngle) <= collisionDistance)
-				{
-					//TODO collision interactions
-					//std::cout << i << " <=> " << j << " collided\n";
-				}
-			}
-		}
-	}
+	//			if (std::abs(xAngle) <= collisionDistance && std::abs(yAngle) <= collisionDistance)
+	//			{
+	//				std::cout << i << " <=> " << j << " collided\n";
+	//			}
+	//		}
+	//	}
+	//}
 }
 
 void Game::init()
 {
 	mInstance = new Game{};
+	mInstance->mPlayers.reserve(mMAXPLAYERS);
 	mInstance->printLoadedAssets();
 }
 
-Game& Game::getInstance()
+Game& Game::instance()
 {
 	if (!mInstance) {
 		mInstance = new Game{};
@@ -81,56 +79,35 @@ void Game::printShaderPrograms() const
 	sgct::Log::Info(output.c_str());
 }
 
-void Game::printModelNames() const
-{
-	std::string output = "Loaded models:";
-
-	for (const std::pair<const std::string, Model>& p : mModels)
-	{
-		output += "\n       " + p.first;
-	}
-	sgct::Log::Info("%s", output.c_str());
-}
-
 void Game::printLoadedAssets() const
 {
-	mInstance->printModelNames();
 	mInstance->printShaderPrograms();
 }
 
 void Game::render() const
 {
-	for (const std::shared_ptr<Renderable>& obj : mRenderObjects)
-	{		
-		obj->render(getInstance().getMVP());
-	}
+	//Render players
+	for (const Player& p : mPlayers)
+		p.render(mMvp);
+
+	//TODO render rest of objects
 }
 
-void Game::addGameObject(std::shared_ptr<GameObject> obj)
+void Game::addPlayer()
 {
-	addGameObject(std::move(obj), mUniqueId);
+	mPlayers.emplace_back();
 }
 
-void Game::addGameObject(std::tuple<unsigned int, std::string>&& inputTuple)
+void Game::addPlayer(const PlayerData& p)
 {
-	std::shared_ptr<GameObject> tempPlayer{
-	new Player("fish", 50.f, glm::quat(glm::vec3(0.f,0.f,0.f)), 0.f, std::get<1>(inputTuple) , 0.5f) };
-		
-	addGameObject(std::move(tempPlayer), std::get<0>(inputTuple));	
+	//Create player from PositionData object
+	mPlayers.emplace_back(p);
 }
 
-void Game::addGameObject(std::shared_ptr<GameObject> obj, unsigned& id)
+void Game::addPlayer(std::tuple<unsigned int, std::string>&& inputTuple)
 {
-	//Copy the shared_ptr to renderables
-	addRenderable(obj);
-
-	mInteractObjects.push_back(std::make_pair(id, std::move(obj)));
-	mUniqueId++;
-}
-
-void Game::addRenderable(std::shared_ptr<Renderable> obj)
-{
-	mRenderObjects.push_back(std::move(obj));
+	assert(std::get<0>(inputTuple) == mPlayers.size() && "Player creation desync (id out of bounds: mPlayers)");
+	mPlayers.emplace_back(std::get<1>(inputTuple));
 }
 
 //DEBUGGING PURPOSES, TODO REMOVE WHEN DONE
@@ -144,6 +121,7 @@ void Game::update()
 	}
 
 	float currentFrameTime = static_cast<float>(sgct::Engine::getTime());
+
 	float deltaTime = currentFrameTime - mLastFrameTime;
 	
 	//DEBUGGING PURPOSES, TODO REMOVE WHEN DONE
@@ -162,23 +140,28 @@ void Game::update()
 	if ((int)currentFrameTime % 2 == 1 || (int)currentFrameTime % 2 == 2)
 		outputted = false;
 
+	//Update players
+	for (auto& player : mPlayers)
+		player.update(deltaTime);
+
 	detectCollisions();
 
-	for (auto& [id, obj] : mInteractObjects)
-	{
-		obj->update(deltaTime);
-	}
-
+	//TODO Update other type of objects
 	mLastFrameTime = currentFrameTime;
 }
 
-std::vector<std::byte> Game::getEncodedPositionData() const
+std::vector<std::byte> Game::getEncodedPlayerData()
 {
-	std::vector<PositionData> allPositionData(mInteractObjects.size());
+	std::vector<PlayerData> allPositionData(mPlayers.size());
 
-	for (size_t i = 0; i < mInteractObjects.size(); i++)
+	//Sync data for players present on all nodes first
+	for (size_t i = 0; i < mLastSyncedPlayer; ++i)
 	{
-		allPositionData[i] = mInteractObjects[i].second->getMovementData(mInteractObjects[i].first);
+		allPositionData[i] = mPlayers[i].getPlayerData(false);
+	}
+	for (size_t i = mLastSyncedPlayer; i < mPlayers.size(); ++i)
+	{
+		allPositionData[i] = mPlayers[i].getPlayerData(true);
 	}
 
 	std::vector<std::byte> tempEncodedData;
@@ -186,30 +169,30 @@ std::vector<std::byte> Game::getEncodedPositionData() const
 	sgct::serializeObject(tempEncodedData, allPositionData);
 	allPositionData.clear();
 
+	mLastSyncedPlayer = mPlayers.size();
+
 	return tempEncodedData;
 }
 
-void Game::setDecodedPositionData(const std::vector<PositionData>& newState)
+void Game::setDecodedPositionData(const std::vector<PlayerData>& newState)
 {
-	//TODO This function seems kind of error prone
 	if (!sgct::Engine::instance().isMaster())
 	{
-		for (const auto& newData : newState)
-		{			
-			if (newState.size() < mInteractObjects.size())
-				sgct::Log::Warning("newState.size() < mInteractObjects.size()");
+		//number of unsynced players
+		size_t nUnsyncedPlayers = mPlayers.size();
 
-			if (newState.size() > mInteractObjects.size())
+		//New players get instanciated with correct value from the start
+		if (newState.size() > mPlayers.size())
+		{
+			for (size_t i = nUnsyncedPlayers; i < newState.size(); ++i)
 			{
-				//UGLY SOLUTION, create temp objects to update afterwards
-				//TODO fix this ugly shit
-				while (mInteractObjects.size() != newState.size())
-				{
-					std::shared_ptr<GameObject> tempPlayer{ new Player("fish", 10.f, glm::quat(glm::vec3(2.f, 0.f, 0.f)), 0.f, "temp", 0.f) };
-					addGameObject(std::move(tempPlayer));
-				}
+				addPlayer(newState[i]);
 			}
-			mInteractObjects[newData.mId].second->setMovementData(newData);
+		}
+
+		for (size_t i = 0; i < nUnsyncedPlayers; ++i)
+		{
+			mPlayers[i].setPlayerData(newState[i]);
 		}
 	}
 }
@@ -219,36 +202,29 @@ void Game::updateTurnSpeed(std::tuple<unsigned int, float>&& input)
 	unsigned id = std::get<0>(input);
 	float rotAngle = std::get<1>(input);
 
-	//Unsure if this is a good way of finding GameObject
-	//Looks kinda ugly and could probably be put in seperate method
-	//TODO implemented faster search function (mInteractObjects is sorted)
-	auto it = std::find_if(mInteractObjects.begin(), mInteractObjects.end(),
-		[id](std::pair<unsigned int, std::shared_ptr<GameObject>>& pair)
-			{ return pair.first == id; });
+	assert(id < mPlayers.size() && "Player update turn speed desync (id out of bounds mPlayers");
 
-	//If object is not found something has gone wrong
-	assert(it != mInteractObjects.end());
-
-	(*it).second->setTurnSpeed(rotAngle);
+	mPlayers[id].setTurnSpeed(rotAngle);
 }
 
-void Game::rotateAllGameObjects(float newOrientation)
+void Game::enablePlayer(unsigned id)
 {
-	for (auto& [id, obj] : mInteractObjects)
+	assert(id < mPlayers.size() && "Player disable desync (id out of bounds mPlayers");
+	mPlayers[id].enablePlayer();
+}
+
+void Game::disablePlayer(unsigned id)
+{
+	assert(id < mPlayers.size() && "Player disable desync (id out of bounds mPlayers");
+	mPlayers[id].disablePlayer();
+}
+
+void Game::rotateAllPlayers(float newOrientation)
+{
+	for (auto& player : mPlayers)
 	{
-		obj->setOrientation(obj->getOrientation() + newOrientation);
+		player.setOrientation(player.getOrientation() + newOrientation);
 	}
-}
-
-const Model& Game::getModel(const std::string& nameKey)
-{
-	return mModels[nameKey];
-}
-
-void Game::loadModel(const std::string& modelName)
-{
-	std::string path = Utility::findRootDir() + "/src/models/" + modelName + "/" + modelName + ".fbx";
-	mModels.emplace(modelName, Model{ path.data() });
 }
 
 void Game::loadShader(const std::string& shaderName)
