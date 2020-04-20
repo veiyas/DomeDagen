@@ -8,37 +8,39 @@
 #include "constants.hpp"
 
 //Contain all collectibles with object pool design pattern
-//The pool will be stable partitioned with regard to enabled objects
-//Explicit singleton because of include feedback loops to use in main.cpp
+//Game contains an instance of this class
 class CollectiblePool
 {
 public:
-	//Singleton stuff
-	static CollectiblePool& instance();
-	static void init();
+	//Ctor creates pool of mNumCollectibles collectibles
+	//Alternates between all trash models
+	//Points mFirstAvailable to first element	
+	CollectiblePool() = default;
+
+	//creates pool of mNumCollectibles collectibles
+	//Alternates between all trash models
+	//Points mFirstAvailable to first element	
+	void init();
 
 	//Returns shared_ptr and points mFirstAvailable to next in list. O(1)!
-	std::shared_ptr<GameObject> enableCollectible(const glm::vec3& pos);
+	Collectible enableCollectible(const glm::vec3& pos);
 
 	//Deactivate and return the collectible to available list
 	void disableCollectible(Collectible& c);
 
+	size_t numEnabled() const { return mNumEnabled; }
+
 private:
-	//Singleton instance
-	static CollectiblePool* mInstance;
-
-	//Ctor creates pool of mNumCollectibles collectibles
-	//Alternates between all trash models
-	//Points mFirstAvailable to first element	
-	CollectiblePool();
-
 	//The pool of collectible objects
 	std::vector<Collectible> mPool;
 
+	//Number of enabled objects
+	size_t mNumEnabled = 0;
+
 	//Pointer to first available object ready to import into the game
-	Collectible* mFirstAvailable;
+	Collectible* mFirstAvailable = nullptr;
 
 	//Limit on number of objects in pool
-	static constexpr unsigned mNumCollectibles = 200;
+	static constexpr unsigned mNumCollectibles = 300;
 	
 };

@@ -27,11 +27,13 @@ public:
 	friend class CollectiblePool;
 
 private:
-	bool mEnabled = false;
+	//Is this collectible active in the game?
+	bool mEnabled;
+
 	float mSpeed;
 
-	//Pointer used to implement free list functionality (constant time access!)
-	Collectible* mNext = nullptr;
+	//Pointer to implement free list functionality (constant time access!)
+	Collectible* mNext;
 
 	constexpr bool isEnabled() const { return mEnabled; }
 	void enable() { mEnabled = true; }

@@ -18,7 +18,6 @@
 #include "sceneobject.hpp"
 #include "player.hpp"
 #include "modelmanager.hpp"
-#include "collectiblepool.hpp"
 
 namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
@@ -70,10 +69,10 @@ int main(int argc, char** argv) {
 	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
-	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
-	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
+	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
 
 	config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
@@ -136,30 +135,16 @@ void draw(const RenderData& data) {
 void initOGL(GLFWwindow*) {
 	ModelManager::init();
 	Game::init();
-	assert(std::is_pod<PlayerData>());
-	CollectiblePool::init();
+	
+	assert(std::is_pod<PlayerData>());	
 
 	/**********************************/
 	/*			 Debug Area			  */
 	/**********************************/
-	//for (size_t i = 0; i < 10; i++)
-	//{
-	//	glm::quat pos{ glm::vec3(1.f, 0.f, -1.f + 0.3 * i) };
-	//	PositionData tempPlayerData;
-	//	tempPlayerData.mId = i;
-	//	tempPlayerData.mObjType = GameObject::PLAYER;
-	//	tempPlayerData.mOrientation = 0.f;
-	//	tempPlayerData.mRadius = 50.f;
-	//	tempPlayerData.mScale = 10.f;
-	//	tempPlayerData.mW = pos.w;
-	//	tempPlayerData.mX = pos.x;
-	//	tempPlayerData.mY = pos.y;
-	//	tempPlayerData.mZ = pos.z;
-	//	
-	//	std::string name = "Player" + std::to_string(i);
-
-	//	Game::getInstance().addPlayer(name, tempPlayerData);
-	//}
+	for (size_t i = 0; i < 1; i++)
+	{
+		Game::instance().addPlayer(glm::vec3(0.f));
+	}
 }
 
 
@@ -178,13 +163,11 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 	if (key == Key::A && (action == Action::Press || action == Action::Repeat))
 	{
 		Game::instance().rotateAllPlayers(0.1f);
-		Game::instance().disablePlayer(0);
 	}
 	//Right
 	if (key == Key::D && (action == Action::Press || action == Action::Repeat))
 	{
 		Game::instance().rotateAllPlayers(-0.1f);
-		Game::instance().enablePlayer(0);
 	}
 }
 

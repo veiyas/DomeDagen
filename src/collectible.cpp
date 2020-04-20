@@ -2,7 +2,8 @@
 
 Collectible::Collectible(const std::string objectModelName)
 	:GameObject{ GameObject::COLLECTIBLE, 50.f, glm::vec3(1.f, 0.f, 0.f), 0.f }
-	, GeometryHandler{ "collectible", objectModelName }, mSpeed{0.1f}
+	,GeometryHandler{ "collectible", objectModelName }
+	,mSpeed{0.1f}, mEnabled{false}, mNext{nullptr}
 {
 	mMvpMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "mvp");
 	mTransMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "transformation");

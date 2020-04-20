@@ -39,6 +39,7 @@ add_executable(${PROJECT_NAME}
   src/websockethandler.h
   src/websockethandler.cpp
   src/utility.hpp
+  src/utility.cpp
   src/renderable.hpp
   src/geometryhandler.hpp
   src/gameobject.hpp
@@ -53,6 +54,12 @@ add_executable(${PROJECT_NAME}
   src/model.cpp
   src/sceneobject.hpp
   src/sceneobject.cpp
+  src/modelmanager.hpp
+  src/modelmanager.cpp
+  src/collectible.hpp
+  src/collectible.cpp
+  src/collectiblepool.hpp
+  src/collectiblepool.cpp
   src/shaders/playervert.glsl
   src/shaders/playerfrag.glsl
   src/shaders/sceneobjectvert.glsl

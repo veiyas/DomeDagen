@@ -45,13 +45,6 @@ public:
 	virtual void setSpeed(float speed) = 0;
 	virtual void setTurnSpeed(float) {};
 
-	//Retrieve position data as plain-old data struct
-	PositionData getMovementData(unsigned int id);
-
-	//Write new position data from plain-old data struct
-	void setMovementData(const PositionData& newState);
-	
-
 	//Calculates and returns the objects transformation matrix
 	glm::mat4 getTransformation() const; // is there any reason for this not returning const&?
 

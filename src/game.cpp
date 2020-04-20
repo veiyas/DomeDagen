@@ -9,49 +9,50 @@ Game* Game::mInstance = nullptr;
 unsigned int Game::mUniqueId = 0;
 
 Game::Game()
-	: mMvp{ glm::mat4{1.f} }, mLastFrameTime{ -1 }, mLastSyncedPlayer{0}
-{
+	: mMvp{ glm::mat4{1.f} }, mLastFrameTime{ -1 }, mLastSyncedPlayer{ 0 }
+{	
 	for (const std::string& shaderName : allShaderNames)
 		loadShader(shaderName);
 
+	mCollectPool.init();
 }
 
 void Game::detectCollisions()
 {
-	//TODO Rework collision detection when collectibles are implemented
-	//if (mInteractObjects.size() > 1)
-	//{
-	//	for (size_t i = 0; i < mInteractObjects.size(); i++)
-	//	{
-	//		for (size_t j = i + 1; j < mInteractObjects.size(); j++)
-	//		{
-	//			auto quat1 = (mInteractObjects[i].second->getPosition());
-	//			auto quat2 = (mInteractObjects[j].second->getPosition());
+	if (mPlayers.size() > 0 && mCollectPool.numEnabled() > 0)
+	{
+		for (size_t i = 0; i < mPlayers.size(); i++)
+		{
+			for (size_t j = i + 1; j < mCollectibles.size(); j++)
+			{
+				auto playerQuat = (mPlayers[i].getPosition());
+				auto collectibleQuat = (mCollectibles[j].getPosition());
 
-	//			auto z = glm::normalize(glm::inverse(quat1) * quat2);
+				auto deltaQuat = glm::normalize(glm::inverse(playerQuat) * collectibleQuat);
 
-	//			//Collision detection by comparing how small the angle between the fishes are
-	//			//From https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
-	//			auto sinxPart = 2.f * (z.w * z.x + z.y * z.z);
-	//			auto cosxPart = 1.f - 2.f * (z.x*z.x + z.y*z.y);
-	//			auto xAngle = std::atan2(sinxPart, cosxPart);
-	//			
-	//			auto sinyPart = 2.f * (z.w * z.y - z.z * z.x);
-	//			auto yAngle = std::asin(sinyPart);
+				//Collision detection by comparing how small the angle between the objects are
+				//From https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+				auto sinxPart = 2.f * (deltaQuat.w * deltaQuat.x + deltaQuat.y * deltaQuat.z);
+				auto cosxPart = 1.f - 2.f * (deltaQuat.x*deltaQuat.x + deltaQuat.y*deltaQuat.y);
+				auto xAngle = std::atan2(sinxPart, cosxPart);
+				
+				auto sinyPart = 2.f * (deltaQuat.w * deltaQuat.y - deltaQuat.z * deltaQuat.x);
+				auto yAngle = std::asin(sinyPart);
 
-	//			if (std::abs(xAngle) <= collisionDistance && std::abs(yAngle) <= collisionDistance)
-	//			{
-	//				std::cout << i << " <=> " << j << " collided\n";
-	//			}
-	//		}
-	//	}
-	//}
+				if (std::abs(xAngle) <= collisionDistance && std::abs(yAngle) <= collisionDistance)
+				{
+					std::cout << mPlayers[i].getName() << " <=> " << j << " collided\n";
+				}
+			}
+		}
+	}
 }
 
 void Game::init()
 {
 	mInstance = new Game{};
 	mInstance->mPlayers.reserve(mMAXPLAYERS);
+	mInstance->mCollectibles.reserve(mMAXCOLLECTIBLES);
 	mInstance->printLoadedAssets();
 }
 
@@ -65,7 +66,7 @@ Game& Game::instance()
 
 void Game::destroy()
 {
-	if(mInstance->instanceExists())
+	if(mInstance)
 		delete mInstance;
 }
 
@@ -86,16 +87,21 @@ void Game::printLoadedAssets() const
 
 void Game::render() const
 {
-	//Render players
 	for (const Player& p : mPlayers)
 		p.render(mMvp);
 
-	//TODO render rest of objects
+	for (const Collectible& c : mCollectibles)
+		c.render(mMvp);
 }
 
 void Game::addPlayer()
 {
 	mPlayers.emplace_back();
+}
+
+void Game::addPlayer(const glm::vec3& pos)
+{
+	mPlayers.emplace_back(Player{ "fish", 50.f, pos, 0.f, "player", 0.5 });
 }
 
 void Game::addPlayer(const PlayerData& p)
@@ -112,6 +118,7 @@ void Game::addPlayer(std::tuple<unsigned int, std::string>&& inputTuple)
 
 //DEBUGGING PURPOSES, TODO REMOVE WHEN DONE
 bool outputted = false;
+int spawnTime = 2;
 void Game::update()
 {
 	if (mLastFrameTime == -1) //First update?
@@ -127,26 +134,26 @@ void Game::update()
 	//DEBUGGING PURPOSES, TODO REMOVE WHEN DONE
 	std::random_device randomDevice;
 	std::mt19937 gen(randomDevice());
-	std::uniform_real_distribution<> rng(-0.7f, 0.7f);
+	std::uniform_real_distribution<> rng(-1.5f, 1.5f);
 
 	//TODO Spawn collectibles
 	//COLLECTIBLE SPAWN DEBUGGING
-	if ((int)currentFrameTime % 2 == 0 && !outputted)
+	if ((int)currentFrameTime % spawnTime == 0 && !outputted)
 	{
-		addGameObject(CollectiblePool::instance().enableCollectible(glm::vec3(rng(gen)+2.f, rng(gen), 0.f)));
+		addCollectible(glm::vec3(1.5f + rng(gen), rng(gen), 0.f));
 		outputted = true;
 	}
 
-	if ((int)currentFrameTime % 2 == 1 || (int)currentFrameTime % 2 == 2)
+	if ((int)currentFrameTime % spawnTime == 1 || (int)currentFrameTime % 2 == 2)
 		outputted = false;
 
 	//Update players
 	for (auto& player : mPlayers)
 		player.update(deltaTime);
+	//TODO Update other type of objects
 
 	detectCollisions();
-
-	//TODO Update other type of objects
+	
 	mLastFrameTime = currentFrameTime;
 }
 
@@ -217,6 +224,11 @@ void Game::disablePlayer(unsigned id)
 {
 	assert(id < mPlayers.size() && "Player disable desync (id out of bounds mPlayers");
 	mPlayers[id].disablePlayer();
+}
+
+void Game::addCollectible(const glm::vec3& pos)
+{
+	mCollectibles.push_back(mCollectPool.enableCollectible(pos));
 }
 
 void Game::rotateAllPlayers(float newOrientation)

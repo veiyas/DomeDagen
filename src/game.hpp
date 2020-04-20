@@ -21,6 +21,7 @@
 #include "glm/matrix.hpp"
 
 #include "player.hpp"
+#include "collectiblepool.hpp"
 #include "utility.hpp"
 
 // abock;  consider implementing all of this as an "implicit" singleton.  Instead of
@@ -39,9 +40,6 @@ public:
 
 	//Get instance
 	static Game& instance();
-
-	//Check if instance is running
-	static bool instanceExists() { return mInstance != nullptr; }
 
 	//Destroy instance
 	static void destroy();
@@ -62,11 +60,21 @@ public:
 	//Mostly used for debugging
 	void addPlayer();
 
+	void addPlayer(const glm::vec3& pos);
+
 	//Add player from playerdata for instant sync
 	void addPlayer(const PlayerData& p);
 
 	//Add player from server request
 	void addPlayer(std::tuple<unsigned int, std::string>&& inputTuple);
+
+	//enable/disable player 
+	void enablePlayer(unsigned id);
+	void disablePlayer(unsigned id);
+
+	//Add collectible to mCollectibles from mCollectPool
+	void addCollectible(const glm::vec3& pos);
+
 	//Update all gameobjects
 	void update();
 
@@ -79,10 +87,7 @@ public:
 	//Set the turn speed of player player with id id
 	void updateTurnSpeed(std:: tuple<unsigned int, float>&& input);
     
-    //enable/disable player 
-    void enablePlayer(unsigned id);
-    void disablePlayer(unsigned id);
-
+   
 	//DEBUGGING TOOL: apply orientation to all GameObjects
 	void rotateAllPlayers(float deltaOrientation);
 
@@ -93,6 +98,12 @@ private:
 
 	//All players stored sequentually
 	std::vector<Player> mPlayers;
+
+	//All collectibles
+	std::vector<Collectible> mCollectibles;
+
+	//Pool of collectibles for fast "generation" of objects
+	CollectiblePool mCollectPool;
 
 	//TODO add collectible storage
 
@@ -118,10 +129,6 @@ private:
 //Functions
 	//Constructor
 	Game();
-
-	//Add object to mInteractObjects and mRenderObjects with id
-	//Called by public addGameObject methods
-	void addGameObject(std::shared_ptr<GameObject> obj, unsigned& id);
 
 	//Collision detection in mInteractObjects, bubble style
 	void detectCollisions();
