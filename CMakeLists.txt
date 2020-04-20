@@ -44,6 +44,9 @@ add_executable(${PROJECT_NAME}
   src/mesh.cpp
   src/model.hpp
   src/model.cpp
+  src/constants.hpp
+  src/backgroundobject.hpp
+  src/backgroundobject.cpp
   src/sceneobject.hpp
   src/sceneobject.cpp
   src/modelmanager.hpp
