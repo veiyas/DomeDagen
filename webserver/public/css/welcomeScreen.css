@@ -17,3 +17,15 @@
     padding: 20px;
     width: 200px;
 }
+
+/* Character limit error message */
+#nameInputContainer {
+    position: relative;
+}
+
+#charLimitMsg {
+    color: crimson;
+    font-size: 2em;
+    position: absolute;
+    top: -10%;
+}

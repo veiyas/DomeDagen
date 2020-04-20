@@ -17,13 +17,18 @@
       <h1>Welcome</h1>
     </div>
     <div class="row">
-      <div class="col">
-        <input type="text" id="lname" name="lname" placeholder="Enter your name..." oninput="handleTextInputChange()">
-        <button id="connect" class="disabled" disabled="true" onclick="sendName()">Connect</button>
+      <div class="col padded">
+        <div id="nameInputContainer" class="padded">
+          <p class="hidden" id="charLimitMsg">Player name cannot exceed 20 characters</p>
+          <input type="text" id="lname" name="lname" placeholder="Enter your name..." oninput="handleTextInputChange()">
+        </div>
+        <div class="row padded">
+          <button id="connect" class="disabled" disabled="true" onclick="sendName()">Connect</button>
+        </div>
       </div>
     </div>
     <!-- Add connection to get name in input, in initialize() function -->
-    <div id="debug-output">Debug info</div>
+    <!-- <div id="debug-output">Debug info</div> -->
   </div>
 
   <div id="waitingScreen" class="screen">

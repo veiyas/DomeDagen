@@ -15,6 +15,7 @@ $($.ajax({
 // const serverAddress = 'ws://192.168.10.225:81/';
 var socket;
 var screens = new Map();
+const nameLimit = 20;
 
 function log(msg) {
     document.getElementById('debug-output').innerHTML = msg;
@@ -90,12 +91,17 @@ function sendName() {
 function handleTextInputChange() {
   var connectButton = document.querySelector('#connect');
   var inputTextForm = document.querySelector('#lname');
+  var charLimitMsg = document.querySelector('#charLimitMsg');
 
-  if (inputTextForm.value === '') {
-    connectButton.disabled = true;
-    connectButton.classList.add('disabled');
-  } else {
+  if (inputTextForm.value !== '' && inputTextForm.value.length <= nameLimit) {
+    inputTextForm.classList.remove('error');
+    charLimitMsg.classList.add('hidden');
     connectButton.disabled = false;
     connectButton.classList.remove('disabled');
+  } else {
+    inputTextForm.classList.add('error');
+    charLimitMsg.classList.remove('hidden');
+    connectButton.disabled = true;
+    connectButton.classList.add('disabled');
   }
 }
