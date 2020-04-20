@@ -81,6 +81,9 @@ public:
 
 	//Set the turn speed of player player with id id
 	void updateTurnSpeed(std:: tuple<unsigned int, float>&& input);
+
+	//Updates the orientation and speed of player id
+	void updatePlayerMovement(unsigned int id, float angle, float speed);
     
     //enable/disable player 
     void enablePlayer(unsigned id);

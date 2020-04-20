@@ -69,10 +69,10 @@ int main(int argc, char** argv) {
 	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
-	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
-	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
+	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
 
 	config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
@@ -127,9 +127,9 @@ void draw(const RenderData& data) {
 
 	Game::instance().render();
 	while (glGetError() != GL_NO_ERROR)
-    {
-      std::cout << "GL Error: " << glGetError() << std::endl;
-    }
+	{
+	  std::cout << "GL Error: " << glGetError() << std::endl;
+	}
 }
 
 void initOGL(GLFWwindow*) {
@@ -177,13 +177,13 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 	if (key == Key::A && (action == Action::Press || action == Action::Repeat))
 	{
 		Game::instance().rotateAllPlayers(0.1f);
-		Game::instance().disablePlayer(0);
+		//Game::instance().disablePlayer(0);
 	}
 	//Right
 	if (key == Key::D && (action == Action::Press || action == Action::Repeat))
 	{
 		Game::instance().rotateAllPlayers(-0.1f);
-		Game::instance().enablePlayer(0);
+		//Game::instance().enablePlayer(0);
 	}
 }
 
@@ -215,6 +215,7 @@ void decode(const std::vector<std::byte>& data, unsigned int pos) {
 }
 
 void cleanup() {
+	// TODO this
 	// Cleanup all of your state, particularly the OpenGL state in here.  This function
 	// should behave symmetrically to the initOGL function
 }
@@ -259,16 +260,24 @@ void messageReceived(const void* data, size_t length) {
 			Game::instance().addPlayer(Utility::getNewPlayerData(iss));
 		}
 
-		// If first slot is 'C', the rotation angle has been sent
+		//// If first slot is 'C', the rotation angle has been sent
+		//if (msgType == 'C') {
+		//	Game::instance().updateTurnSpeed(Utility::getTurnSpeed(iss));
+		//}
+
 		if (msgType == 'C') {
-			Game::instance().updateTurnSpeed(Utility::getTurnSpeed(iss));
+			unsigned int id;
+			float angle, distance;
+			iss >> id >> angle >> distance;
+
+			Game::instance().updatePlayerMovement(id, angle, 0.0025*distance);
 		}
-        
-        // If first slot is 'D', player to be removed has been sent
-        if (msgType == 'D') {
-            unsigned int playerId;
-            iss >> playerId;
-            Game::instance().disablePlayer(playerId);
-        }
+		
+		// If first slot is 'D', player to be removed has been sent
+		if (msgType == 'D') {
+			unsigned int playerId;
+			iss >> playerId;
+			Game::instance().disablePlayer(playerId);
+		}
 	}
 }

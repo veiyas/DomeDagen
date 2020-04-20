@@ -189,6 +189,14 @@ void Game::updateTurnSpeed(std::tuple<unsigned int, float>&& input)
 	mPlayers[id].setTurnSpeed(rotAngle);
 }
 
+void Game::updatePlayerMovement(unsigned int id, float angle, float speed)
+{
+	assert(id < mPlayers.size() && "Player update turn speed desync (id out of bounds mPlayers");
+
+	mPlayers[id].setOrientation(angle);
+	mPlayers[id].setSpeed(speed);
+}
+
 void Game::enablePlayer(unsigned id)
 {
 	assert(id < mPlayers.size() && "Player disable desync (id out of bounds mPlayers");
