@@ -55,6 +55,5 @@ private:
 	float mSpeed;
 	const std::string mName;
 
-	//TODO Move!
 	BallJointConstraint mConstraint;
 };

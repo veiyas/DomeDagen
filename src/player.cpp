@@ -32,8 +32,6 @@ Player::~Player()
 
 void Player::update(float deltaTime)
 {
-	using namespace glm;
-
 	float oldOrient = getOrientation();
 	setOrientation(oldOrient + deltaTime * mTurnSpeed);
 
