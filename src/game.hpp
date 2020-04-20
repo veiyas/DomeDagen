@@ -9,6 +9,7 @@
 #include <utility>
 #include <tuple>
 #include <cmath>
+#include <random>
 
 #include "sgct/mutexes.h"
 #include "sgct/shareddata.h"
@@ -66,12 +67,8 @@ public:
 
 	//Add player from server request
 	void addPlayer(std::tuple<unsigned int, std::string>&& inputTuple);
-
 	//Update all gameobjects
 	void update();
-
-	//ALEX'S WISDOM: LET'S NOT GIVE ACCESS TO THIS CLASS INTERNALS OUTSIDE
-	//WRAP EVERYTHING IN METHODS THAT WONT EXPOSE INTERNALS
 
 	//Get and encode position data
 	std::vector<std::byte> getEncodedPlayerData();
@@ -121,6 +118,10 @@ private:
 //Functions
 	//Constructor
 	Game();
+
+	//Add object to mInteractObjects and mRenderObjects with id
+	//Called by public addGameObject methods
+	void addGameObject(std::shared_ptr<GameObject> obj, unsigned& id);
 
 	//Collision detection in mInteractObjects, bubble style
 	void detectCollisions();

@@ -18,6 +18,7 @@
 #include "sceneobject.hpp"
 #include "player.hpp"
 #include "modelmanager.hpp"
+#include "collectiblepool.hpp"
 
 namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
@@ -136,11 +137,11 @@ void initOGL(GLFWwindow*) {
 	ModelManager::init();
 	Game::init();
 	assert(std::is_pod<PlayerData>());
+	CollectiblePool::init();
 
 	/**********************************/
 	/*			 Debug Area			  */
 	/**********************************/
-
 	//for (size_t i = 0; i < 10; i++)
 	//{
 	//	glm::quat pos{ glm::vec3(1.f, 0.f, -1.f + 0.3 * i) };

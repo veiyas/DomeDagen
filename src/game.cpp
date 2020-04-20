@@ -1,18 +1,19 @@
 #include "game.hpp"
 #include "player.hpp"
+#include "collectiblepool.hpp"
+
 #include <sgct/engine.h>
 
-
-//Define instance
+//Define instance and id counter
 Game* Game::mInstance = nullptr;
 unsigned int Game::mUniqueId = 0;
 
 Game::Game()
 	: mMvp{ glm::mat4{1.f} }, mLastFrameTime{ -1 }, mLastSyncedPlayer{0}
 {
-	//Loads all models and shaders into pool
 	for (const std::string& shaderName : allShaderNames)
 		loadShader(shaderName);
+
 }
 
 void Game::detectCollisions()
@@ -56,7 +57,6 @@ void Game::init()
 
 Game& Game::instance()
 {
-	//If Game doesnt exist, create one. Return it.
 	if (!mInstance) {
 		mInstance = new Game{};
 	}
@@ -110,6 +110,8 @@ void Game::addPlayer(std::tuple<unsigned int, std::string>&& inputTuple)
 	mPlayers.emplace_back(std::get<1>(inputTuple));
 }
 
+//DEBUGGING PURPOSES, TODO REMOVE WHEN DONE
+bool outputted = false;
 void Game::update()
 {
 	if (mLastFrameTime == -1) //First update?
@@ -119,7 +121,24 @@ void Game::update()
 	}
 
 	float currentFrameTime = static_cast<float>(sgct::Engine::getTime());
-	float deltaTime = currentFrameTime - mLastFrameTime;	
+
+	float deltaTime = currentFrameTime - mLastFrameTime;
+	
+	//DEBUGGING PURPOSES, TODO REMOVE WHEN DONE
+	std::random_device randomDevice;
+	std::mt19937 gen(randomDevice());
+	std::uniform_real_distribution<> rng(-0.7f, 0.7f);
+
+	//TODO Spawn collectibles
+	//COLLECTIBLE SPAWN DEBUGGING
+	if ((int)currentFrameTime % 2 == 0 && !outputted)
+	{
+		addGameObject(CollectiblePool::instance().enableCollectible(glm::vec3(rng(gen)+2.f, rng(gen), 0.f)));
+		outputted = true;
+	}
+
+	if ((int)currentFrameTime % 2 == 1 || (int)currentFrameTime % 2 == 2)
+		outputted = false;
 
 	//Update players
 	for (auto& player : mPlayers)
@@ -128,7 +147,6 @@ void Game::update()
 	detectCollisions();
 
 	//TODO Update other type of objects
-
 	mLastFrameTime = currentFrameTime;
 }
 

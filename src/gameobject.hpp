@@ -40,6 +40,17 @@ public:
 
 	//Update object (position, collision?)
 	virtual void update(float deltaTime);
+	//HACK This is very much a hack, and it would probably be better to keep different
+	//types of gameobjects in different list to be able to use all functionality
+	virtual void setSpeed(float speed) = 0;
+	virtual void setTurnSpeed(float) {};
+
+	//Retrieve position data as plain-old data struct
+	PositionData getMovementData(unsigned int id);
+
+	//Write new position data from plain-old data struct
+	void setMovementData(const PositionData& newState);
+	
 
 	//Calculates and returns the objects transformation matrix
 	glm::mat4 getTransformation() const; // is there any reason for this not returning const&?
@@ -56,11 +67,6 @@ public:
 	void setScale(float scale) { mScale = scale; }
 	void setPosition(const glm::quat position) { mPosition = position; }
 	void setOrientation(float orientation) { mOrientation = orientation; }
-
-	//HACK This is very much a hack, and it would probably be better to keep different
-	//types of gameobjects in different list to be able to use all functionality
-	virtual void setSpeed(float speed) = 0;
-	virtual void setTurnSpeed(float) {};
 
 private:
 	//The position on the sphere represented by a unit quaternion
