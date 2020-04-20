@@ -120,14 +120,21 @@ void Player::update(float deltaTime)
 {
 	if (!mEnabled)
 		return;
-	//Update orientation
-	setOrientation(getOrientation() + deltaTime * mTurnSpeed);
+
+	////Update orientation
+	//setOrientation(getOrientation() + deltaTime * mTurnSpeed);
 
 	//Update position on sphere
 	glm::quat newPos = getPosition();
-	newPos *= glm::quat(
+	newPos *= glm::normalize(glm::quat(
 		mSpeed * deltaTime * glm::vec3(cos(getOrientation()), sin(getOrientation()), 0.f)
-	);
+	));
+
+	//const float orient = getOrientation();
+	//const float angle = mSpeed * deltaTime;
+	//const glm::vec3 rotAxis(cos(orient), sin(orient), 0.f);
+	//newPos *= glm::angleAxis(angle, rotAxis);
+
 	setPosition(glm::normalize(newPos)); //Normalize might not be necessary?
 
 	//TODO Constrain to visible area

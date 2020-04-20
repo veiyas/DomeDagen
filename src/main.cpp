@@ -141,6 +141,8 @@ void initOGL(GLFWwindow*) {
 	/*			 Debug Area			  */
 	/**********************************/
 
+	Game::instance().addPlayer();
+
 	//for (size_t i = 0; i < 10; i++)
 	//{
 	//	glm::quat pos{ glm::vec3(1.f, 0.f, -1.f + 0.3 * i) };
@@ -173,18 +175,34 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 		wsHandler->disconnect();
 	}
 
-	//Left
-	if (key == Key::A && (action == Action::Press || action == Action::Repeat))
-	{
-		Game::instance().rotateAllPlayers(0.1f);
-		//Game::instance().disablePlayer(0);
-	}
-	//Right
-	if (key == Key::D && (action == Action::Press || action == Action::Repeat))
-	{
-		Game::instance().rotateAllPlayers(-0.1f);
-		//Game::instance().enablePlayer(0);
-	}
+	//Some terrible debug controls
+	auto& game = Game::instance();
+	float speed = 1;
+
+	if (action == Action::Press)
+		switch (key)
+		{
+		case Key::W: game.updatePlayerMovement(0, 0.0f, speed);                   break;
+		case Key::A: game.updatePlayerMovement(0, glm::half_pi<float>(), speed);  break;
+		case Key::S: game.updatePlayerMovement(0, glm::pi<float>(), speed);       break;
+		case Key::D: game.updatePlayerMovement(0, -glm::half_pi<float>(), speed); break;
+		}
+
+	if ((key == Key::W || key == Key::A || key == Key::S || key == Key::D) && action == Action::Release)
+		game.updatePlayerMovement(0, 0.f, 0.f);
+
+	////Left
+	//if (key == Key::A && (action == Action::Press || action == Action::Repeat))
+	//{
+	//	Game::instance().rotateAllPlayers(0.1f);
+	//	//Game::instance().disablePlayer(0);
+	//}
+	////Right
+	//if (key == Key::D && (action == Action::Press || action == Action::Repeat))
+	//{
+	//	Game::instance().rotateAllPlayers(-0.1f);
+	//	//Game::instance().enablePlayer(0);
+	//}
 }
 
 void preSync() {
@@ -269,6 +287,8 @@ void messageReceived(const void* data, size_t length) {
 			unsigned int id;
 			float angle, distance;
 			iss >> id >> angle >> distance;
+
+			//std::cout << angle * 360 / (2 * 3.14) << '\n';
 
 			Game::instance().updatePlayerMovement(id, angle, 0.0025*distance);
 		}

@@ -55,7 +55,7 @@ public:
 	void setRadius(float radius) { mRadius = radius; }
 	void setScale(float scale) { mScale = scale; }
 	void setPosition(const glm::quat position) { mPosition = position; }
-	void setOrientation(float orientation) { mOrientation = orientation; }
+	void setOrientation(float orientation) { mOrientation = std::fmod(orientation, glm::two_pi<float>()); }
 
 	//HACK This is very much a hack, and it would probably be better to keep different
 	//types of gameobjects in different list to be able to use all functionality
