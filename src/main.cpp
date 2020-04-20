@@ -25,14 +25,8 @@ namespace {
 	//Container for deserialized game state info
 	std::vector<PlayerData> states;
 
-
 	//TEMPORARY used to control rotation of all players 
 	float updatedRotation{ 0 };
-
-	//RNG stuff
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_real_distribution<> rng(-1.0f, 1.0f);
 
 } // namespace
 
@@ -69,10 +63,10 @@ int main(int argc, char** argv) {
 	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
-	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
-	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
+	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
 
 	config::Cluster cluster = sgct::loadCluster(config.configFilename);
 

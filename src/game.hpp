@@ -100,7 +100,7 @@ private:
 	//TODO add collectible storage
 
 	//GameObjects unique id generator for player tagging
-	static unsigned int mUniqueId;	
+	static unsigned int mUniqueId;
 
 	//Track all loaded shaders' names
 	std::vector<std::string> mShaderNames;
