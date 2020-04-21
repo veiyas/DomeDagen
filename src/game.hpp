@@ -119,7 +119,7 @@ private:
 	static constexpr size_t mMAXPLAYERS = 110;
 	static constexpr size_t mMAXCOLLECTIBLES = 300;
 
-	const BackgroundObject* mBackground; //Holds pointer to the background
+	BackgroundObject mBackground; //Holds pointer to the background
 
 //Functions
 	//Constructor
@@ -133,6 +133,7 @@ private:
 
 	//Set background
 	void setBackground(const BackgroundObject& background) {
+		mBackground = background;
 		std::cout << "Setting background";
 	}
 

@@ -8,11 +8,13 @@
 
 #include "glm/mat4x4.hpp"
 #include "renderable.hpp"
+#include "modelmanager.hpp"
+#include "model.hpp"
 
 class BackgroundObject : public Renderable {
 public:
 	//No default constructor
-	BackgroundObject() = delete;
+	BackgroundObject() = default;
 
 	BackgroundObject(const std::string& objectModelName, float width, float height,
 		const glm::quat& position);
@@ -26,6 +28,9 @@ public:
 	}
 
 	void drawBackground(const glm::mat4& mvp) const{
-		std::cout << "Test render \n";
+	  mQuad.render();
 	}
+
+private:
+	Model mQuad;
 };
