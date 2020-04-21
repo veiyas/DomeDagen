@@ -16,6 +16,7 @@ $($.ajax({
 var socket;
 var screens = new Map();
 const nameLimit = 20;
+var connected = false;
 
 function log(msg) {
     document.getElementById('debug-output').innerHTML = msg;
@@ -55,6 +56,10 @@ function initialize() {
   var connectButton = document.querySelector('#connect');
   connectButton.addEventListener('click', () => {
     connected = true; // Mock connection state, should probably be handled in conjunction with the back-end
+
+    document.querySelector('#orientationPrompt').classList.remove('hidden');
+    document.querySelector('#promptBackground').classList.remove('hidden');
+
     setCurrentScreen('gameRunningScreen');
   })
 }
