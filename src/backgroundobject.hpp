@@ -15,9 +15,17 @@ public:
 	BackgroundObject() = delete;
 
 	BackgroundObject(const std::string& objectModelName, float width, float height,
-		const glm::quat& position, const std::string& name);
+		const glm::quat& position);
 
-	~BackgroundObject();
+	~BackgroundObject() {
+		std::cout << "Deleting background";
+	}
 
-	void render(const glm::mat4& mvp) const;
+	void render(const glm::mat4& mvp) const {
+		std::cout << "I'm rendering";
+	}
+
+	void drawBackground(const glm::mat4& mvp) const{
+		std::cout << "Test render \n";
+	}
 };

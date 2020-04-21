@@ -52,6 +52,8 @@ void Game::init()
 	mInstance = new Game{};
 	mInstance->mPlayers.reserve(mMAXPLAYERS);
 	mInstance->printLoadedAssets();
+	BackgroundObject* background = new BackgroundObject("fish", 100, 100, glm::quat(glm::vec3(0.f)));
+	mInstance->setBackground(*background);
 }
 
 Game& Game::instance()
@@ -86,6 +88,9 @@ void Game::printLoadedAssets() const
 
 void Game::render() const
 {
+	//Render background
+	mBackground->drawBackground(mMvp);
+
 	//Render players
 	for (const Player& p : mPlayers)
 		p.render(mMvp);
