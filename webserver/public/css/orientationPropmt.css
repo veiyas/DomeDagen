@@ -29,7 +29,6 @@
 }
 
 #orientationPrompt img {
-    height: 33vh;
     object-fit: contain;
-    width: 33vh;
+    width: 100%;
 }
