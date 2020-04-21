@@ -35,3 +35,8 @@
 #finalScoreCard p {
     font-size: 6rem;
 }
+
+/* Temporary slider controls */
+#gameRunningScreen input {
+    width: 80%;
+}

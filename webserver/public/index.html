@@ -44,14 +44,8 @@
   <div class="screen centered" id="gameRunningScreen">
     <div class="row centered">
       <p>Score: <span id="currentScore">100</span></p>
-      <!-- <div id="steeringInstruction">
-        Animation or similar graphic to show steering controls
-        <p>Tilt to steer</p>
-      </div>
-      <button>Hold to swim</button> -->
-    </div>
-    <canvas id="joystickArea">
-    </canvas>
+      <input type="range" name="sliderController" id="sliderController" min="-100" max="100" step="1" oninput="handleSliderControls(event)">
+    </div>  
   </div>
 
   <div class="screen" id="gameOverScreen">
@@ -64,7 +58,8 @@
     </div>
   </div>
 
-  <script type="text/javascript" src="./js/joystick.js"></script>
+  <!-- <script type="text/javascript" src="./js/joystick.js"></script> -->
+  <script type="text/javascript" src="./js/sliderControls.js"></script>
 
 </body>
 
