@@ -26,15 +26,16 @@ public:
 	void render(const glm::mat4& mvp) const;
 
 	//Returns shared_ptr and points mFirstAvailable to next in list. O(1)!
-	Collectible& enableCollectible(const glm::vec3& pos);
+	void enableCollectible(const glm::vec3& pos);
 
-	//Deactivate and return the collectible to available list
+	//Deactivates object at index and rethreads all objects accordingly
 	void disableCollectible(const size_t index);
 
 	//Accessor
 	size_t getNumEnabled() const { return mNumEnabled; }
 
 	//The pool of collectible objects
+	//Always stable sorted with enabled objects in front
 	std::vector<Collectible> mPool;
 
 private:

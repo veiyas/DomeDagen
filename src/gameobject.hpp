@@ -27,6 +27,9 @@ public:
 	};
 	GameObject() = delete;
 	GameObject(const GameObject&) = default;
+	GameObject(GameObject&&) = default;
+	GameObject& operator=(const GameObject&) = default;
+	GameObject& operator=(GameObject&& src) noexcept;
 
 	//Ctor
 	GameObject(const unsigned objType, float radius, const glm::quat& position, float orientation);

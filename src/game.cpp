@@ -31,6 +31,7 @@ void Game::detectCollisions()
 				auto deltaQuat = glm::normalize(glm::inverse(playerQuat) * collectibleQuat);
 
 				//Collision detection by comparing how small the angle between the objects are
+				//TODO Algot "quat guru" Sandahl needs to review this part
 				//From https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
 				auto sinxPart = 2.f * (deltaQuat.w * deltaQuat.x + deltaQuat.y * deltaQuat.z);
 				auto cosxPart = 1.f - 2.f * (deltaQuat.x*deltaQuat.x + deltaQuat.y*deltaQuat.y);
@@ -41,8 +42,7 @@ void Game::detectCollisions()
 
 				if (std::abs(xAngle) <= collisionDistance && std::abs(yAngle) <= collisionDistance)
 				{
-					//ISSUE this if triggers more than once, big bug
-					std::cout << "Called up here\n";
+					mPlayers[i].addPoint();
 					mCollectPool.disableCollectible(j);
 				}
 			}

@@ -42,6 +42,8 @@ Collectible& Collectible::operator=(const Collectible& src)
 
 Collectible& Collectible::operator=(Collectible&& src) noexcept
 {
+	GameObject::operator= (std::move(src));
+	GeometryHandler::operator= (std::move(src));
 	std::swap(mEnabled, src.mEnabled);
 	std::swap(mSpeed, src.mSpeed);
 	std::swap(mNext, src.mNext);

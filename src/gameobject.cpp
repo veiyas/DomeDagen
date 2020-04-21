@@ -6,46 +6,22 @@
 
 #include<iostream>
 
+GameObject& GameObject::operator=(GameObject&& src) noexcept
+{
+	std::swap(mPosition, src.mPosition);
+	std::swap(mRadius, src.mRadius);
+	std::swap(mOrientation, src.mOrientation);
+	std::swap(mScale, src.mScale);
+
+	return *this;
+}
+
 GameObject::GameObject(const unsigned objType, float radius, const glm::quat& position, float orientation)
 	: mRadius{ radius }, mPosition{ position }, mOrientation{ orientation },
 	 mScale{ 10.f }, mObjType{ objType }
 {
 
 }
-
-//PlayerData GameObject::getMovementData(unsigned int id)
-//{
-//	PlayerData temp;
-//	
-//	temp.mId = id;
-//
-//	//Positional stuff
-//	temp.mOrientation = getOrientation();
-//	temp.mRadius = getRadius();
-//	temp.mScale = getScale();
-//
-//	temp.mW = getPosition().w;
-//	temp.mX = getPosition().x;
-//	temp.mY = getPosition().y;
-//	temp.mZ = getPosition().z;
-//
-//	return temp;
-//}
-
-//void GameObject::setMovementData(const PlayerData& newState)
-//{
-//	setOrientation(newState.mOrientation);
-//	setRadius(newState.mRadius);
-//	setScale(newState.mScale);
-//
-//	glm::quat newPosition;
-//	newPosition.w = newState.mW;
-//	newPosition.x = newState.mX;
-//	newPosition.y = newState.mY;
-//	newPosition.z = newState.mZ;
-//
-//	setPosition(newPosition);
-//}
 
 void GameObject::update(float deltaTime)
 {

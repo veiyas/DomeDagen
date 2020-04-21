@@ -87,6 +87,7 @@ public:
 	const std::string& getName() const { return mName; };
 
 	//Mutators
+	void addPoint() { ++mPoints; }
 	void setEnabled(bool state) { mEnabled = state; }
 	void setSpeed(float speed) override { mSpeed = speed; };
 	void setPoints(int points) { mPoints = points; };
