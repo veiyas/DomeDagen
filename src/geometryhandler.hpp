@@ -20,6 +20,7 @@ public:
 		std::swap(mModel, src.mModel);
 		return *this;
 	}
+	~GeometryHandler() { delete mModel; }
 	
 	//Shader matrix locations
 	GLint mTransMatrixLoc = -1;

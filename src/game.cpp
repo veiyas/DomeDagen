@@ -23,15 +23,15 @@ void Game::detectCollisions()
 	{
 		for (size_t i = 0; i < mPlayers.size(); i++)
 		{
-			for (size_t j = 0; j < mCollectPool.mPool.size() && mCollectPool.mPool[j].isEnabled(); j++)
+			for (size_t j = 0; j < CollectiblePool::mNumCollectibles && mCollectPool[j].isEnabled(); j++)
 			{
 				auto playerQuat = mPlayers[i].getPosition();
-				auto collectibleQuat = mCollectPool.mPool[j].getPosition();
+				auto collectibleQuat = mCollectPool[j].getPosition();
 
 				auto deltaQuat = glm::normalize(glm::inverse(playerQuat) * collectibleQuat);
 
 				//Collision detection by comparing how small the angle between the objects are
-				//TODO Algot "quat guru" Sandahl needs to review this part
+				//TODO Algot "Quat Guru" Sandahl needs to review this part
 				//From https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
 				auto sinxPart = 2.f * (deltaQuat.w * deltaQuat.x + deltaQuat.y * deltaQuat.z);
 				auto cosxPart = 1.f - 2.f * (deltaQuat.x*deltaQuat.x + deltaQuat.y*deltaQuat.y);

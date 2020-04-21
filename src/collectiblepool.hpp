@@ -9,6 +9,7 @@
 
 //Contain all collectibles with object pool design pattern
 //Game contains an instance of this class
+//Pool is stable partitioned with enabled objects in front
 class CollectiblePool
 {
 public:
@@ -31,14 +32,19 @@ public:
 	//Deactivates object at index and rethreads all objects accordingly
 	void disableCollectible(const size_t index);
 
+	//Operator overloading to hide internal data
+	Collectible& operator[](size_t i) { return mPool[i]; }
+
 	//Accessor
 	size_t getNumEnabled() const { return mNumEnabled; }
 
-	//The pool of collectible objects
-	//Always stable sorted with enabled objects in front
-	std::vector<Collectible> mPool;
+	//Max number of collectibles
+	static constexpr unsigned mNumCollectibles = 300;
 
 private:
+	//The pool of collectible objects
+	std::vector<Collectible> mPool;
+
 	//Number of enabled objects
 	size_t mNumEnabled = 0;
 
@@ -46,6 +52,6 @@ private:
 	Collectible* mFirstAvailable = nullptr;
 
 	//Limit on number of objects in pool
-	static constexpr unsigned mNumCollectibles = 300;
+	
 	
 };

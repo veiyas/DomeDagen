@@ -46,7 +46,7 @@ void CollectiblePool::enableCollectible(const glm::vec3& pos)
 {
 	assert(mFirstAvailable != nullptr && "Object pool is full");
 
-	Collectible& newCollectible = *mFirstAvailable;
+	Collectible& newCollectible = *mFirstAvailable; //VS shows a wrong warning here
 	mFirstAvailable = newCollectible.getNext();
 
 	newCollectible.setPosition(pos);
@@ -62,15 +62,17 @@ void CollectiblePool::disableCollectible(const size_t index)
 	auto& lastEnabledElement = mPool[index];
 	auto& disabledElement = mPool[mNumEnabled - 1];
 
+	//Thread enabled object
 	lastEnabledElement.setNext(&mPool[index+1]);
 	if (index > 0)
 		mPool[index - 1].setNext(&lastEnabledElement);
 
+	//Rethread and prime disabled object for usage
 	disabledElement.disable();
 	disabledElement.setNext(mFirstAvailable);
 	if (mNumEnabled > 1)
 		mPool[mNumEnabled - 2].setNext(&disabledElement);	
-	mFirstAvailable = &disabledElement;	
+	mFirstAvailable = &disabledElement;
 
 	--mNumEnabled;
 }
