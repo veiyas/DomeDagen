@@ -14,6 +14,7 @@ public:
 	GLint mTransMatrixLoc = -1;
 	GLint mMvpMatrixLoc = -1;
 	GLint mViewMatrixLoc = -1;
+	GLint mNormalMatrixLoc = -1;
 
 	GLint mCameraPosLoc = -1;
 

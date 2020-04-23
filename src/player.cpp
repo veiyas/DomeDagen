@@ -159,9 +159,13 @@ void Player::render(const glm::mat4& mvp, const glm::mat4& v) const
 	//std::cout << cameraPos.x << ' ' << cameraPos.y << ' ' << cameraPos.z << '\n';
 	glUniform3fv(mCameraPosLoc, 1, glm::value_ptr(cameraPos));
 
+	glm::mat4 transformation = getTransformation();
+	glm::mat3 normalMatrix(glm::transpose(glm::inverse(transformation)));
+
+	glUniformMatrix3fv(mNormalMatrixLoc, 1, GL_FALSE, glm::value_ptr(normalMatrix));
 	glUniformMatrix4fv(mMvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(mvp));
 	glUniformMatrix4fv(mViewMatrixLoc, 1, GL_FALSE, glm::value_ptr(v));
-	glUniformMatrix4fv(mTransMatrixLoc, 1, GL_FALSE, glm::value_ptr(getTransformation()));
+	glUniformMatrix4fv(mTransMatrixLoc, 1, GL_FALSE, glm::value_ptr(transformation));
 	this->renderModel();
 
 	mShaderProgram.unbind();
@@ -209,10 +213,11 @@ void Player::setShaderData()
 {
 	mShaderProgram.bind();
 
-	mMvpMatrixLoc   = glGetUniformLocation(mShaderProgram.id(), "mvp");
-	mTransMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "transformation");
-	mViewMatrixLoc  = glGetUniformLocation(mShaderProgram.id(), "view");
-	mCameraPosLoc   = glGetUniformLocation(mShaderProgram.id(), "cameraPos");
+	mMvpMatrixLoc    = glGetUniformLocation(mShaderProgram.id(), "mvp");
+	mTransMatrixLoc  = glGetUniformLocation(mShaderProgram.id(), "transformation");
+	mViewMatrixLoc   = glGetUniformLocation(mShaderProgram.id(), "view");
+	mCameraPosLoc    = glGetUniformLocation(mShaderProgram.id(), "cameraPos");
+	mNormalMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "normalMatrix");
 
 	// frans; More color things
 	mPrimaryColLoc = glGetUniformLocation(mShaderProgram.id(), "primaryCol");

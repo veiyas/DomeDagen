@@ -6,6 +6,7 @@ layout(location = 2) in vec2 texCoord;
 uniform mat4 mvp;
 uniform mat4 transformation;
 uniform mat4 view;
+uniform mat3 normalMatrix;
 uniform float time;
 
 out vec3 fragPos;
@@ -15,10 +16,8 @@ out vec3 light;
 
 void main() {
 	fragPos = vec3(transformation * vec4(position, 1.0));
-
-	//Should probably not be calculated in shader
-    interpolatedNormal = mat3(transpose(inverse(transformation))) * normal;
-
+    interpolatedNormal = normalMatrix * normal;
 	st = texCoord;
+	
 	gl_Position = mvp * vec4(fragPos, 1.0);
 }
