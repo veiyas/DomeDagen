@@ -3,13 +3,17 @@
 std::string Utility::findRootDir()
 {
 	auto searcher = std::filesystem::current_path();
-	while (searcher.has_parent_path())
+	auto extRoot = searcher.root_path();
+
+	while (searcher.has_parent_path() && searcher != extRoot)
 	{
-		if (searcher.filename() == "DomeDagen" || searcher.filename() == "Domedagen" || searcher.filename() == "domedagen")
+		if (std::filesystem::exists(searcher / "domedagen_root.txt"))
 			return searcher.string();
 		else
 			searcher = searcher.parent_path();
 	}
+
+	assert(false && "Root directory could not be found");
 	return "";
 }
 
