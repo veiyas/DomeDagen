@@ -135,10 +135,10 @@ void initOGL(GLFWwindow*) {
 	/*			 Debug Area			  */
 	/**********************************/
 
-	for (size_t i = 0; i < 1; i++)
-	{
-		Game::instance().addPlayer();
-	}
+	//for (size_t i = 0; i < 1; i++)
+	//{
+	//	Game::instance().addPlayer();
+	//}
 }
 
 

@@ -32,7 +32,7 @@ std::tuple<unsigned int, float> Utility::getTurnSpeed(std::istringstream& input)
 	input >> id;
 	input >> rotAngle;
 
-	return std::make_tuple(id, rotAngle);
+	return std::make_tuple(id, 0.05f * rotAngle);
 }
 
 unsigned int Utility::textureFromFile(const char* path, const std::string& directory, bool gamma)
