@@ -9,6 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <random>
+#include <glm/gtx/string_cast.hpp>
 
 #include "sgct/sgct.h"
 
@@ -120,8 +121,11 @@ int main(int argc, char** argv) {
 
 void draw(const RenderData& data) {
 	Game::getInstance().setMVP(data.modelViewProjectionMatrix);
+	//std::cout << glm::to_string(data.modelMatrix) << '\n';
+	Game::getInstance().setV(data.viewMatrix);
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
 	Game::getInstance().render();
@@ -139,10 +143,11 @@ void initOGL(GLFWwindow*) {
 	/**********************************/
 	constexpr float radius = 50.f;
 
-	for (size_t i = 0; i < 10; i++)
+	for (size_t i = 0; i < 1; i++)
 	{
 		std::shared_ptr<GameObject> temp{
-		new Player("diver", radius, glm::quat(glm::vec3(1.f, 0.f, -1.f + 0.3 * i)), 0.5f, "Player " + std::to_string(i+1), 0.5f) };
+		new Player("diver", radius, glm::quat(glm::vec3(1.f, 0.f, -1.f + 0.3 * i)), 0.5f, "Player " + std::to_string(i+1), 0.3f) };
+		temp->setScale(40.f);
 
 		Game::getInstance().addGameObject(std::move(temp));
 	}

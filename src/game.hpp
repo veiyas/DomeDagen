@@ -63,6 +63,9 @@ public:
 	//Set MVP matrix
 	void setMVP(const glm::mat4& mvp) { mMvp = mvp;};
 
+	//Set view matrix
+	void setV(const glm::mat4& v) { mV = v; }
+
 	//Add object to mInteractObjects and mRenderObjects
 	void addGameObject(std::shared_ptr<GameObject> obj);
 
@@ -118,6 +121,9 @@ private:
 	//MVP matrix used for rendering
 	glm::mat4 mMvp;
 
+	//View matrix
+	glm::mat4 mV;
+
 	//The time of the last update (in seconds)
 	float mLastFrameTime;
 
@@ -146,4 +152,5 @@ private:
 	void printModelNames() const;
 
 	const glm::mat4& getMVP() { return mMvp; };
+	const glm::mat4& getV() { return mV; };
 };

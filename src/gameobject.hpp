@@ -56,8 +56,8 @@ public:
 	//Dtor implemented by subclasses
 	virtual ~GameObject() override = default;
 
-	//Render object, implemented by subclass
-	virtual void render(const glm::mat4& mvp) const = 0;
+	////Render object, implemented by subclass
+	//virtual void render(const glm::mat4& mvp, const glm::mat4& v) const = 0;
 
 	//Retrieve position data as plain-old data struct
 	PositionData getMovementData(unsigned int id);

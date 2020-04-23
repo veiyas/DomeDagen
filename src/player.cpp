@@ -19,6 +19,9 @@ Player::Player(const std::string & objectModelName, float radius,
 
 	mMvpMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "mvp");
 	mTransMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "transformation");
+	mViewMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "view");
+	
+	mCameraPosLoc = glGetUniformLocation(mShaderProgram.id(), "cameraPos");
 
 	// frans; More color things
 	mPrimaryColLoc = glGetUniformLocation(mShaderProgram.id(), "primaryCol");
@@ -47,7 +50,7 @@ void Player::update(float deltaTime)
 	//TODO Constrain to visible area
 }
 
-void Player::render(const glm::mat4& mvp) const
+void Player::render(const glm::mat4& mvp, const glm::mat4& v) const
 {
 	mShaderProgram.bind();
 
@@ -55,7 +58,12 @@ void Player::render(const glm::mat4& mvp) const
 	glUniform3fv(mPrimaryColLoc, 1, glm::value_ptr(mPlayerColours.first));
 	glUniform3fv(mSecondaryColLoc, 1, glm::value_ptr(mPlayerColours.second));
 
+	glm::vec3 cameraPos = glm::vec3((inverse(v))[3]);
+	//std::cout << cameraPos.x << ' ' << cameraPos.y << ' ' << cameraPos.z << '\n';
+	glUniform3fv(mCameraPosLoc, 1, glm::value_ptr(cameraPos));
+
 	glUniformMatrix4fv(mMvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(mvp));
+	glUniformMatrix4fv(mViewMatrixLoc, 1, GL_FALSE, glm::value_ptr(v));
 	glUniformMatrix4fv(mTransMatrixLoc, 1, GL_FALSE, glm::value_ptr(getTransformation()));
 	this->renderModel();
 

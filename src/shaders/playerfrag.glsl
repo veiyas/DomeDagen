@@ -7,33 +7,38 @@ uniform vec3 secondaryCol;
 
 in vec2 st;
 in vec3 interpolatedNormal;
-in vec3 light;
+in vec3 fragPos;
+
+uniform vec3 cameraPos;
+
 
 out vec4 color;
 
+const float ambientStrength = 0.35;
+
 void main() {
-    // Normalized normal, light reflection and "view" vectors
-    vec3 nNormal = normalize(interpolatedNormal);
-    vec3 rLight = normalize(2 * dot(nNormal, light) * nNormal - light);
-    vec3 view = vec3(0.0, 0.0, 1.0); // This feels wrong and also probably is wrong :')
+    vec3 lightPos = vec3(0.0, -100.0, 100.0);
+    vec3 lightDir = normalize(lightPos - fragPos);
 
     // Albedo colour
     float mask = vec4(texture(tex, st)).r;
     vec4 albedo = (1.0 - mask) * vec4(primaryCol, 1.0) + mask * vec4(secondaryCol, 1.0);
 
-    // Ambient light
-    float ambientStrength = 0.75;
-
     // Diffuse light
-    float diffuseAmount = max(0.0, dot(nNormal, light));
-    float diffuseStrength = 0.25;
+    vec3 nNormal = normalize(interpolatedNormal);
+    float diffuseAmount = max(0.0, dot(nNormal, lightDir));
+    float diffuseStrength = 0.65;
     vec4 diffuseColour = vec4(1.0, 1.0, 1.0, 1.0);
 
     // Specular light (only on masked areas)
+    vec3 rLight = normalize(2 * dot(nNormal, lightDir) * nNormal - lightDir);
+    vec3 viewDir = normalize(cameraPos - fragPos);
     float shininess = 25;
-    float specularAmount = mask * pow(max(0.0, dot(rLight, view)), shininess);
+    float specularAmount = mask * pow(max(0.0, dot(rLight, viewDir)), shininess);
     float specularStrength = 0.8;
     vec4 specularColour = vec4(1.0, 1.0, 1.0, 1.0);
 
-    color = albedo * ambientStrength + diffuseAmount * diffuseStrength * diffuseColour + specularAmount * specularStrength * specularColour;
+    // color = albedo * ambientStrength + diffuseAmount * diffuseStrength * diffuseColour + specularAmount * specularStrength * specularColour;
+    color = albedo * (ambientStrength + diffuseAmount * diffuseStrength)
+        + specularAmount * specularStrength * specularColour;
 }

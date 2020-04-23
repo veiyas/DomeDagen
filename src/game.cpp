@@ -101,7 +101,7 @@ void Game::render() const
 {
 	for (const std::shared_ptr<Renderable>& obj : mRenderObjects)
 	{		
-		obj->render(getInstance().getMVP());
+		obj->render(getInstance().getMVP(), getInstance().getV());
 	}
 }
 
