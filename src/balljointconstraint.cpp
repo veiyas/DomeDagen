@@ -36,7 +36,7 @@ bool BallJointConstraint::isInRange(const glm::quat& q) const
 	const glm::vec3 relation = direction - mPlanePos;
 	float dotProd = glm::dot(relation, mCenter);
 
-	return !(dotProd < 0);
+	return dotProd > 0;
 }
 
 glm::quat BallJointConstraint::closestAllowedQuat(const glm::quat& q) const
