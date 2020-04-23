@@ -5,29 +5,64 @@
 
 Player::ColourSelector Player::mColourSelector = Player::ColourSelector{ };
 
+Player::Player()
+	: GameObject{ GameObject::PLAYER, 50.f, glm::quat(glm::vec3(0.f)), 0.f },
+	  GeometryHandler("player", "diver"),
+	  mName{ "temp" },
+	  mPlayerColours{ mColourSelector.getNextPair() }
+{
+	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
+	setShaderData();
+}
+
+Player::Player(const std::string name)
+	: GameObject{ GameObject::PLAYER, 50.f, glm::quat(glm::vec3(0.f)), 0.f },
+	  GeometryHandler("player", "diver"),
+	  mName{ name },
+	  mPlayerColours{ mColourSelector.getNextPair() }
+{
+	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
+	setShaderData();
+}
+
 Player::Player(const std::string & objectModelName, float radius,
 	           const glm::quat & position, float orientation,
 	           const std::string & name, float speed)
 	: GameObject{ GameObject::PLAYER, radius, position, orientation },
 	  GeometryHandler("player", objectModelName),
-	  mName { name }, mPoints{ 0 }, mIsAlive{ true }, mSpeed{ speed },
+	  mName { name },
+	  mSpeed{ speed },
 	  mPlayerColours{ mColourSelector.getNextPair() }
 {
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
+	setShaderData();
+}
 
-	mShaderProgram.bind();
+Player::Player(const PlayerData& input)
+	: GameObject{ GameObject::PLAYER, input.mRadius, glm::quat{}, input.mOrientation },
+	  GeometryHandler("player", "diver"),
+	  mName{ std::string(input.mNameLength, ' ') },
+	  mPoints{ input.mPoints },
+	  mIsAlive{ input.mIsAlive },
+	  mSpeed{ input.mSpeed },
+	  mPlayerColours{ mColourSelector.getNextPair() }
+{
+	//Copy new player name
+	for (size_t i = 0; i < input.mNameLength; i++)
+	{
+		mName[i] = input.mPlayerName[i];
+	}
 
-	mMvpMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "mvp");
-	mTransMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "transformation");
-	mViewMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "view");
-	
-	mCameraPosLoc = glGetUniformLocation(mShaderProgram.id(), "cameraPos");
-
-	// frans; More color things
-	mPrimaryColLoc = glGetUniformLocation(mShaderProgram.id(), "primaryCol");
-	mSecondaryColLoc = glGetUniformLocation(mShaderProgram.id(), "secondaryCol");
+	glm::quat temp{};
+		temp.w = input.mW;
+		temp.x = input.mX;
+		temp.y = input.mY;
+		temp.z = input.mZ;
+	setPosition(temp);
 
 	mShaderProgram.unbind();
+	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
+	setShaderData();
 }
 
 Player::~Player()
@@ -35,8 +70,67 @@ Player::~Player()
 	sgct::Log::Info("Player with name=\"%s\" removed", mName.c_str());
 }
 
+PlayerData Player::getPlayerData(bool isNewPlayer) const
+{
+	PlayerData temp;
+	temp.mNewPlayer = isNewPlayer;
+	temp.mNameLength = getName().length();
+
+	//Positional data
+	temp.mOrientation = getOrientation();
+	temp.mRadius = getRadius();
+	temp.mScale = getScale();
+	temp.mSpeed = getSpeed();
+
+	//Quat stuff
+	temp.mW = getPosition().w;
+	temp.mX = getPosition().x;
+	temp.mY = getPosition().y;
+	temp.mZ = getPosition().z;
+
+	//Game state data
+	temp.mPoints = getPoints();
+	temp.mIsAlive = isAlive();
+	temp.mEnabled = isEnabled();
+
+	//Send name if this is a new player not present on nodes yet
+	if (temp.mNewPlayer)
+	{
+		for (size_t i = 0; i < mName.length(); i++)
+		{
+			temp.mPlayerName[i] = mName.c_str()[i];
+		}
+	}
+
+	return temp;
+}
+
+void Player::setPlayerData(const PlayerData& newState)
+{
+	//Position data
+	setOrientation(newState.mOrientation);
+	setRadius(newState.mRadius);
+	setScale(newState.mScale);
+	setSpeed(newState.mSpeed);
+
+	//Quat stuff
+	glm::quat newPosition;
+		newPosition.w = newState.mW;
+		newPosition.x = newState.mX;
+		newPosition.y = newState.mY;
+		newPosition.z = newState.mZ;
+	setPosition(newPosition);
+
+	//Game state data
+	setPoints(newState.mPoints);
+	setIsAlive(newState.mIsAlive);	
+	setEnabled(newState.mEnabled);
+}
+
 void Player::update(float deltaTime)
 {
+	if (!mEnabled)
+		return;
 	//Update orientation
 	setOrientation(getOrientation() + deltaTime * mTurnSpeed);
 
@@ -52,6 +146,9 @@ void Player::update(float deltaTime)
 
 void Player::render(const glm::mat4& mvp, const glm::mat4& v) const
 {
+	if (!mEnabled)
+		return;
+
 	mShaderProgram.bind();
 
 	// frans; Even more color things!
@@ -106,4 +203,20 @@ void Player::ColourSelector::reset()
 {
 	mPrimaryIt = mPrimaryColours.begin();
 	mSecondaryIt = mSecondaryColours.begin();
+}
+
+void Player::setShaderData()
+{
+	mShaderProgram.bind();
+
+	mMvpMatrixLoc   = glGetUniformLocation(mShaderProgram.id(), "mvp");
+	mTransMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "transformation");
+	mViewMatrixLoc  = glGetUniformLocation(mShaderProgram.id(), "view");
+	mCameraPosLoc   = glGetUniformLocation(mShaderProgram.id(), "cameraPos");
+
+	// frans; More color things
+	mPrimaryColLoc = glGetUniformLocation(mShaderProgram.id(), "primaryCol");
+	mSecondaryColLoc = glGetUniformLocation(mShaderProgram.id(), "secondaryCol");
+
+	mShaderProgram.unbind();
 }

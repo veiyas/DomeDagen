@@ -18,21 +18,16 @@
 #include "game.hpp"
 #include "sceneobject.hpp"
 #include "player.hpp"
+#include "modelmanager.hpp"
 
 namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
 
 	//Container for deserialized game state info
-	std::vector<PositionData> states;
-
+	std::vector<PlayerData> states;
 
 	//TEMPORARY used to control rotation of all players 
 	float updatedRotation{ 0 };
-
-	//RNG stuff
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_real_distribution<> rng(-1.0f, 1.0f);
 
 } // namespace
 
@@ -89,7 +84,7 @@ int main(int argc, char** argv) {
 
 	//Initialize engine
 	try {
-		Engine::create(cluster, callbacks, config);
+		Engine::create(cluster, callbacks, config);		
 	}
 	catch (const std::runtime_error & e) {
 		Log::Error("%s", e.what());
@@ -120,37 +115,33 @@ int main(int argc, char** argv) {
 }
 
 void draw(const RenderData& data) {
-	Game::getInstance().setMVP(data.modelViewProjectionMatrix);
-	//std::cout << glm::to_string(data.modelMatrix) << '\n';
-	Game::getInstance().setV(data.viewMatrix);
+	Game::instance().setMVP(data.modelViewProjectionMatrix);
+	Game::instance().setV(data.viewMatrix);
+
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
-	Game::getInstance().render();
-	while (glGetError() != GL_NO_ERROR)
-    {
-      std::cout << "GL Error: " << glGetError() << std::endl;
-    }
+	Game::instance().render();
+
+	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		sgct::Log::Error("GL Error: 0x%x", err);
+	}
 }
 
 void initOGL(GLFWwindow*) {
+	ModelManager::init();
 	Game::init();
+	assert(std::is_pod<PlayerData>());
 
 	/**********************************/
 	/*			 Debug Area			  */
 	/**********************************/
-	constexpr float radius = 50.f;
 
-	for (size_t i = 0; i < 1; i++)
-	{
-		std::shared_ptr<GameObject> temp{
-		new Player("diver", radius, glm::quat(glm::vec3(1.f, 0.f, -1.f + 0.3 * i)), 0.5f, "Player " + std::to_string(i+1), 0.3f) };
-		temp->setScale(40.f);
-
-		Game::getInstance().addGameObject(std::move(temp));
-	}
+	Game::instance().addPlayer();
 }
 
 
@@ -168,12 +159,14 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 	//Left
 	if (key == Key::A && (action == Action::Press || action == Action::Repeat))
 	{
-		Game::getInstance().rotateAllGameObjects(0.1f);
+		Game::instance().rotateAllPlayers(0.1f);
+		//Game::instance().disablePlayer(0);
 	}
 	//Right
 	if (key == Key::D && (action == Action::Press || action == Action::Repeat))
 	{
-		Game::getInstance().rotateAllGameObjects(-0.1f);
+		Game::instance().rotateAllPlayers(-0.1f);
+		//Game::instance().enablePlayer(0);
 	}
 }
 
@@ -187,14 +180,13 @@ void preSync() {
 		// This doesn't have to happen every frame, but why not?
 		wsHandler->tick();
 
-		//TODO implement gamelogic
-		Game::getInstance().update();
+		Game::instance().update();
 	}
 }
 
 std::vector<std::byte> encode() {
 
-	return Game::getInstance().getEncodedPositionData();
+	return Game::instance().getEncodedPlayerData();
 }
 
 void decode(const std::vector<std::byte>& data, unsigned int pos) {
@@ -214,7 +206,7 @@ void postSyncPreDraw() {
 	//Sync gameobjects' state on clients only
 	if (!Engine::instance().isMaster())
 	{
-		Game::getInstance().setDecodedPositionData(states);
+		Game::instance().setDecodedPositionData(states);
 
 		//Clear states for next frame, not needed but it's polite
 		states.clear();
@@ -247,12 +239,19 @@ void messageReceived(const void* data, size_t length) {
 		// If first slot is 'N', a name and unique ID has been sent
 		if (msgType == 'N') {
 			Log::Info("Player connected: %s", message.c_str());
-			Game::getInstance().addGameObject(Utility::getNewPlayerData(iss));
+			Game::instance().addPlayer(Utility::getNewPlayerData(iss));
 		}
 
 		// If first slot is 'C', the rotation angle has been sent
 		if (msgType == 'C') {
-			Game::getInstance().updateTurnSpeed(Utility::getTurnSpeed(iss));
+			Game::instance().updateTurnSpeed(Utility::getTurnSpeed(iss));
 		}
+        
+        // If first slot is 'D', player to be removed has been sent
+        if (msgType == 'D') {
+            unsigned int playerId;
+            iss >> playerId;
+            Game::instance().disablePlayer(playerId);
+        }
 	}
 }

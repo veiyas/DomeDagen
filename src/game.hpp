@@ -19,13 +19,8 @@
 #include "sgct/shaderprogram.h"
 #include "glm/matrix.hpp"
 
-#include "renderable.hpp"
-#include "gameobject.hpp"
+#include "player.hpp"
 #include "utility.hpp"
-
-//Temp name holders for easier file reading
-const std::vector<std::string> allModelNames{ "fish", "diver", "can1", "can2", "can3", "can4", "bottle1", "bottle2", "bottle3", "sixpack1", "sixpack2", "sixpack3" };
-const std::vector<std::string> allShaderNames{ "player", "testing", "sceneobject" };
 
 // abock;  consider implementing all of this as an "implicit" singleton.  Instead of
 // making the functions static, you create a single instance of Game in the main.cpp and
@@ -42,7 +37,7 @@ public:
 	static void init();
 
 	//Get instance
-	static Game& getInstance();
+	static Game& instance();
 
 	//Check if instance is running
 	static bool instanceExists() { return mInstance != nullptr; }
@@ -66,14 +61,14 @@ public:
 	//Set view matrix
 	void setV(const glm::mat4& v) { mV = v; }
 
-	//Add object to mInteractObjects and mRenderObjects
-	void addGameObject(std::shared_ptr<GameObject> obj);
+	//Mostly used for debugging
+	void addPlayer();
 
-	//Add object to mInteractObjects and mRenderObjects from tuple
-	void addGameObject(std::tuple<unsigned int, std::string>&& inputTuple);
+	//Add player from playerdata for instant sync
+	void addPlayer(const PlayerData& p);
 
-	//Add object to mInteractObjects and mRenderObjects with id
-	void addGameObject(std::shared_ptr<GameObject> obj, unsigned& id);
+	//Add player from server request
+	void addPlayer(std::tuple<unsigned int, std::string>&& inputTuple);
 
 	//Update all gameobjects
 	void update();
@@ -82,38 +77,33 @@ public:
 	//WRAP EVERYTHING IN METHODS THAT WONT EXPOSE INTERNALS
 
 	//Get and encode position data
-	std::vector<std::byte> getEncodedPositionData() const;
+	std::vector<std::byte> getEncodedPlayerData();
 
 	//Set position data from inputted data
-	void setDecodedPositionData(const std::vector<PositionData>& newState);
+	void setDecodedPositionData(const std::vector<PlayerData>& newState);
 
 	//Set the turn speed of player player with id id
 	void updateTurnSpeed(std:: tuple<unsigned int, float>&& input);
+    
+    //enable/disable player 
+    void enablePlayer(unsigned id);
+    void disablePlayer(unsigned id);
 
 	//DEBUGGING TOOL: apply orientation to all GameObjects
-	void rotateAllGameObjects(float newOrientation);
-
-	//Accessors
-	const Model& getModel(const std::string& nameKey);
+	void rotateAllPlayers(float deltaOrientation);
 
 private:
 //Members
 	//Singleton instance of game
 	static Game* mInstance;
 
-	//All models loaded into a pool (vertices + textures, see mesh.hpp)
-	std::map<std::string, Model> mModels;
+	//All players stored sequentually
+	std::vector<Player> mPlayers;
 
-	//All renderable objects, ptrs point to same obj as mInteractObjects
-	std::vector<std::shared_ptr<Renderable>> mRenderObjects;
+	//TODO add collectible storage
 
-	//All interactble objects in pair for id access/searching
-	std::vector<std::pair<unsigned int, std::shared_ptr<GameObject>>> mInteractObjects;
-
-	//GameObjects unique id generator
+	//GameObjects unique id generator for player tagging
 	static unsigned int mUniqueId;
-
-	//TODO maybe a separate vector for objects with collision only (performance enhancement)
 
 	//Track all loaded shaders' names
 	std::vector<std::string> mShaderNames;
@@ -124,10 +114,15 @@ private:
 	//View matrix
 	glm::mat4 mV;
 
+	//Slot after which players only present on master node exist
+	size_t mLastSyncedPlayer;
+
 	//The time of the last update (in seconds)
 	float mLastFrameTime;
 
-	static constexpr double collisionDistance = 0.2f;
+	static constexpr double collisionDistance = 0.2f; //TODO make this object specific
+	static constexpr size_t mMAXPLAYERS = 110;
+	static constexpr size_t mMAXCOLLECTIBLES = 300;
 
 //Functions
 	//Constructor
@@ -136,20 +131,11 @@ private:
 	//Collision detection in mInteractObjects, bubble style
 	void detectCollisions();
 
-	//Add object to mRenderObjects
-	void addRenderable(std::shared_ptr<Renderable> obj);
-
-	//Load model into pool
-	void loadModel(const std::string& modelName);
-
 	//Read shader into ShaderManager
 	void loadShader(const std::string& shaderName);
 
 	//Display current list of shaders, called by printLoadedAssets()
 	void printShaderPrograms() const;
-
-	//Display current list of models, called by printLoadedAssets()
-	void printModelNames() const;
 
 	const glm::mat4& getMVP() { return mMvp; };
 	const glm::mat4& getV() { return mV; };
