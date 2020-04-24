@@ -114,6 +114,7 @@ int main(int argc, char** argv) {
 	return EXIT_SUCCESS;
 }
 
+
 void draw(const RenderData& data) {
 	Game::instance().setMVP(data.modelViewProjectionMatrix);
 
@@ -122,6 +123,7 @@ void draw(const RenderData& data) {
 
 	//Background object
 	//Game::instance()
+	//glDisable(GL_DEPTH_TEST);
 
 	glEnable(GL_DEPTH_TEST);
 	glCullFace(GL_BACK);

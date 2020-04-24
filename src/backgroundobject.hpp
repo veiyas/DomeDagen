@@ -11,6 +11,7 @@
 #include "modelmanager.hpp"
 #include "model.hpp"
 
+
 class BackgroundObject : public Renderable {
 public:
 	//No default constructor
@@ -28,6 +29,16 @@ public:
 	}
 
 	void drawBackground(const glm::mat4& mvp) const{
+		//This texture binding probably only works if each mesh has 1 texture
+		//glBindTexture(GL_TEXTURE_2D, mTextures[0].mId);
+
+		////Dont know what happens if more than one texture per mesh, maybe GL_TEXTURE_2D_ARRAY should be used then (let's not)
+		////for (const Texture& t : mTextures)
+		////	glBindTexture(GL_TEXTURE_2D, t.mId);
+
+		//glBindVertexArray(VAO);
+		//glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_INT, nullptr);
+		//glBindVertexArray(0);
 	  mQuad.render();
 	}
 

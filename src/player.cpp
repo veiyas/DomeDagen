@@ -4,8 +4,8 @@
 #include<iostream>
 
 Player::Player()
-	: GameObject{ GameObject::PLAYER, 50.f, glm::quat(glm::vec3(0.f)), 0.0f },
-	GeometryHandler("player", "fish"),
+	: GameObject{ GameObject::PLAYER, 1.0f, glm::quat(glm::vec3(0.49f, 1.0f, -1.0f)), 0.0f },
+	GeometryHandler("player", "background"),
 	mName{ "temp" }, mPoints{ 0 }, mIsAlive{ true }, mSpeed{ 0.0f }
 {
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());

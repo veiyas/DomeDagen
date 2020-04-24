@@ -1,6 +1,7 @@
 #include "game.hpp"
 #include "player.hpp"
 #include <sgct/engine.h>
+#include "sgct/sgct.h"
 
 
 //Define instance
@@ -89,7 +90,7 @@ void Game::printLoadedAssets() const
 void Game::render() const
 {
 	//Render background
-	mBackground.drawBackground(mMvp);
+	//mBackground.drawBackground(mMvp);
 
 	//Render players
 	for (const Player& p : mPlayers)
@@ -128,7 +129,7 @@ void Game::update()
 
 	//Update players
 	for (auto& player : mPlayers)
-		player.update(deltaTime);
+		//player.update(deltaTime);
 
 	detectCollisions();
 
