@@ -1,5 +1,8 @@
-#gameRunningScreen .row {
+#gameRunningScreen {
     display: none;
+}
+
+#gameRunningScreen .row {
     height: 90%;
     width: 90%;
     position: relative;
