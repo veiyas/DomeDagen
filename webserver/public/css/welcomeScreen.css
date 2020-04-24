@@ -2,20 +2,39 @@
     flex-direction: column;
     margin: auto;
     text-align: center;
+    background-image: url(../img/BeachBG.png);
+    background-size: cover;
+    background-position: bottom center;
 }
 
 #welcomeScreen input {
-    height: 10vh;
+    border-color: var(--oceanDark);
+    border-radius: 1em;
+    border-style: dotted;
+    border-width: 0.1em;
+    height: 2.5em;
     margin: auto;
     margin-bottom: 0;
     padding: 20px;
-    width: 50%;
+    width: 100%;
 }
 
 #welcomeScreen button {
     margin: auto;
     padding: 20px;
-    width: 200px;
+    height: 3em;
+    width: 60%;
+}
+
+@media (orientation: landscape) {
+    #welcomeScreen input {
+        height: 2.5em;
+    }
+    
+    #welcomeScreen button {
+        height: unset;
+        width: 40%;
+    }
 }
 
 /* Character limit error message */
