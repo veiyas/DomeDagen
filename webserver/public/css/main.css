@@ -19,6 +19,10 @@
     padding: 0;
 }
 
+html {
+    height: 100vh;
+}
+
 body {
     background: radial-gradient(92.53% 92.53% at 50.07% 0%, var(--oceanLight) 0%, var(--oceanDark) 100%);
     height: 100%;
