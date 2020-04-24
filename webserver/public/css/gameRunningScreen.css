@@ -1,4 +1,7 @@
 #gameRunningScreen {
+    background: url(../img/OceanBG.png);
+    background-size: cover;
+    background-position: bottom center;
     display: none;
 }
 
@@ -9,9 +12,9 @@
 }
 
 #gameRunningScreen .row > p {
-    background-color: #ffda73;
-    color: var(--guiDark);
-    font-size: 1.5rem;
+    background-color: #2423317e; /* Slightly ugly to copy the colour like this, but I wanted to add opacity to just the background colour */ 
+    color: var(--guiLight);
+    font-size: 1.8rem;
     left: 0;
     padding: 10px;
     position: absolute;
@@ -40,4 +43,41 @@
     width: 50vw;
 }
 
+/* Test to show colours before using an SVG illustration */
+#playerCharacter {
+    display: flex;
+    flex-direction: column;
+    height: 40%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 25%;
+}
+
+#playerCharacter  p {
+    background-color: #2423317e;
+    font-size: 1rem;
+    padding: 5px;
+    text-align: center;
+}
+
+.characterInfoContainer {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    width: 100%;
+}
+
+.playerColours {
+    height: 100%;
+    width: 100%;
+}
+
+#primaryColour {
+    background-color: hotpink;
+}
+
+#secondaryColour {
+    background-color: purple;
+}
 
