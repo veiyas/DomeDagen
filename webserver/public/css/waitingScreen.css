@@ -1,5 +1,31 @@
 #waitingScreen {
-    display: none;
+    /* display: none; */
+    background: url(../img/BeachBG.png);
+    background-size: cover;
+    background-position: top center;
+}
+
+#waitingScreen .col:first-of-type {
+    /* "This is your character" */
+    background-color: var(--guiAccent);
+    box-shadow: 5px 0px 15px rgba(32, 32, 32, 0.5);
+    flex: 1;
+}
+
+#waitingScreen .col:first-of-type > :first-child {
+    /* Header */
+    flex: 1;
+    padding: 20px;
+}
+
+#waitingScreen .col:first-of-type > :last-child {
+    /* SVG container */
+    flex: 2;
+}
+
+#waitingScreen .col:last-of-type {
+    /* Game information */
+    flex: 1.5;
 }
 
 #waitingScreen h1 {
@@ -8,5 +34,8 @@
 }
 
 #playerCharacterSVG {
-    height: fit-content;
+    background-color: var(--guiLight);
+    border-radius: 1em;
+    box-shadow: 0px 0px 10px rgba(32, 32, 32, 0.5) inset;
+    height: 50vh;
 }
