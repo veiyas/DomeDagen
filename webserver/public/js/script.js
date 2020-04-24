@@ -77,17 +77,9 @@ function setCurrentScreen(screenID) {
 function sendName() {
   // TODO Add input validation (no spaces, char limit, etc)
   // Should ofc be validated server-side as well
-  var user=getCookie("username");
-  if (user == "") {
-    user = document.getElementById("lname").value.trim();
-    if (user != "" && user != null) {
-      setCookie("username", user, 30);
-      console.log("New user");
-    }
-  }
-
+  name = document.getElementById("lname").value.trim();
   if (socket.readyState === WebSocket.OPEN) {
-    var stringToSend = `N ${user}`;
+    var stringToSend = `N ${name}`;
     socket.send(stringToSend);
   }
 }
@@ -107,6 +99,19 @@ function handleTextInputChange() {
   }
 }
 
+function checkCookie() {
+  var user = getCookie("username");
+  if (user != "") {
+    // TODO send old user to another page
+  } else {
+    user = document.getElementById("lname").value.trim();
+    if (user != "" && user != null) {
+      setCookie("username", user, 30);
+      console.log("New user");
+    }
+  }
+}
+
 // Set a cookie
 function setCookie(cname, cvalue, exdays) {
   var d = new Date();
@@ -120,7 +125,7 @@ function getCookie(cname) {
   var name = cname + "=";
   var decodedCookie = decodeURIComponent(document.cookie);
   var ca = decodedCookie.split(';');
-  for(var i = 0; i < ca.length; i++) {
+  for (var i = 0; i < ca.length; i++) {
     var c = ca[i];
     while (c.charAt(0) == ' ') {
       c = c.substring(1);
