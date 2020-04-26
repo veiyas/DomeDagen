@@ -1,0 +1,1 @@
+start cmd /c "cd .. && mkdir build && cd build && cmake .."

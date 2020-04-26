@@ -63,10 +63,10 @@ int main(int argc, char** argv) {
 	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
-	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
-	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
+	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
 
 	config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
@@ -93,8 +93,8 @@ int main(int argc, char** argv) {
 
 	if (Engine::instance().isMaster()) {
 		wsHandler = std::make_unique<WebSocketHandler>(
-			"localhost",
-			81,
+			"92.34.184.71",
+			80,
 			connectionEstablished,
 			connectionClosed,
 			messageReceived
@@ -137,7 +137,7 @@ void initOGL(GLFWwindow*) {
 
 	for (size_t i = 0; i < 1; i++)
 	{
-		Game::instance().addPlayer();
+		//Game::instance().addPlayer();
 	}
 }
 
