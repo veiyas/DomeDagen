@@ -13,39 +13,39 @@ GameObject::GameObject(const unsigned objType, float radius, const glm::quat& po
 
 }
 
-PositionData GameObject::getMovementData(unsigned int id)
-{
-	PositionData temp;
-	
-	temp.mId = id;
+//PlayerData GameObject::getMovementData(unsigned int id)
+//{
+//	PlayerData temp;
+//	
+//	temp.mId = id;
+//
+//	//Positional stuff
+//	temp.mOrientation = getOrientation();
+//	temp.mRadius = getRadius();
+//	temp.mScale = getScale();
+//
+//	temp.mW = getPosition().w;
+//	temp.mX = getPosition().x;
+//	temp.mY = getPosition().y;
+//	temp.mZ = getPosition().z;
+//
+//	return temp;
+//}
 
-	//Positional stuff
-	temp.mOrientation = getOrientation();
-	temp.mRadius = getRadius();
-	temp.mScale = getScale();
-
-	temp.mW = getPosition().w;
-	temp.mX = getPosition().x;
-	temp.mY = getPosition().y;
-	temp.mZ = getPosition().z;
-
-	return temp;
-}
-
-void GameObject::setMovementData(const PositionData& newState)
-{
-	setOrientation(newState.mOrientation);
-	setRadius(newState.mRadius);
-	setScale(newState.mScale);
-
-	glm::quat newPosition;
-	newPosition.w = newState.mW;
-	newPosition.x = newState.mX;
-	newPosition.y = newState.mY;
-	newPosition.z = newState.mZ;
-
-	setPosition(newPosition);
-}
+//void GameObject::setMovementData(const PlayerData& newState)
+//{
+//	setOrientation(newState.mOrientation);
+//	setRadius(newState.mRadius);
+//	setScale(newState.mScale);
+//
+//	glm::quat newPosition;
+//	newPosition.w = newState.mW;
+//	newPosition.x = newState.mX;
+//	newPosition.y = newState.mY;
+//	newPosition.z = newState.mZ;
+//
+//	setPosition(newPosition);
+//}
 
 void GameObject::update(float deltaTime)
 {
