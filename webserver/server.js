@@ -46,6 +46,7 @@ var connectionArray = [];
 
 var wsServer = new WebSocketServer({ httpServer: server });
 wsServer.on('request', function (req) {
+  console.log(req.remoteAddress);
   if (req.remoteAddress === gameAddress) {
     console.log('Game connection established');
 

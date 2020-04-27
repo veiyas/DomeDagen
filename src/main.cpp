@@ -93,7 +93,7 @@ int main(int argc, char** argv) {
 
 	if (Engine::instance().isMaster()) {
 		wsHandler = std::make_unique<WebSocketHandler>(
-			"92.34.184.71",
+			"ws://92.34.184.71",
 			80,
 			connectionEstablished,
 			connectionClosed,

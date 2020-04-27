@@ -1,3 +1,5 @@
 build/
 webserver/node_modules/
 webserver/config.json
+webserver/config-backup.json
+webserver/config_backup.json

@@ -1,0 +1,6 @@
+{
+    "serverAddress":"ws://92.34.180.179",
+    "gameAddress":"::ffff:192.168.0.103",
+    "gamePort":"8081",
+    "serverPort":"8081"
+}
