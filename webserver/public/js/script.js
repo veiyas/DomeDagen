@@ -60,7 +60,8 @@ function initialize() {
     document.querySelector('#orientationPrompt').classList.remove('hidden');
     document.querySelector('#promptBackground').classList.remove('hidden');
 
-    setCurrentScreen('gameRunningScreen');
+    setCurrentScreen('waitingScreen');
+    handleInformationMessages();
   })
 }
 
