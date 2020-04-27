@@ -1,8 +1,12 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <iostream>
 #include <tuple>
+#include <algorithm>
+#include <random>
+#include <chrono>
 
 #include "sgct/log.h"
 
@@ -72,7 +76,7 @@ public:
 	void update(float deltaTime) override;
 
 	//Render obejct
-	void render(const glm::mat4& mvp) const override;
+	void render(const glm::mat4& mvp, const glm::mat4& v) const override;
 
 	//Activator + deactivator	
 	void enablePlayer() { mEnabled = true; }
@@ -96,10 +100,49 @@ public:
 private:
 	//Player information/data
 	float mTurnSpeed = 0.2f;
-	int   mPoints;
-	bool  mIsAlive;
-	float mSpeed;
+	int   mPoints    = 0;
+	bool  mIsAlive   = true;
+	float mSpeed     = 0.2f;
 	std::string mName;
+
+	// frans; Trying something with colors
+	const std::pair<glm::vec3, glm::vec3> mPlayerColours;
+	GLint mPrimaryColLoc;
+	GLint mSecondaryColLoc;
+
+	struct ColourSelector
+	{
+		ColourSelector();
+
+		std::vector<glm::vec3> mPrimaryColours{
+			{0.2f, 0.2f, 0.2f},		// Dark gray
+			{0.3f, 0.3f, 0.5f},		// Navy blue
+			{0.8f, 0.9f, 0.9f},		// Pale sky blue
+			{0.1f, 0.3f, 0.3f},		// Dark green
+			{0.5f, 0.2f, 0.2f},		// Brown
+			{0.9f, 0.9f, 0.8f},		// Beige
+			{0.3f, 0.2f, 0.3f},		// Mauve
+			{0.4f, 0.1f, 0.2f},		// Wine red
+		};
+		std::vector<glm::vec3> mSecondaryColours{
+			{1.f, 0.2f, 0.2f},		// Red
+			{1.f, 0.4f, 0.8f},		// Pink
+			{0.4f, 0.8f, 1.f},		// Cyan
+			{1.f, 1.f, 0.1f},		// Yellow
+			{0.4f, 1.f, 0.2f},		// Green
+			{1.f, 0.7f, 0.2f},		// Orange
+			{0.8f, 0.6f, 1.f},		// Lavender
+			{0.8f, 0.8f, 0.8f}		// Silver
+		};
+
+		std::vector<glm::vec3>::iterator mPrimaryIt;
+		std::vector<glm::vec3>::iterator mSecondaryIt;
+
+		std::pair<glm::vec3, glm::vec3> getNextPair();
+		void shuffle();
+		void reset();
+	};
+	static ColourSelector mColourSelector;
 
 	//If person disconnect/reconnect
 	bool mEnabled = true;

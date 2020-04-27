@@ -88,7 +88,7 @@ void Game::render() const
 {
 	//Render players
 	for (const Player& p : mPlayers)
-		p.render(mMvp);
+		p.render(mMvp, mV);
 
 	//TODO render rest of objects
 }

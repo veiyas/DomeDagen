@@ -13,6 +13,10 @@ public:
 	//Shader matrix locations
 	GLint mTransMatrixLoc = -1;
 	GLint mMvpMatrixLoc = -1;
+	GLint mViewMatrixLoc = -1;
+	GLint mNormalMatrixLoc = -1;
+
+	GLint mCameraPosLoc = -1;
 
 	//Reference to shader in shader pool
 	const sgct::ShaderProgram& mShaderProgram;

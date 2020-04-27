@@ -48,6 +48,7 @@ add_executable(${PROJECT_NAME}
   src/sceneobject.cpp
   src/modelmanager.hpp
   src/modelmanager.cpp
+  src/constants.hpp
   src/shaders/playervert.glsl
   src/shaders/playerfrag.glsl
   src/shaders/sceneobjectvert.glsl
