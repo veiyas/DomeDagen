@@ -1,47 +1,56 @@
 #pragma once
+
 #include <string>
 #include <iostream>
 #include <tuple>
 
 #include "sgct/log.h"
-#include <glm/gtc/quaternion.hpp>
 
-#include "glm/mat4x4.hpp"
-#include "renderable.hpp"
-#include "modelmanager.hpp"
-#include "model.hpp"
+#include "gameobject.hpp"
+#include "geometryhandler.hpp"
 
-
-class BackgroundObject : public Renderable {
+struct ObjectData
+{
 public:
-	//No default constructor
-	BackgroundObject() = default;
+	//Position data
+	float mRadius;
+	float mOrientation;
+};
 
-	BackgroundObject(const std::string& objectModelName, float width, float height,
-		const glm::quat& position);
+class BackgroundObject : public GameObject, private GeometryHandler
+{
+public:
+	//No default ctor
+	BackgroundObject();
 
-	~BackgroundObject() {
-		std::cout << "Deleting background";
-	}
+	//Dtor
+	~BackgroundObject();
 
-	void render(const glm::mat4& mvp) const {
-		std::cout << "I'm rendering";
-	}
+	//Only one background object
+	BackgroundObject(const BackgroundObject&) = default;
+	BackgroundObject& operator=(const BackgroundObject&) = delete;
 
-	void drawBackground(const glm::mat4& mvp) const{
-		//This texture binding probably only works if each mesh has 1 texture
-		//glBindTexture(GL_TEXTURE_2D, mTextures[0].mId);
+	//Get/set data
+	ObjectData getObjectData(bool isBackground) const;
+	void setObjectData(const ObjectData& newState);
 
-		////Dont know what happens if more than one texture per mesh, maybe GL_TEXTURE_2D_ARRAY should be used then (let's not)
-		////for (const Texture& t : mTextures)
-		////	glBindTexture(GL_TEXTURE_2D, t.mId);
+	//Render obejct
+	void render(const glm::mat4& mvp) const override;
 
-		//glBindVertexArray(VAO);
-		//glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_INT, nullptr);
-		//glBindVertexArray(0);
-	  mQuad.render();
-	}
+	//Activator + deactivator	
+	void enableBackground() { mEnabled = true; }
+	void disableBackground() { mEnabled = false; }
+
+	//Mutators
+	void setEnabled(bool state) { mEnabled = state; }
+	void setSpeed(float speed) override {}; //Non-supported inherited function
+	void setTurnSpeed(float turnSpeed) override {}; //Non-supported inherited function
 
 private:
-	Model mQuad;
+
+	//If disconnection of background is needed at start/end of game
+	bool mEnabled = true;
+
+	//Set shader data
+	void setShaderData();
 };

@@ -119,7 +119,7 @@ private:
 	static constexpr size_t mMAXPLAYERS = 110;
 	static constexpr size_t mMAXCOLLECTIBLES = 300;
 
-	BackgroundObject mBackground; //Holds pointer to the background
+	BackgroundObject *mBackground; //Holds pointer to the background
 
 //Functions
 	//Constructor
@@ -132,9 +132,8 @@ private:
 	void loadShader(const std::string& shaderName);
 
 	//Set background
-	void setBackground(const BackgroundObject& background) {
+	void setBackground(BackgroundObject* background){
 		mBackground = background;
-		std::cout << "Setting background";
 	}
 
 	//Display current list of shaders, called by printLoadedAssets()

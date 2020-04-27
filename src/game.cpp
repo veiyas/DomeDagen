@@ -53,8 +53,8 @@ void Game::init()
 	mInstance = new Game{};
 	mInstance->mPlayers.reserve(mMAXPLAYERS);
 	mInstance->printLoadedAssets();
-	BackgroundObject* test = new BackgroundObject("background", 100, 100, glm::quat(glm::vec3(0.f)));
-	mInstance->setBackground(*test);
+	BackgroundObject* test = new BackgroundObject();
+	mInstance->setBackground(test);
 }
 
 Game& Game::instance()
@@ -90,7 +90,9 @@ void Game::printLoadedAssets() const
 void Game::render() const
 {
 	//Render background
-	//mBackground.drawBackground(mMvp);
+	mBackground->render(mMvp);
+
+	glClear(GL_DEPTH_BUFFER_BIT); //Draw all other objects in front of background
 
 	//Render players
 	for (const Player& p : mPlayers)
@@ -129,7 +131,7 @@ void Game::update()
 
 	//Update players
 	for (auto& player : mPlayers)
-		//player.update(deltaTime);
+		player.update(deltaTime);
 
 	detectCollisions();
 

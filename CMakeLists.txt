@@ -57,6 +57,8 @@ add_executable(${PROJECT_NAME}
   src/shaders/sceneobjectfrag.glsl
   src/shaders/testingvert.glsl
   src/shaders/testingfrag.glsl
+  src/shaders/backgroundvert.glsl
+  src/shaders/backgroundfrag.glsl
   src/configs/fisheye_testing.xml
   src/configs/simple.xml
   src/configs/six_nodes.xml
