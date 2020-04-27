@@ -3,6 +3,7 @@
 #include<glm/gtx/string_cast.hpp>
 #include<iostream>
 
+#include"balljointconstraint.hpp"
 Player::ColourSelector Player::mColourSelector = Player::ColourSelector{ };
 
 Player::Player()
@@ -11,6 +12,7 @@ Player::Player()
 	  mName{ "temp" },
 	  mPlayerColours{ mColourSelector.getNextPair() }
 {
+  mConstraint = BallJointConstraint{ 170.f, 27.f };
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
 	setShaderData();
 }
@@ -21,6 +23,7 @@ Player::Player(const std::string name)
 	  mName{ name },
 	  mPlayerColours{ mColourSelector.getNextPair() }
 {
+  mConstraint = BallJointConstraint{ 170.f, 27.f };
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
 	setShaderData();
 }
@@ -35,6 +38,7 @@ Player::Player(const std::string & objectModelName, float radius,
 	  mPlayerColours{ mColourSelector.getNextPair() }
 {
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
+  mConstraint = BallJointConstraint{ 170.f, 27.f };
 	setShaderData();
 }
 
@@ -61,6 +65,8 @@ Player::Player(const PlayerData& input)
 	setPosition(temp);
 
 	mShaderProgram.unbind();
+	//Could probably be handled in a better way
+	mConstraint = BallJointConstraint{ 170.f, 27.f };
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
 	setShaderData();
 }
@@ -129,19 +135,18 @@ void Player::setPlayerData(const PlayerData& newState)
 
 void Player::update(float deltaTime)
 {
-	if (!mEnabled)
-		return;
-	//Update orientation
-	setOrientation(getOrientation() + deltaTime * mTurnSpeed);
+  if (!mEnabled)
+		return;  
+	float oldOrient = getOrientation();
+	setOrientation(oldOrient + deltaTime * mTurnSpeed);	
 
-	//Update position on sphere
 	glm::quat newPos = getPosition();
-	newPos *= glm::quat(
-		mSpeed * deltaTime * glm::vec3(cos(getOrientation()), sin(getOrientation()), 0.f)
-	);
-	setPosition(glm::normalize(newPos)); //Normalize might not be necessary?
+	newPos *= glm::quat(mSpeed * deltaTime * glm::vec3(cos(oldOrient), sin(oldOrient), 0.f));
 
-	//TODO Constrain to visible area
+	//Make sure player does not leave visible area
+	mConstraint.apply(newPos);
+
+	setPosition(glm::normalize(newPos));
 }
 
 void Player::render(const glm::mat4& mvp, const glm::mat4& v) const

@@ -46,6 +46,8 @@ add_executable(${PROJECT_NAME}
   src/model.cpp
   src/sceneobject.hpp
   src/sceneobject.cpp
+  src/balljointconstraint.hpp
+  src/balljointconstraint.cpp
   src/modelmanager.hpp
   src/modelmanager.cpp
   src/constants.hpp

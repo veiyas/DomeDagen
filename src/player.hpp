@@ -12,6 +12,7 @@
 
 #include "gameobject.hpp"
 #include "geometryhandler.hpp"
+#include "balljointconstraint.hpp"
 
 //POD struct to encode/decode game state data
 //Ctor, initialisation disallowed to KEEP IT POD
@@ -100,6 +101,7 @@ public:
 private:
 	//Player information/data
 	float mTurnSpeed = 0.2f;
+	BallJointConstraint mConstraint;
 	int   mPoints    = 0;
 	bool  mIsAlive   = true;
 	float mSpeed     = 0.2f;
