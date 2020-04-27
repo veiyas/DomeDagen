@@ -2,15 +2,15 @@
 
 Collectible::Collectible()
 	:GameObject{ GameObject::COLLECTIBLE, 50.f, glm::vec3(1.f, 0.f, 0.f), 0.f }
-	, GeometryHandler{ "collectible", "can1" }
-	, mSpeed{ 0.1f }, mEnabled{ false }, mNext{ nullptr }
+	,GeometryHandler{ "collectible", "can1" }
+	,mEnabled{ false }, mNext{ nullptr }
 {
 }
 
 Collectible::Collectible(const std::string objectModelName)
 	:GameObject{ GameObject::COLLECTIBLE, 50.f, glm::vec3(1.f, 0.f, 0.f), 0.f }
 	,GeometryHandler{ "collectible", objectModelName }
-	,mSpeed{0.1f}, mEnabled{false}, mNext{nullptr}
+	,mEnabled{false}, mNext{nullptr}
 {
 	mMvpMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "mvp");
 	mTransMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "transformation");
@@ -20,7 +20,6 @@ Collectible::Collectible(const Collectible& src)
 	:GameObject{ src }, GeometryHandler{ src }
 {
 	mNext = src.mNext;
-	mSpeed = src.mSpeed;
 	mEnabled = src.mEnabled;
 }
 
@@ -28,7 +27,6 @@ Collectible::Collectible(Collectible&& src) noexcept
 	:GameObject{ std::move(src) }, GeometryHandler{ std::move(src) }
 {
 	mNext = src.mNext;
-	mSpeed = src.mSpeed;
 	mEnabled = src.mEnabled;
 }
 
@@ -45,7 +43,6 @@ Collectible& Collectible::operator=(Collectible&& src) noexcept
 	GameObject::operator= (std::move(src));
 	GeometryHandler::operator= (std::move(src));
 	std::swap(mEnabled, src.mEnabled);
-	std::swap(mSpeed, src.mSpeed);
 	std::swap(mNext, src.mNext);
 
 	return *this;
@@ -63,6 +60,43 @@ void Collectible::render(const glm::mat4& mvp) const
 
 		mShaderProgram.unbind();
 	}
+}
+
+CollectibleData Collectible::getCollectibleData() const
+{
+	CollectibleData temp;
+
+	//Positional data
+	temp.mPosData.mOrientation = getOrientation();
+	temp.mPosData.mRadius = getRadius();
+	temp.mPosData.mScale = getScale();
+	temp.mPosData.mSpeed = 0.1f;
+
+	//Quat stuff
+	temp.mPosData.mW = getPosition().w;
+	temp.mPosData.mX = getPosition().x;
+	temp.mPosData.mY = getPosition().y;
+	temp.mPosData.mZ = getPosition().z;
+
+	return temp;
+}
+
+void Collectible::setCollectibleData(const CollectibleData& newState)
+{
+	//Position data
+	setOrientation(newState.mPosData.mOrientation);
+	setRadius(newState.mPosData.mRadius);
+	setScale(newState.mPosData.mScale);
+
+	//Quat stuff
+	glm::quat newPosition;
+	newPosition.w = newState.mPosData.mW;
+	newPosition.x = newState.mPosData.mX;
+	newPosition.y = newState.mPosData.mY;
+	newPosition.z = newState.mPosData.mZ;
+	setPosition(newPosition);
+
+	enable();
 }
 
 void Collectible::setNext(Collectible* node)

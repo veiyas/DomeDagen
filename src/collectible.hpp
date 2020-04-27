@@ -3,6 +3,11 @@
 #include "gameobject.hpp"
 #include "geometryhandler.hpp"
 
+struct CollectibleData
+{
+	PositionData mPosData;
+};
+
 class Collectible : public GameObject, private GeometryHandler
 {
 public:	
@@ -22,6 +27,10 @@ public:
 	void update(float deltaTime) override {};
 	void setSpeed(float speed) override {};
 
+	//Sync methods
+	CollectibleData getCollectibleData() const;
+	void setCollectibleData(const CollectibleData& newState);
+
 	//Set next node in list
 	void setNext(Collectible* node);
 
@@ -37,7 +46,7 @@ private:
 	//Is this collectible active in the game?
 	bool mEnabled;
 
-	float mSpeed;
+	static constexpr float mSpeed = 0.1f;
 
 	//Pointer to implement free list functionality (constant time access!)
 	Collectible* mNext;

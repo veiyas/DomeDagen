@@ -38,8 +38,17 @@ void CollectiblePool::render(const glm::mat4& mvp) const
 {
 	for (size_t i = 0; i < mNumEnabled; i++)
 	{
-		mPool[i].render(mvp);
+		mPool.at(i).render(mvp);
 	}
+}
+
+void CollectiblePool::syncNewPoolState(const std::vector<CollectibleData>& newStates)
+{	
+	for (size_t i = 0; i < newStates.size(); i++)
+	{
+		mPool.at(i).setCollectibleData(newStates.at(i));
+	}
+	mNumEnabled = newStates.size();
 }
 
 void CollectiblePool::enableCollectible(const glm::vec3& pos)

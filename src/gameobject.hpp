@@ -13,6 +13,22 @@
 
 #include "renderable.hpp"
 
+struct PositionData
+{
+public:
+	//TODO all of this data might not be needed to send
+	float mRadius;
+	float mOrientation;
+	float mScale;
+	float mSpeed;
+
+	//Quat stuff
+	float mW;
+	float mX;
+	float mY;
+	float mZ;
+};
+
 //A GameObject is located att the surface of a sphere
 //and it has a side that is always facing origin.
 class GameObject : public Renderable

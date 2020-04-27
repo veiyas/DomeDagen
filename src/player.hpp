@@ -16,17 +16,7 @@ constexpr unsigned NAMELIMIT = 20;
 struct PlayerData
 {
 public:
-	//Position data
-	float mRadius;
-	float mOrientation;
-	float mScale;
-	float mSpeed;
-
-	//Quat stuff
-	float mW;
-	float mX;
-	float mY;
-	float mZ;
+	PositionData mPosData;
 
 	//Game state data
 	int   mPoints;

@@ -11,6 +11,7 @@
 #include <cmath>
 #include <random>
 #include <mutex>
+#include <cstddef>
 
 #include "sgct/mutexes.h"
 #include "sgct/shareddata.h"
@@ -18,6 +19,7 @@
 #include "glad/glad.h"
 #include "glm/packing.hpp"
 #include "sgct/shadermanager.h"
+#include <sgct/engine.h>
 #include "sgct/shaderprogram.h"
 #include "glm/matrix.hpp"
 
@@ -41,6 +43,7 @@ public:
 
 	//Get instance
 	static Game& instance();
+	static bool exists() { return mInstance != nullptr; }
 
 	//Destroy instance
 	static void destroy();
@@ -76,18 +79,27 @@ public:
 	//Update all gameobjects
 	void update();
 
-	//Get and encode position data
-	std::vector<std::byte> getEncodedPlayerData();
+	//Get and encode object data for syncing
+	std::vector<std::byte> getEncodedData();
 
-	//Set position data from inputted data
-	void setDecodedPositionData(const std::vector<PlayerData>& newState);
+	//Set object data from inputted data
+	void setDecodedPlayerData(const std::vector<PlayerData>& newState);
+	void setDecodedCollectibleData(const std::vector<CollectibleData>& newState);
+
+	//Deserialize data
+	void deserializeData(const std::vector<std::byte>& data,
+		unsigned int pos,
+		std::vector<PlayerData>& playerBuffer,
+		std::vector<CollectibleData>& collectBuffer);
 
 	//Set the turn speed of player player with id id
-	void updateTurnSpeed(std:: tuple<unsigned int, float>&& input);
-    
+	void updateTurnSpeed(std:: tuple<unsigned int, float>&& input);    
    
 	//DEBUGGING TOOL: apply orientation to all GameObjects
 	void rotateAllPlayers(float deltaOrientation);
+
+	std::vector<PlayerData> getPlayerData();
+	std::vector<CollectibleData> getCollectibleData();
 
 private:
 //Members
@@ -99,8 +111,6 @@ private:
 
 	//Pool of collectibles for fast "generation" of objects
 	CollectiblePool mCollectPool;
-
-	//TODO add collectible storage
 
 	//GameObjects unique id generator for player tagging
 	static unsigned int mUniqueId;	
@@ -127,6 +137,9 @@ private:
 
 	//Collision detection in mInteractObjects, bubble style
 	void detectCollisions();
+
+	//Get encoded player & collectible data
+	
 
 	//Read shader into ShaderManager
 	void loadShader(const std::string& shaderName);

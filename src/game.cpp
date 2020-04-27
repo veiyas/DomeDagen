@@ -1,8 +1,4 @@
 #include "game.hpp"
-#include "player.hpp"
-#include "collectiblepool.hpp"
-
-#include <sgct/engine.h>
 
 //Define instance and id counter
 Game* Game::mInstance = nullptr;
@@ -14,7 +10,7 @@ Game::Game()
 	for (const std::string& shaderName : allShaderNames)
 		loadShader(shaderName);
 
-	mCollectPool.init();
+	mCollectPool.init();	
 }
 
 void Game::detectCollisions()
@@ -118,7 +114,7 @@ void Game::addPlayer(std::tuple<unsigned int, std::string>&& inputTuple)
 
 //DEBUGGING PURPOSES, TODO REMOVE WHEN DONE
 bool outputted = false;
-int spawnTime = 2;
+int spawnTime = 3;
 void Game::update()
 {
 	if (mLastFrameTime == -1) //First update?
@@ -136,7 +132,6 @@ void Game::update()
 	std::mt19937 gen(randomDevice());
 	std::uniform_real_distribution<> rng(-1.5f, 1.5f);
 
-	//TODO Spawn collectibles
 	//COLLECTIBLE SPAWN DEBUGGING
 	if ((int)currentFrameTime % spawnTime == 0 && !outputted)
 	{
@@ -150,6 +145,7 @@ void Game::update()
 	//Update players
 	for (auto& player : mPlayers)
 		player.update(deltaTime);
+
 	//TODO Update other type of objects
 
 	detectCollisions();
@@ -157,7 +153,19 @@ void Game::update()
 	mLastFrameTime = currentFrameTime;
 }
 
-std::vector<std::byte> Game::getEncodedPlayerData()
+std::vector<std::byte> Game::getEncodedData()
+{
+	std::vector<std::byte> allEncodedData;
+	std::vector<PlayerData> allPlayerData = getPlayerData();
+	std::vector<CollectibleData> allCollectibleData = getCollectibleData();
+
+	sgct::serializeObject(allEncodedData, allCollectibleData);
+	sgct::serializeObject(allEncodedData, allPlayerData);
+
+	return allEncodedData;
+}
+
+std::vector<PlayerData> Game::getPlayerData()
 {
 	std::vector<PlayerData> allPositionData(mPlayers.size());
 
@@ -166,25 +174,32 @@ std::vector<std::byte> Game::getEncodedPlayerData()
 	{
 		allPositionData[i] = mPlayers[i].getPlayerData(false);
 	}
+	//Players not present on client nodes needs some book keeping
 	for (size_t i = mLastSyncedPlayer; i < mPlayers.size(); ++i)
 	{
 		allPositionData[i] = mPlayers[i].getPlayerData(true);
 	}
 
-	std::vector<std::byte> tempEncodedData;
-
-	sgct::serializeObject(tempEncodedData, allPositionData);
-	allPositionData.clear();
-
-	mLastSyncedPlayer = mPlayers.size();
-
-	return tempEncodedData;
+	mLastSyncedPlayer = mPlayers.size();		
+	return allPositionData;
 }
 
-void Game::setDecodedPositionData(const std::vector<PlayerData>& newState)
+std::vector<CollectibleData> Game::getCollectibleData()
 {
-	if (!sgct::Engine::instance().isMaster())
+	std::vector<CollectibleData> allCollectibleData(mCollectPool.getNumEnabled());
+
+	for (size_t i = 0; i < mCollectPool.getNumEnabled(); i++)
 	{
+		allCollectibleData[i] = mCollectPool[i].getCollectibleData();
+	}
+
+	return allCollectibleData;
+}
+
+void Game::setDecodedPlayerData(const std::vector<PlayerData>& newState)
+{
+	if (!sgct::Engine::instance().isMaster() && newState.size() > 0)
+	{		
 		//number of unsynced players
 		size_t nUnsyncedPlayers = mPlayers.size();
 
@@ -199,9 +214,22 @@ void Game::setDecodedPositionData(const std::vector<PlayerData>& newState)
 
 		for (size_t i = 0; i < nUnsyncedPlayers; ++i)
 		{
-			mPlayers[i].setPlayerData(newState[i]);
+			mPlayers.at(i).setPlayerData(newState[i]);
 		}
+		nUnsyncedPlayers = mPlayers.size();
 	}
+}
+
+void Game::setDecodedCollectibleData(const std::vector<CollectibleData>& newState)
+{
+	if(newState.size() > 0)
+		mCollectPool.syncNewPoolState(newState);
+}
+
+void Game::deserializeData(const std::vector<std::byte>& data, unsigned int pos, std::vector<PlayerData>& playerBuffer, std::vector<CollectibleData>& collectBuffer)
+{
+	sgct::deserializeObject(data, pos, collectBuffer);
+	sgct::deserializeObject(data, pos, playerBuffer);
 }
 
 void Game::updateTurnSpeed(std::tuple<unsigned int, float>&& input)

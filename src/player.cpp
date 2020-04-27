@@ -33,9 +33,9 @@ Player::Player(const std::string & objectModelName, float radius,
 }
 
 Player::Player(const PlayerData& input)
-	: GameObject{ GameObject::PLAYER, input.mRadius, glm::quat{}, input.mOrientation },
+	: GameObject{ GameObject::PLAYER, input.mPosData.mRadius, glm::quat{}, input.mPosData.mOrientation },
 	GeometryHandler("player", "fish"),
-	mName{ std::string(input.mNameLength, ' ') }, mPoints{ input.mPoints }, mIsAlive{ input.mIsAlive }, mSpeed{ input.mSpeed }
+	mName{ std::string(input.mNameLength, ' ') }, mPoints{ input.mPoints }, mIsAlive{ input.mIsAlive }, mSpeed{ input.mPosData.mSpeed }
 {
 	//Copy new player name
 	for (size_t i = 0; i < input.mNameLength; i++)
@@ -44,10 +44,10 @@ Player::Player(const PlayerData& input)
 	}
 
 	glm::quat temp{};
-		temp.w = input.mW;
-		temp.x = input.mX;
-		temp.y = input.mY;
-		temp.z = input.mZ;
+		temp.w = input.mPosData.mW;
+		temp.x = input.mPosData.mX;
+		temp.y = input.mPosData.mY;
+		temp.z = input.mPosData.mZ;
 	setPosition(temp);
 
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
@@ -66,16 +66,16 @@ PlayerData Player::getPlayerData(bool isNewPlayer) const
 	temp.mNameLength = getName().length();
 
 	//Positional data
-	temp.mOrientation = getOrientation();
-	temp.mRadius = getRadius();
-	temp.mScale = getScale();
-	temp.mSpeed = getSpeed();
+	temp.mPosData.mOrientation = getOrientation();
+	temp.mPosData.mRadius = getRadius();
+	temp.mPosData.mScale = getScale();
+	temp.mPosData.mSpeed = getSpeed();
 
 	//Quat stuff
-	temp.mW = getPosition().w;
-	temp.mX = getPosition().x;
-	temp.mY = getPosition().y;
-	temp.mZ = getPosition().z;
+	temp.mPosData.mW = getPosition().w;
+	temp.mPosData.mX = getPosition().x;
+	temp.mPosData.mY = getPosition().y;
+	temp.mPosData.mZ = getPosition().z;
 
 	//Game state data
 	temp.mPoints = getPoints();
@@ -97,17 +97,17 @@ PlayerData Player::getPlayerData(bool isNewPlayer) const
 void Player::setPlayerData(const PlayerData& newState)
 {
 	//Position data
-	setOrientation(newState.mOrientation);
-	setRadius(newState.mRadius);
-	setScale(newState.mScale);
-	setSpeed(newState.mSpeed);
+	setOrientation(newState.mPosData.mOrientation);
+	setRadius(newState.mPosData.mRadius);
+	setScale(newState.mPosData.mScale);
+	setSpeed(newState.mPosData.mSpeed);
 
 	//Quat stuff
 	glm::quat newPosition;
-		newPosition.w = newState.mW;
-		newPosition.x = newState.mX;
-		newPosition.y = newState.mY;
-		newPosition.z = newState.mZ;
+	newPosition.w = newState.mPosData.mW;
+	newPosition.x = newState.mPosData.mX;
+	newPosition.y = newState.mPosData.mY;
+	newPosition.z = newState.mPosData.mZ;
 	setPosition(newPosition);
 
 	//Game state data

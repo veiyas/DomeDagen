@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "sgct/log.h"
+#include "sgct/shadermanager.h"
 
 #include "collectible.hpp"
 #include "constants.hpp"
@@ -26,6 +27,8 @@ public:
 	//Render enabled objects
 	void render(const glm::mat4& mvp) const;
 
+	//Sync collectiblepool state
+	void syncNewPoolState(const std::vector<CollectibleData>& newStates);
 	//Returns shared_ptr and points mFirstAvailable to next in list. O(1)!
 	void enableCollectible(const glm::vec3& pos);
 
@@ -33,9 +36,9 @@ public:
 	void disableCollectible(const size_t index);
 
 	//Operator overloading to hide internal data
-	Collectible& operator[](size_t i) { return mPool[i]; }
+	Collectible& operator[](const size_t i) { return mPool[i]; }
 
-	//Accessor
+	//Accessors
 	size_t getNumEnabled() const { return mNumEnabled; }
 
 	//Max number of collectibles
