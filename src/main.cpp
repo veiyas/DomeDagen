@@ -19,6 +19,7 @@
 #include "sceneobject.hpp"
 #include "player.hpp"
 #include "modelmanager.hpp"
+#include "backgroundobject.hpp"
 
 namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
@@ -114,10 +115,18 @@ int main(int argc, char** argv) {
 	return EXIT_SUCCESS;
 }
 
+
 void draw(const RenderData& data) {
 	Game::instance().setMVP(data.modelViewProjectionMatrix);
 	Game::instance().setV(data.viewMatrix);
 
+
+	glClearColor(20.0/255.0, 157.0/255.0, 190.0/255.0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//Background object
+	//Game::instance()
+	//glDisable(GL_DEPTH_TEST);
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -141,7 +150,11 @@ void initOGL(GLFWwindow*) {
 	/*			 Debug Area			  */
 	/**********************************/
 
-	Game::instance().addPlayer();
+	for (size_t i = 0; i < 1; i++)
+	{
+		Game::instance().addPlayer();
+	}
+
 }
 
 

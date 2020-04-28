@@ -23,7 +23,8 @@ public:
 		PLAYER,
 		SCENEOBJECT,
 		ENEMY,
-		COLLECTIBLE
+		COLLECTIBLE,
+		BACKGROUND
 	};
 
 	//No default ctor

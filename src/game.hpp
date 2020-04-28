@@ -21,6 +21,7 @@
 
 #include "player.hpp"
 #include "utility.hpp"
+#include "backgroundobject.hpp"
 
 // abock;  consider implementing all of this as an "implicit" singleton.  Instead of
 // making the functions static, you create a single instance of Game in the main.cpp and
@@ -124,6 +125,8 @@ private:
 	static constexpr size_t mMAXPLAYERS = 110;
 	static constexpr size_t mMAXCOLLECTIBLES = 300;
 
+	BackgroundObject *mBackground; //Holds pointer to the background
+
 //Functions
 	//Constructor
 	Game();
@@ -133,6 +136,11 @@ private:
 
 	//Read shader into ShaderManager
 	void loadShader(const std::string& shaderName);
+
+	//Set background
+	void setBackground(BackgroundObject* background){
+		mBackground = background;
+	}
 
 	//Display current list of shaders, called by printLoadedAssets()
 	void printShaderPrograms() const;
