@@ -35,7 +35,7 @@ public:
 	void setObjectData(const ObjectData& newState);
 
 	//Render obejct
-	void render(const glm::mat4& mvp) const override;
+	void render(const glm::mat4& mvp, const glm::mat4& v) const override;
 
 	//Activator + deactivator	
 	void enableBackground() { mEnabled = true; }

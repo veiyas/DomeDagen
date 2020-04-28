@@ -92,7 +92,7 @@ void Game::printLoadedAssets() const
 void Game::render() const
 {
 	//Render background
-	mBackground->render(mMvp);
+	mBackground->render(mMvp, mV);
 
 	glClear(GL_DEPTH_BUFFER_BIT); //Draw all other objects in front of background
 

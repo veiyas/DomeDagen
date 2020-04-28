@@ -129,7 +129,8 @@ void draw(const RenderData& data) {
 	//glDisable(GL_DEPTH_TEST);
 
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE); // TODO This should really be enabled but the normals of the
+	                          // background object are flipped atm
 	glCullFace(GL_BACK);
 
 	Game::instance().render();

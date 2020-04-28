@@ -13,7 +13,6 @@ out vec3 fragPos;
 out vec3 interpolatedNormal;
 out vec2 st;
 out vec3 light;
-out vec3 view;
 
 
 void main() {

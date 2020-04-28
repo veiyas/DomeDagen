@@ -32,7 +32,7 @@ void BackgroundObject::setObjectData(const ObjectData& newState)
 	setRadius(newState.mRadius);
 }
 
-void BackgroundObject::render(const glm::mat4& mvp) const
+void BackgroundObject::render(const glm::mat4& mvp, const glm::mat4& v) const
 {
 	if (!mEnabled)
 		return;
