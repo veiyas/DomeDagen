@@ -36,8 +36,8 @@ public:
 	//Dtor implemented by subclasses
 	virtual ~GameObject() override = default;
 
-	//Render object, implemented by subclass
-	virtual void render(const glm::mat4& mvp) const = 0;
+	////Render object, implemented by subclass
+	//virtual void render(const glm::mat4& mvp, const glm::mat4& v) const = 0;
 
 	//Update object (position, collision?)
 	virtual void update(float deltaTime);

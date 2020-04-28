@@ -49,8 +49,11 @@ add_executable(${PROJECT_NAME}
   src/backgroundobject.cpp
   src/sceneobject.hpp
   src/sceneobject.cpp
+  src/balljointconstraint.hpp
+  src/balljointconstraint.cpp
   src/modelmanager.hpp
   src/modelmanager.cpp
+  src/constants.hpp
   src/shaders/playervert.glsl
   src/shaders/playerfrag.glsl
   src/shaders/sceneobjectvert.glsl

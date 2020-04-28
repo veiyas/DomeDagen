@@ -9,6 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <random>
+#include <glm/gtx/string_cast.hpp>
 
 #include "sgct/sgct.h"
 
@@ -117,6 +118,8 @@ int main(int argc, char** argv) {
 
 void draw(const RenderData& data) {
 	Game::instance().setMVP(data.modelViewProjectionMatrix);
+	Game::instance().setV(data.viewMatrix);
+
 
 	glClearColor(20.0/255.0, 157.0/255.0, 190.0/255.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -126,13 +129,16 @@ void draw(const RenderData& data) {
 	//glDisable(GL_DEPTH_TEST);
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
 	Game::instance().render();
-	while (glGetError() != GL_NO_ERROR)
-    {
-      std::cout << "GL Error: " << glGetError() << std::endl;
-    }
+
+	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		sgct::Log::Error("GL Error: 0x%x", err);
+	}
 }
 
 void initOGL(GLFWwindow*) {

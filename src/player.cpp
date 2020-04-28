@@ -3,20 +3,27 @@
 #include<glm/gtx/string_cast.hpp>
 #include<iostream>
 
+#include"balljointconstraint.hpp"
+Player::ColourSelector Player::mColourSelector = Player::ColourSelector{ };
+
 Player::Player()
-	: GameObject{ GameObject::PLAYER, 50.0f, glm::quat(glm::vec3(0.f)), 0.0f },
-	GeometryHandler("player", "fish"),
-	mName{ "temp" }, mPoints{ 0 }, mIsAlive{ true }, mSpeed{ 1.0f }
+	: GameObject{ GameObject::PLAYER, 50.f, glm::quat(glm::vec3(0.f)), 0.f },
+	  GeometryHandler("player", "diver"),
+	  mName{ "temp" },
+	  mPlayerColours{ mColourSelector.getNextPair() }
 {
+  mConstraint = BallJointConstraint{ 170.f, 27.f };
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
 	setShaderData();
 }
 
 Player::Player(const std::string name)
 	: GameObject{ GameObject::PLAYER, 50.f, glm::quat(glm::vec3(0.f)), 0.f },
-	GeometryHandler("player", "fish"),
-	mName{ name }, mPoints{ 0 }, mIsAlive{ true }, mSpeed{0.0f }
+	  GeometryHandler("player", "diver"),
+	  mName{ name },
+	  mPlayerColours{ mColourSelector.getNextPair() }
 {
+  mConstraint = BallJointConstraint{ 170.f, 27.f };
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
 	setShaderData();
 }
@@ -26,16 +33,23 @@ Player::Player(const std::string & objectModelName, float radius,
 	           const std::string & name, float speed)
 	: GameObject{ GameObject::PLAYER, radius, position, orientation },
 	  GeometryHandler("player", objectModelName),
-	  mName { name }, mPoints{ 0 }, mIsAlive{ true }, mSpeed{ speed }
+	  mName { name },
+	  mSpeed{ speed },
+	  mPlayerColours{ mColourSelector.getNextPair() }
 {
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
+  mConstraint = BallJointConstraint{ 170.f, 27.f };
 	setShaderData();
 }
 
 Player::Player(const PlayerData& input)
 	: GameObject{ GameObject::PLAYER, input.mRadius, glm::quat{}, input.mOrientation },
-	GeometryHandler("player", "fish"),
-	mName{ std::string(input.mNameLength, ' ') }, mPoints{ input.mPoints }, mIsAlive{ input.mIsAlive }, mSpeed{ input.mSpeed }
+	  GeometryHandler("player", "diver"),
+	  mName{ std::string(input.mNameLength, ' ') },
+	  mPoints{ input.mPoints },
+	  mIsAlive{ input.mIsAlive },
+	  mSpeed{ input.mSpeed },
+	  mPlayerColours{ mColourSelector.getNextPair() }
 {
 	//Copy new player name
 	for (size_t i = 0; i < input.mNameLength; i++)
@@ -50,6 +64,9 @@ Player::Player(const PlayerData& input)
 		temp.z = input.mZ;
 	setPosition(temp);
 
+	mShaderProgram.unbind();
+	//Could probably be handled in a better way
+	mConstraint = BallJointConstraint{ 170.f, 27.f };
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
 	setShaderData();
 }
@@ -118,41 +135,98 @@ void Player::setPlayerData(const PlayerData& newState)
 
 void Player::update(float deltaTime)
 {
-	if (!mEnabled)
-		return;
-	//Update orientation
-	setOrientation(getOrientation() + deltaTime * mTurnSpeed);
+  if (!mEnabled)
+		return;  
+	float oldOrient = getOrientation();
+	setOrientation(oldOrient + deltaTime * mTurnSpeed);	
 
-	//Update position on sphere
 	glm::quat newPos = getPosition();
-	newPos *= glm::quat(
-		mSpeed * deltaTime * glm::vec3(cos(getOrientation()), sin(getOrientation()), 0.f)
-	);
-	setPosition(glm::normalize(newPos)); //Normalize might not be necessary?
+	newPos *= glm::quat(mSpeed * deltaTime * glm::vec3(cos(oldOrient), sin(oldOrient), 0.f));
 
-	//TODO Constrain to visible area
+	//Make sure player does not leave visible area
+	mConstraint.apply(newPos);
+
+	setPosition(glm::normalize(newPos));
 }
 
-void Player::render(const glm::mat4& mvp) const
+void Player::render(const glm::mat4& mvp, const glm::mat4& v) const
 {
 	if (!mEnabled)
 		return;
 
 	mShaderProgram.bind();
 
+	// frans; Even more color things!
+	glUniform3fv(mPrimaryColLoc, 1, glm::value_ptr(mPlayerColours.first));
+	glUniform3fv(mSecondaryColLoc, 1, glm::value_ptr(mPlayerColours.second));
+
+	glm::vec3 cameraPos = glm::vec3((inverse(v))[3]);
+	//std::cout << cameraPos.x << ' ' << cameraPos.y << ' ' << cameraPos.z << '\n';
+	glUniform3fv(mCameraPosLoc, 1, glm::value_ptr(cameraPos));
+
+	glm::mat4 transformation = getTransformation();
+	glm::mat3 normalMatrix(glm::transpose(glm::inverse(transformation)));
+
+	glUniformMatrix3fv(mNormalMatrixLoc, 1, GL_FALSE, glm::value_ptr(normalMatrix));
 	glUniformMatrix4fv(mMvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(mvp));
-	glUniformMatrix4fv(mTransMatrixLoc, 1, GL_FALSE, glm::value_ptr(getTransformation()));
+	glUniformMatrix4fv(mViewMatrixLoc, 1, GL_FALSE, glm::value_ptr(v));
+	glUniformMatrix4fv(mTransMatrixLoc, 1, GL_FALSE, glm::value_ptr(transformation));
 	this->renderModel();
 
 	mShaderProgram.unbind();
+}
+
+Player::ColourSelector::ColourSelector()
+{
+	shuffle();
+}
+
+std::pair<glm::vec3, glm::vec3> Player::ColourSelector::getNextPair()
+{
+	if (mPrimaryIt == mPrimaryColours.end())
+	{
+		mPrimaryIt = mPrimaryColours.begin();
+	}
+
+	if (mSecondaryIt == mSecondaryColours.end())
+	{
+		mSecondaryIt = mSecondaryColours.begin();
+		++mPrimaryIt;
+	}
+
+	return std::pair<glm::vec3, glm::vec3>(*mPrimaryIt, *mSecondaryIt++);
+}
+
+void Player::ColourSelector::shuffle()
+{
+	std::default_random_engine rng;
+	rng.seed(std::chrono::system_clock::now().time_since_epoch().count());
+
+	std::shuffle(mPrimaryColours.begin(), mPrimaryColours.end(), rng);
+	std::shuffle(mSecondaryColours.begin(), mSecondaryColours.end(), rng);
+
+	reset();
+}
+
+void Player::ColourSelector::reset()
+{
+	mPrimaryIt = mPrimaryColours.begin();
+	mSecondaryIt = mSecondaryColours.begin();
 }
 
 void Player::setShaderData()
 {
 	mShaderProgram.bind();
 
-	mMvpMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "mvp");
-	mTransMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "transformation");
+	mMvpMatrixLoc    = glGetUniformLocation(mShaderProgram.id(), "mvp");
+	mTransMatrixLoc  = glGetUniformLocation(mShaderProgram.id(), "transformation");
+	mViewMatrixLoc   = glGetUniformLocation(mShaderProgram.id(), "view");
+	mCameraPosLoc    = glGetUniformLocation(mShaderProgram.id(), "cameraPos");
+	mNormalMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "normalMatrix");
+
+	// frans; More color things
+	mPrimaryColLoc = glGetUniformLocation(mShaderProgram.id(), "primaryCol");
+	mSecondaryColLoc = glGetUniformLocation(mShaderProgram.id(), "secondaryCol");
 
 	mShaderProgram.unbind();
 }

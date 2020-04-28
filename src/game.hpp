@@ -59,6 +59,9 @@ public:
 	//Set MVP matrix
 	void setMVP(const glm::mat4& mvp) { mMvp = mvp;};
 
+	//Set view matrix
+	void setV(const glm::mat4& v) { mV = v; }
+
 	//Mostly used for debugging
 	void addPlayer();
 
@@ -109,6 +112,9 @@ private:
 	//MVP matrix used for rendering
 	glm::mat4 mMvp;
 
+	//View matrix
+	glm::mat4 mV;
+
 	//Slot after which players only present on master node exist
 	size_t mLastSyncedPlayer;
 
@@ -140,4 +146,5 @@ private:
 	void printShaderPrograms() const;
 
 	const glm::mat4& getMVP() { return mMvp; };
+	const glm::mat4& getV() { return mV; };
 };
