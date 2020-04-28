@@ -53,8 +53,8 @@ void Game::init()
 	mInstance = new Game{};
 	mInstance->mPlayers.reserve(mMAXPLAYERS);
 	mInstance->printLoadedAssets();
-	BackgroundObject* test = new BackgroundObject();
-	mInstance->setBackground(test);
+	BackgroundObject* background = new BackgroundObject();
+	mInstance->setBackground(background);
 }
 
 Game& Game::instance()
@@ -68,8 +68,10 @@ Game& Game::instance()
 
 void Game::destroy()
 {
-	if(mInstance->instanceExists())
+	if (mInstance->instanceExists()) {
+		delete mInstance->mBackground;
 		delete mInstance;
+	}
 }
 
 void Game::printShaderPrograms() const

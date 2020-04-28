@@ -2,7 +2,7 @@
 
 BackgroundObject::BackgroundObject()
 	: GameObject{ GameObject::BACKGROUND, 1.0f, glm::quat(glm::vec3(0.49f, 1.0f, -1.0f)), 0.0f },
-	GeometryHandler("player", "background")
+	GeometryHandler("background", "background")
 {
 	sgct::Log::Info("Background object created");
 	setOrientation(getOrientation() + 1.2f);
@@ -12,7 +12,6 @@ BackgroundObject::BackgroundObject()
 BackgroundObject::~BackgroundObject()
 {
 	sgct::Log::Info("Background removed");
-	delete this;
 }
 
 ObjectData BackgroundObject::getObjectData(bool isBackground) const
