@@ -98,6 +98,8 @@ wsServer.on('request', function (req) {
             console.log(playerList);
             // gameSocket.send("N " + temp[1] + "|" + uniqueId);
             gameSocket.send(`N ${uniqueId} ${temp[1]}`);
+            // Send only ID to receive colors
+            gameSocket.send(`I ${uniqueId}`);
             uniqueId++;
           }
 
