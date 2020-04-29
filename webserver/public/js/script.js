@@ -43,8 +43,16 @@ function initialize() {
     log('Connection is closed');
   }
 
+  // Receive color-data
   socket.onmessage = function() {
-    log(event.data);
+    if (event.data === "Connected") log(event.data);
+
+    // Receive player-colours
+    if (event.data[0] === 'A') {
+      log("Colour 1: " + event.data);
+    } else if (event.data[0] === 'B') {
+      log("Colour 2: " + event.data);
+    }
   }
 
   // Push all screens into a map of [screen ID, screen]
@@ -86,7 +94,7 @@ function sendName() {
   // Should ofc be validated server-side as well
   name = document.getElementById("lname").value.trim();
   if (socket.readyState === WebSocket.OPEN)
-  {    
+  {
     var stringToSend = `N ${name}`;
     socket.send(stringToSend);
   }

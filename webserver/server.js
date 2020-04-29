@@ -83,7 +83,7 @@ wsServer.on('request', function (req) {
 
       connection.send('Connected');
 
-      // Receive colour-data from player
+      // Receive colour-data from game and send to client
       gameSocket.on('message', function(msg) {
         if (msg.type === 'utf8') {
           var temp = msg.utf8Data;
@@ -93,7 +93,8 @@ wsServer.on('request', function (req) {
             var valThree = temp.substring(27, 34);
 
             var colourOne = [valOne, valTwo, valThree];
-            console.log(`Colour 1: ${colourOne}`);
+            //console.log(`Colour 1: ${colourOne}`);
+            connection.send(`A ${colourOne}`);
 
           } else if (temp[0] === 'B') {
             var valOne = temp.substring(7, 14);
@@ -101,7 +102,8 @@ wsServer.on('request', function (req) {
             var valThree = temp.substring(27, 34);
 
             var colourTwo = [valOne, valTwo, valThree];
-            console.log(`Colour 2: ${colourTwo}`);
+            //console.log(`Colour 2: ${colourTwo}`);
+            connection.send(`B ${colourTwo}`);
           }
         }
       });
