@@ -88,18 +88,18 @@ wsServer.on('request', function (req) {
         if (msg.type === 'utf8') {
           var temp = msg.utf8Data;
           if (temp[0] === 'A') {
-            var valOne = temp.substring(7, 14);
-            var valTwo = temp.substring(17, 24);
-            var valThree = temp.substring(27, 34);
+            var valOne = temp.substring(7, 14) * 255;
+            var valTwo = temp.substring(17, 24) * 255;
+            var valThree = temp.substring(27, 34) * 255;
 
             var colourOne = [valOne, valTwo, valThree];
             //console.log(`Colour 1: ${colourOne}`);
             connection.send(`A ${colourOne}`);
 
           } else if (temp[0] === 'B') {
-            var valOne = temp.substring(7, 14);
-            var valTwo = temp.substring(17, 24);
-            var valThree = temp.substring(27, 34);
+            var valOne = temp.substring(7, 14) * 255;
+            var valTwo = temp.substring(17, 24) * 255;
+            var valThree = temp.substring(27, 34) * 255;
 
             var colourTwo = [valOne, valTwo, valThree];
             //console.log(`Colour 2: ${colourTwo}`);

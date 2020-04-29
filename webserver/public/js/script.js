@@ -43,15 +43,22 @@ function initialize() {
     log('Connection is closed');
   }
 
-  // Receive color-data
   socket.onmessage = function() {
     if (event.data === "Connected") log(event.data);
 
     // Receive player-colours
-    if (event.data[0] === 'A') {
-      log("Colour 1: " + event.data);
-    } else if (event.data[0] === 'B') {
-      log("Colour 2: " + event.data);
+    if (event.data[0] == 'A' || event.data[0] == 'B')
+    {
+      var primary;
+      var secondary;
+      if (event.data[0] === 'A') {
+        primary = event.data.substring(2);
+        log("Colour 1: " + primary);
+      } else if (event.data[0] === 'B') {
+        secondary = event.data.substring(2);
+        log("Colour 2: " + secondary);
+      }
+      setPlayerColours(primary, secondary);
     }
   }
 

@@ -4,7 +4,7 @@ function setPlayerColours(primary, secondary) {
     var detailElement = svg.getElementById('Details');
     var ringElement = svg.getElementById('Ring').children[0];
 
-    primaryElement.style.fill = primary;
-    detailElement.style.fill = secondary;
-    ringElement.style.fill = primary;
+    primaryElement.style.fill = "rgb(" + primary + ")";
+    detailElement.style.fill = "rgb(" + secondary + ")";
+    ringElement.style.fill = "rgb(" + primary + ")";
 }
