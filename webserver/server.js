@@ -83,6 +83,29 @@ wsServer.on('request', function (req) {
 
       connection.send('Connected');
 
+      // Receive colour-data from player
+      gameSocket.on('message', function(msg) {
+        if (msg.type === 'utf8') {
+          var temp = msg.utf8Data;
+          if (temp[0] === 'A') {
+            var valOne = temp.substring(7, 14);
+            var valTwo = temp.substring(17, 24);
+            var valThree = temp.substring(27, 34);
+
+            var colourOne = [valOne, valTwo, valThree];
+            console.log(`Colour 1: ${colourOne}`);
+
+          } else if (temp[0] === 'B') {
+            var valOne = temp.substring(7, 14);
+            var valTwo = temp.substring(17, 24);
+            var valThree = temp.substring(27, 34);
+
+            var colourTwo = [valOne, valTwo, valThree];
+            console.log(`Colour 2: ${colourTwo}`);
+          }
+        }
+      });
+
       // Do something with the connection
       connection.on('message', function(msg) {
         assert(gameSocket, 'Tried to pass message to game but no connection was open');

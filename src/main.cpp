@@ -263,8 +263,10 @@ void messageReceived(const void* data, size_t length) {
             std::string colourOne = glm::to_string(colours.first);
             std::string colourTwo = glm::to_string(colours.second);
             
-            Log::Info("Player colour 1: %s", colourOne.c_str());
-            Log::Info("Player colour 2: %s", colourTwo.c_str());
+//            Log::Info("Player colour 1: %s", colourOne.c_str());
+//            Log::Info("Player colour 2: %s", colourTwo.c_str());
+            wsHandler->queueMessage("A " + colourOne);
+            wsHandler->queueMessage("B " + colourTwo);
         }
 	}
 }
