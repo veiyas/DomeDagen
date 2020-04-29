@@ -120,7 +120,7 @@ h1 {
     font-size: 8rem;
 }
 
-@media (orientation: landscape) {
+@media screen and (min-aspect-ratio: 13/9) {
     h1 {
         font-size: 4rem;
     }

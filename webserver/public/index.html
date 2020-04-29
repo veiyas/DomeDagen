@@ -40,15 +40,13 @@
     <div class="row centered">
       <h1>Welcome to DomeDagen</h1>
     </div>
-    <div class="row">
-      <div class="col padded">
-        <div id="nameInputContainer" class="padded">
-          <p class="hidden" id="charLimitMsg">Player name cannot exceed 20 characters</p>
-          <input type="text" id="lname" name="lname" placeholder="Enter your name..." oninput="handleTextInputChange()">
-        </div>
-        <div class="row padded">
-          <button id="connect" class="disabled" disabled="true" onclick="sendName()">Connect</button>
-        </div>
+    <div class="col">
+      <div id="nameInputContainer" class="col padded">
+        <p class="hidden" id="charLimitMsg">Player name cannot exceed 20 characters</p>
+        <input type="text" id="lname" name="lname" placeholder="Enter your name..." oninput="handleTextInputChange()">
+      </div>
+      <div id="connectButtonContainer" class="col centered">
+        <button id="connect" class="disabled" disabled="true" onclick="sendName()">Connect</button>
       </div>
     </div>
     <!-- Add connection to get name in input, in initialize() function -->
