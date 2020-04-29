@@ -168,7 +168,7 @@ std::vector<std::byte> Game::getEncodedPlayerData()
 
 void Game::setDecodedPositionData(const std::vector<PlayerData>& newState)
 {
-	if (!sgct::Engine::instance().isMaster())
+	if (!sgct::Engine::instance().isMaster() && newState.size() > 0)
 	{
 		//number of unsynced players
 		size_t nUnsyncedPlayers = mPlayers.size();

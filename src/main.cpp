@@ -62,13 +62,13 @@ const std::string rootDir = Utility::findRootDir();
 *****************************/
 int main(int argc, char** argv) {
 	std::vector<std::string> arg(argv + 1, argv + argc);
-	Configuration config = sgct::parseArguments(arg);
+	Configuration config = sgct::parseArguments(arg);	
 
 	//Choose which config file (.xml) to open
-	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
-	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
+	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
 
 	config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
@@ -85,6 +85,7 @@ int main(int argc, char** argv) {
 
 	//Initialize engine
 	try {
+		states.reserve(Game::mMAXPLAYERS);
 		Engine::create(cluster, callbacks, config);		
 	}
 	catch (const std::runtime_error & e) {
@@ -110,7 +111,7 @@ int main(int argc, char** argv) {
 
 	Engine::instance().render();
 
-	//Game::destroy();
+	Game::destroy();
 	Engine::destroy();
 	return EXIT_SUCCESS;
 }

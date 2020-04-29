@@ -93,6 +93,9 @@ public:
 	//DEBUGGING TOOL: apply orientation to all GameObjects
 	void rotateAllPlayers(float deltaOrientation);
 
+	static constexpr size_t mMAXPLAYERS = 110;
+	static constexpr size_t mMAXCOLLECTIBLES = 300;
+
 private:
 //Members
 	//Singleton instance of game
@@ -122,8 +125,7 @@ private:
 	float mLastFrameTime;
 
 	static constexpr double collisionDistance = 0.2f; //TODO make this object specific
-	static constexpr size_t mMAXPLAYERS = 110;
-	static constexpr size_t mMAXCOLLECTIBLES = 300;
+	
 
 	BackgroundObject *mBackground; //Holds pointer to the background
 
