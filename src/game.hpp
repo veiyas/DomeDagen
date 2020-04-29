@@ -91,6 +91,9 @@ public:
 
 	//DEBUGGING TOOL: apply orientation to all GameObjects
 	void rotateAllPlayers(float deltaOrientation);
+    
+    //Get and return player-colours
+    std::pair<glm::vec3, glm::vec3> getPlayerColours(unsigned id);
 
 private:
 //Members
