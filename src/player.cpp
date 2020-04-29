@@ -12,7 +12,7 @@ Player::Player()
 	  mName{ "temp" },
 	  mPlayerColours{ mColourSelector.getNextPair() }
 {
-  mConstraint = BallJointConstraint{ 170.f, 27.f };
+	mConstraint = BallJointConstraint{ 170.f, 27.f };
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
 	setShaderData();
 }
@@ -23,7 +23,7 @@ Player::Player(const std::string name)
 	  mName{ name },
 	  mPlayerColours{ mColourSelector.getNextPair() }
 {
-  mConstraint = BallJointConstraint{ 170.f, 27.f };
+	mConstraint = BallJointConstraint{ 170.f, 27.f };
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
 	setShaderData();
 }
@@ -38,7 +38,7 @@ Player::Player(const std::string & objectModelName, float radius,
 	  mPlayerColours{ mColourSelector.getNextPair() }
 {
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
-  mConstraint = BallJointConstraint{ 170.f, 27.f };
+	mConstraint = BallJointConstraint{ 170.f, 27.f };
 	setShaderData();
 }
 
@@ -48,8 +48,7 @@ Player::Player(const PlayerData& input)
 	  mName{ std::string(input.mNameLength, ' ') },
 	  mPoints{ input.mPoints },
 	  mIsAlive{ input.mIsAlive },
-	  mSpeed{ input.mSpeed },
-	  mPlayerColours{ mColourSelector.getNextPair() }
+	  mSpeed{ input.mSpeed }
 {
 	//Copy new player name
 	for (size_t i = 0; i < input.mNameLength; i++)
@@ -69,6 +68,10 @@ Player::Player(const PlayerData& input)
 	mConstraint = BallJointConstraint{ 170.f, 27.f };
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
 	setShaderData();
+
+	auto& col = input.mPlayerColours;
+	mPlayerColours = std::make_pair(glm::vec3(col.mR1, col.mG1, col.mB1),
+	                                glm::vec3(col.mR2, col.mG2, col.mB2));
 }
 
 Player::~Player()
@@ -98,6 +101,16 @@ PlayerData Player::getPlayerData(bool isNewPlayer) const
 	temp.mPoints = getPoints();
 	temp.mIsAlive = isAlive();
 	temp.mEnabled = isEnabled();
+
+	//Color data
+	glm::vec3 color1 = mPlayerColours.first;
+		temp.mPlayerColours.mR1 = color1.r;
+		temp.mPlayerColours.mG1 = color1.g;
+		temp.mPlayerColours.mB1 = color1.b;
+	glm::vec3 color2 = mPlayerColours.second;
+		temp.mPlayerColours.mR2 = color2.r;
+		temp.mPlayerColours.mG2 = color2.g;
+		temp.mPlayerColours.mB2 = color2.b;
 
 	//Send name if this is a new player not present on nodes yet
 	if (temp.mNewPlayer)

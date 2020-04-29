@@ -43,6 +43,13 @@ public:
 	char mPlayerName[NAMELIMIT];
 	bool mNewPlayer;
 	unsigned mNameLength;
+
+	//Color data
+	struct
+	{
+		float mR1, mG1, mB1;
+		float mR2, mG2, mB2;
+	} mPlayerColours;
 };
 
 class Player : public GameObject, private GeometryHandler
@@ -108,7 +115,7 @@ private:
 	std::string mName;
 
 	// frans; Trying something with colors
-	const std::pair<glm::vec3, glm::vec3> mPlayerColours;
+	std::pair<glm::vec3, glm::vec3> mPlayerColours;
 	GLint mPrimaryColLoc;
 	GLint mSecondaryColLoc;
 
