@@ -49,7 +49,6 @@
         <button id="connect" class="disabled" disabled="true" onclick="sendName()">Connect</button>
       </div>
     </div>
-    <!-- Add connection to get name in input, in initialize() function -->
     <div id="debug-output">Debug info</div>
   </div>
 
@@ -76,13 +75,16 @@
     </div>
   </div>
 
-  <div class="screen centered" id="gameRunningScreen">
-    <div class="row centered">
-      <p>Score: <span id="currentScore">100</span></p>
-      <div id="playerCharacter">
-        <p>Your character has these colours</p>
-        <!-- TODO: SVG illustration for the character -->
-        <div class="characterInfoContainer">
+  <div class="screen" id="gameRunningScreen">
+    <div class="row">
+      <div id="scoreContainer">
+        <p>Score: <span id="currentScore">100</span></p>
+      </div>
+      <div id="characterInfoContainer">
+        <div>
+          <p>Your character has these colours</p>
+        </div>
+        <div id="coloursContainer">
           <div class="playerColours" id="primaryColour"></div>
           <div class="playerColours" id="secondaryColour"></div>
         </div>
