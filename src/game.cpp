@@ -209,6 +209,11 @@ void Game::rotateAllPlayers(float newOrientation)
 	}
 }
 
+std::pair<glm::vec3, glm::vec3> Game::getPlayerColours(unsigned id)
+{
+    return mPlayers[id].getColours();
+}
+
 void Game::loadShader(const std::string& shaderName)
 {
 	//Define path and strings to hold shaders

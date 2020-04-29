@@ -141,7 +141,7 @@ void initOGL(GLFWwindow*) {
 	/*			 Debug Area			  */
 	/**********************************/
 
-	Game::instance().addPlayer();
+	//Game::instance().addPlayer();
 }
 
 
@@ -247,11 +247,24 @@ void messageReceived(const void* data, size_t length) {
 			Game::instance().updateTurnSpeed(Utility::getTurnSpeed(iss));
 		}
         
-        // If first slot is 'D', player to be removed has been sent
+        // If first slot is 'D', player to be deleted has been sent
         if (msgType == 'D') {
             unsigned int playerId;
             iss >> playerId;
             Game::instance().disablePlayer(playerId);
+        }
+        
+        // If first slot is 'I', player's ID has been sent
+        if (msgType == 'I') {
+            unsigned int playerId;
+            iss >> playerId;
+            // Send colour information back to server
+            std::pair<glm::vec3, glm::vec3> colours = Game::instance().getPlayerColours(playerId);
+            std::string colourOne = glm::to_string(colours.first);
+            std::string colourTwo = glm::to_string(colours.second);
+            
+            Log::Info("Player colour 1: %s", colourOne.c_str());
+            Log::Info("Player colour 2: %s", colourTwo.c_str());
         }
 	}
 }
