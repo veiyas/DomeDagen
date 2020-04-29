@@ -64,10 +64,10 @@ int main(int argc, char** argv)
 	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
-	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
-	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
+	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
 
 	config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
@@ -193,16 +193,13 @@ std::vector<std::byte> encode()
 	serializeObject(output, players);
 
 	return output;
-	//return Game::instance().getEncodedData();
 }
 
 void decode(const std::vector<std::byte>& data, unsigned int pos)
 {
-	if (!Game::exists())
-		return;
 	//Game::instance().deserializeData(data, pos, playerStates, collectibleStates);
 
-	//deserializeObject(data, pos, collectibleStates);
+	deserializeObject(data, pos, collectibleStates);
 	deserializeObject(data, pos, playerStates);
 }
 
@@ -217,7 +214,7 @@ void postSyncPreDraw()
 	//Sync gameobjects' state on clients only
 	if (!Engine::instance().isMaster())
 	{
-		//Game::instance().setDecodedCollectibleData(collectibleStates);
+		Game::instance().setDecodedCollectibleData(collectibleStates);
 		Game::instance().setDecodedPlayerData(playerStates);
 	}
 	playerStates.clear();

@@ -93,7 +93,7 @@ public:
 		std::vector<CollectibleData>& collectBuffer);
 
 	//Set the turn speed of player player with id id
-	void updateTurnSpeed(std:: tuple<unsigned int, float>&& input);    
+	void updateTurnSpeed(std::tuple<unsigned int, float>&& input);    
    
 	//DEBUGGING TOOL: apply orientation to all GameObjects
 	void rotateAllPlayers(float deltaOrientation);
