@@ -155,7 +155,6 @@ void initOGL(GLFWwindow*) {
 	{
 		Game::instance().addPlayer();
 	}
-
 }
 
 
