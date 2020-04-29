@@ -64,10 +64,10 @@ int main(int argc, char** argv)
 	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
-	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
-	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
+	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
 
 	config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
@@ -202,7 +202,7 @@ void decode(const std::vector<std::byte>& data, unsigned int pos)
 		return;
 	//Game::instance().deserializeData(data, pos, playerStates, collectibleStates);
 
-	deserializeObject(data, pos, collectibleStates);
+	//deserializeObject(data, pos, collectibleStates);
 	deserializeObject(data, pos, playerStates);
 }
 
@@ -218,10 +218,10 @@ void postSyncPreDraw()
 	if (!Engine::instance().isMaster())
 	{
 		//Game::instance().setDecodedCollectibleData(collectibleStates);
-		//Game::instance().setDecodedPlayerData(playerStates);
+		Game::instance().setDecodedPlayerData(playerStates);
 	}
-	else
-		return;
+	playerStates.clear();
+	collectibleStates.clear();
 }
 
 void connectionEstablished()
