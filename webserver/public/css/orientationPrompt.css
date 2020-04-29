@@ -1,4 +1,4 @@
-@media (orientation: landscape) {
+@media screen and (min-aspect-ratio: 13/9) {
     #orientationPrompt {
         display: none;
     }
@@ -8,21 +8,30 @@
     }
 }
 
+@media screen and (max-aspect-ratio: 13/9) {
+    #gameRunningScreen > * {
+        display: none;
+    }
+}
+
 #orientationPrompt {
     height: 100%;
     padding: 100px 150px;
     position: absolute;
     width: 100%;
+    z-index: 2;
 }
 
 #promptBackground {
     background-color: var(--guiDark);
     height: 100vh;
-    /* height: 100%; */
     opacity: 0.5;
-    /* opacity: 50%; */
     position: absolute;
     width: 100vh;
+    z-index: 1;
+
+    /* height: 100%; */
+    /* opacity: 50%; */
     /* width: 100%; */
 }
 

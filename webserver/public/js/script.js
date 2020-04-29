@@ -57,9 +57,6 @@ function initialize() {
   connectButton.addEventListener('click', () => {
     connected = true; // Mock connection state, should probably be handled in conjunction with the back-end
 
-    document.querySelector('#orientationPrompt').classList.remove('hidden');
-    document.querySelector('#promptBackground').classList.remove('hidden');
-
     setCurrentScreen('waitingScreen');
     handleInformationMessages();
   })

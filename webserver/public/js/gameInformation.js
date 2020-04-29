@@ -8,7 +8,6 @@ const gameInformationMessages = [
 var currentMessage = 0;
 
 function handleInformationMessages() {
-    displayNextMessage(); // Do first message immediately
     setInterval(displayNextMessage, 6000);
 }
 
@@ -23,6 +22,8 @@ function displayNextMessage() {
         }, 500);
     } else {
         clearInterval(displayNextMessage);
-        setCurrentScreen('gameRunningScreen')
+        document.querySelector('#orientationPrompt').classList.remove('hidden');
+        document.querySelector('#promptBackground').classList.remove('hidden');
+        setCurrentScreen('gameRunningScreen');
     }
 }
