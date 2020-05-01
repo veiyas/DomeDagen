@@ -74,3 +74,24 @@ unsigned int Utility::textureFromFile(const char* path, const std::string& direc
 
 	return textureID;
 }
+
+//template<typename T>
+//void Utility::deserializeObject(const std::vector<std::byte>& buffer, unsigned int& pos,
+//	std::vector<T>& value, unsigned valueSize)
+//{
+//	value.clear();
+//
+//	uint32_t size = valueSize;
+//	//deserializeObject<uint32_t>(buffer, pos, size);
+//
+//	if (size == 0) {
+//		return;
+//	}
+//
+//	value.clear();
+//	value.assign(
+//		reinterpret_cast<const T*>(buffer.data() + pos),
+//		reinterpret_cast<const T*>(buffer.data() + pos + size * sizeof(T))
+//		);
+//}
+

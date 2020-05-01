@@ -28,7 +28,11 @@ public:
 	void render(const glm::mat4& mvp) const;
 
 	//Sync collectiblepool state
-	void syncNewPoolState(const std::vector<CollectibleData>& newStates);
+	void setNewPoolState(const std::vector<CollectibleData>& newStates);
+	
+	//Get collectiblepool state
+	std::vector<CollectibleData> getPoolState() const;
+
 	//Returns shared_ptr and points mFirstAvailable to next in list. O(1)!
 	void enableCollectible(const glm::vec3& pos);
 

@@ -29,7 +29,8 @@ public:
 	static std::tuple<unsigned int, float> getTurnSpeed(std::istringstream& input);
 
 	static unsigned int textureFromFile(const char* path, const std::string& directory, bool gamma = false);
-
 private:
 	
 };
+
+

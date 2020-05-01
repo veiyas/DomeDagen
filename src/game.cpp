@@ -186,14 +186,7 @@ std::vector<PlayerData> Game::getPlayerData()
 
 std::vector<CollectibleData> Game::getCollectibleData()
 {
-	std::vector<CollectibleData> allCollectibleData(mCollectPool.getNumEnabled());
-
-	for (size_t i = 0; i < mCollectPool.getNumEnabled(); i++)
-	{
-		allCollectibleData[i] = mCollectPool[i].getCollectibleData();
-	}
-
-	return allCollectibleData;
+	return mCollectPool.getPoolState();
 }
 
 void Game::setDecodedPlayerData(const std::vector<PlayerData>& newState)
@@ -214,7 +207,7 @@ void Game::setDecodedPlayerData(const std::vector<PlayerData>& newState)
 
 		for (size_t i = 0; i < nUnsyncedPlayers; ++i)
 		{
-			mPlayers.at(i).setPlayerData(newState[i]);
+			mPlayers[i].setPlayerData(newState[i]);
 		}
 		nUnsyncedPlayers = mPlayers.size();
 	}
@@ -223,7 +216,7 @@ void Game::setDecodedPlayerData(const std::vector<PlayerData>& newState)
 void Game::setDecodedCollectibleData(const std::vector<CollectibleData>& newState)
 {
 	if(newState.size() > 0)
-		mCollectPool.syncNewPoolState(newState);
+		mCollectPool.setNewPoolState(newState);
 }
 
 void Game::deserializeData(const std::vector<std::byte>& data, unsigned int pos, std::vector<PlayerData>& playerBuffer, std::vector<CollectibleData>& collectBuffer)

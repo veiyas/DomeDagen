@@ -26,6 +26,14 @@ namespace {
 	std::vector<PlayerData> playerStates;
 	std::vector<CollectibleData> collectibleStates;
 
+	unsigned collectiblesSize;
+	unsigned playersSize;
+	int syncTest3;
+	std::vector<int> syncTestIntVec;
+	int syncTest5;
+	int syncTest6;
+	int syncTest7;
+
 	//TEMPORARY used to control rotation of all players 
 	float updatedRotation{ 0 };
 } // namespace
@@ -46,6 +54,13 @@ void postSyncPreDraw();
 
 void keyboard(Key key, Modifier modifier, Action action, int);
 
+template<typename T>
+void deserializeObjectFix(const std::vector<std::byte>& buffer, unsigned int& pos,
+	std::vector<T>& value, unsigned valueSize);
+
+template <typename T>
+void serializeObjectFix(std::vector<std::byte>& buffer, const std::vector<T>& value, unsigned valueSize);
+
 void connectionEstablished();
 void connectionClosed();
 void messageReceived(const void* data, size_t length);
@@ -61,7 +76,7 @@ const std::string rootDir = Utility::findRootDir();
 int main(int argc, char** argv)
 {
 	std::vector<std::string> arg(argv + 1, argv + argc);
-	Configuration config = sgct::parseArguments(arg);
+	Configuration config = sgct::parseArguments(arg);	
 
 	//Choose which config file (.xml) to open
 	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
@@ -132,6 +147,14 @@ void initOGL(GLFWwindow*)
 {
 	ModelManager::init();
 	Game::init();
+
+	collectiblesSize = 0;
+	playersSize = 0;
+	syncTest3 = 3;
+	syncTestIntVec.push_back(3);
+	syncTest5 = 5;
+	syncTest6 = 6;
+	syncTest7 = 7;
 	
 	assert(std::is_pod<PlayerData>());
 	assert(std::is_pod<CollectibleData>());
@@ -139,10 +162,13 @@ void initOGL(GLFWwindow*)
 	/**********************************/
 	/*			 Debug Area			  */
 	/**********************************/
-
-	for (size_t i = 0; i < 1; i++)
+	
+	if (Engine::instance().isMaster())
 	{
-		Game::instance().addPlayer(glm::vec3(0.f));
+		for (size_t i = 0; i < 1; i++)
+		{
+			Game::instance().addPlayer(glm::vec3(0.f + 0.2f*i));
+		}
 	}
 }
 
@@ -189,18 +215,46 @@ std::vector<std::byte> encode()
 	const auto& collects = Game::instance().getCollectibleData();
 	const auto& players = Game::instance().getPlayerData();
 
+	output.reserve(collects.size()*sizeof(CollectibleData) + players.size()*sizeof(PlayerData));
+
+	//Serialize the vectors sizes to circumvent sgct bug
+	serializeObject(output, static_cast<unsigned>(players.size()));
+	serializeObject(output, static_cast<unsigned>(collects.size()));
+
+	//serializeObject(output, players);
 	serializeObject(output, collects);
-	serializeObject(output, players);
+	//serializeObject(output, syncTest3);
+		
+
+
+	//serializeObject(output, syncTest5);
+	//serializeObject(output, syncTest6);
+	//serializeObject(output, syncTestIntVec);	
 
 	return output;
 }
 
 void decode(const std::vector<std::byte>& data, unsigned int pos)
 {
-	//Game::instance().deserializeData(data, pos, playerStates, collectibleStates);
+	if (!Game::exists()) //No point in syncing data if no instance of Game exist yet
+		return;
 
-	deserializeObject(data, pos, collectibleStates);
-	deserializeObject(data, pos, playerStates);
+	//Deserialize the vectors sizes to circumvent sgct bug
+	deserializeObject(data, pos, playersSize);
+	deserializeObject(data, pos, collectiblesSize);
+
+	//deserializeObjectFix(data, pos, playerStates, playersSize);
+	deserializeObjectFix(data, pos, collectibleStates, collectiblesSize);
+	//deserializeObject(data, pos, syncTest3);
+	
+
+
+	//deserializeObject(data, pos, syncTest5);
+	//deserializeObject(data, pos, syncTest6);
+	//deserializeObjectFix(data, pos, syncTestIntVec, 1);
+	
+
+	std::cout << collectiblesSize << "\n" << playersSize << "\n\n";
 }
 
 void cleanup()
@@ -212,14 +266,54 @@ void cleanup()
 void postSyncPreDraw()
 {
 	//Sync gameobjects' state on clients only
-	if (!Engine::instance().isMaster())
+	if (!Engine::instance().isMaster() && Game::exists())
 	{
-		Game::instance().setDecodedCollectibleData(collectibleStates);
 		Game::instance().setDecodedPlayerData(playerStates);
+		Game::instance().setDecodedCollectibleData(collectibleStates);
+		std::cout << Game::instance().getCollectibleData().size() << "\n" << Game::instance().getPlayerData().size() << "\n\n";
 	}
-	playerStates.clear();
-	collectibleStates.clear();
+	
 }
+
+template <typename T>
+void serializeObjectFix(std::vector<std::byte>& buffer, const std::vector<T>& value, unsigned valueSize) {
+	static_assert(std::is_pod_v<T>, "Type has to be a plain-old data type");
+
+	const uint32_t size = static_cast<uint32_t>(valueSize);
+	serializeObject(buffer, size);
+
+	if (size > 0) {
+		buffer.insert(
+			buffer.end(),
+			reinterpret_cast<const std::byte*>(value.data()),
+			reinterpret_cast<const std::byte*>(value.data()) + size * sizeof(T)
+			);
+	}
+}
+
+template<typename T>
+void deserializeObjectFix(const std::vector<std::byte>& buffer, unsigned int& pos,
+	std::vector<T>& value, unsigned valueSize)
+{
+	value.clear();
+
+	uint32_t size;
+	deserializeObject<uint32_t>(buffer, pos, size);
+	size = valueSize;
+	//pos += 4;
+
+	if (size == 0) {
+		return;
+	}
+
+	value.clear();
+	value.assign(
+		reinterpret_cast<const T*>(buffer.data() + pos),
+		reinterpret_cast<const T*>(buffer.data() + pos + size * sizeof(T))
+		);
+}
+
+
 
 void connectionEstablished()
 {

@@ -36,19 +36,38 @@ void CollectiblePool::init()
 
 void CollectiblePool::render(const glm::mat4& mvp) const
 {
-	for (size_t i = 0; i < mNumEnabled; i++)
+	for (size_t i = 0; i < mPool.size(); i++)
 	{
-		mPool.at(i).render(mvp);
+		mPool[i].render(mvp);
 	}
 }
 
-void CollectiblePool::syncNewPoolState(const std::vector<CollectibleData>& newStates)
-{	
-	for (size_t i = 0; i < newStates.size(); i++)
+void CollectiblePool::setNewPoolState(const std::vector<CollectibleData>& newStates)
+{
+	//TODO removes deactivated collectibles
+	for (const auto& state : newStates)
 	{
-		mPool.at(i).setCollectibleData(newStates.at(i));
+		if(state.mIndex < mNumCollectibles)
+			mPool.at(state.mIndex).setCollectibleData(state);
 	}
+
 	mNumEnabled = newStates.size();
+}
+
+std::vector<CollectibleData> CollectiblePool::getPoolState() const
+{
+	std::vector<CollectibleData> poolData;
+	poolData.reserve(mNumEnabled);
+
+	for (size_t i = 0; i < mPool.size(); i++)
+	{
+		if (mPool[i].isEnabled())
+		{
+			poolData.push_back(mPool[i].getCollectibleData(i));
+		}
+	}
+
+	return poolData;
 }
 
 void CollectiblePool::enableCollectible(const glm::vec3& pos)
@@ -66,21 +85,32 @@ void CollectiblePool::enableCollectible(const glm::vec3& pos)
 
 void CollectiblePool::disableCollectible(const size_t index)
 {
-	std::swap(mPool[index], mPool[mNumEnabled - 1]);
+	/*
+	
+		This swap code is hella good for performance
+		Unfortunately it doesn't play well with node sync
 
-	auto& lastEnabledElement = mPool[index];
-	auto& disabledElement = mPool[mNumEnabled - 1];
+	*/
+	//std::swap(mPool[index], mPool[mNumEnabled - 1]);
 
-	//Thread enabled object
-	lastEnabledElement.setNext(&mPool[index+1]);
-	if (index > 0)
-		mPool[index - 1].setNext(&lastEnabledElement);
+	//auto& lastEnabledElement = mPool[index];
+	//auto& disabledElement = mPool[mNumEnabled - 1];
 
-	//Rethread and prime disabled object for usage
+	////Thread enabled object
+	//lastEnabledElement.setNext(&mPool[index+1]);
+	//if (index > 0)
+	//	mPool[index - 1].setNext(&lastEnabledElement);
+
+	////Rethread and prime disabled object for usage
+	//disabledElement.disable();
+	//disabledElement.setNext(mFirstAvailable);
+	//if (mNumEnabled > 1)
+	//	mPool[mNumEnabled - 2].setNext(&disabledElement);	
+	//mFirstAvailable = &disabledElement;
+
+	auto& disabledElement = mPool[index];
 	disabledElement.disable();
 	disabledElement.setNext(mFirstAvailable);
-	if (mNumEnabled > 1)
-		mPool[mNumEnabled - 2].setNext(&disabledElement);	
 	mFirstAvailable = &disabledElement;
 
 	--mNumEnabled;

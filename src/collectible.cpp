@@ -62,7 +62,7 @@ void Collectible::render(const glm::mat4& mvp) const
 	}
 }
 
-CollectibleData Collectible::getCollectibleData() const
+CollectibleData Collectible::getCollectibleData(unsigned index) const
 {
 	CollectibleData temp;
 
@@ -77,6 +77,8 @@ CollectibleData Collectible::getCollectibleData() const
 	temp.mPosData.mX = getPosition().x;
 	temp.mPosData.mY = getPosition().y;
 	temp.mPosData.mZ = getPosition().z;
+
+	temp.mIndex = index;
 
 	return temp;
 }
