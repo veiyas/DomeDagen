@@ -152,9 +152,10 @@ void initOGL(GLFWwindow*) {
 	/*			 Debug Area			  */
 	/**********************************/
 
-	for (size_t i = 0; i < 1; i++)
+	//Test player should only be created on master, and then synced to clients
+	if (Engine::instance().isMaster())
 	{
-		Game::instance().addPlayer();
+		//Game::instance().addPlayer();
 	}
 }
 
