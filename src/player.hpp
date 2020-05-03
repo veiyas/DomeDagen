@@ -156,6 +156,10 @@ private:
 	//If person disconnect/reconnect
 	bool mEnabled = true;
 
+	//Constants for initializing mConstraint
+	static const float mFOV;
+	static const float mTILT;
+
 	//Set shader data
 	void setShaderData();
 };

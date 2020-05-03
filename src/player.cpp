@@ -4,15 +4,19 @@
 #include<iostream>
 
 #include"balljointconstraint.hpp"
+
+const float Player::mFOV = 170.0f;
+const float Player::mTILT = 27.0f;
+
 Player::ColourSelector Player::mColourSelector = Player::ColourSelector{ };
 
 Player::Player()
 	: GameObject{ GameObject::PLAYER, 50.f, glm::quat(glm::vec3(0.f)), 0.f },
 	  GeometryHandler("player", "diver"),
 	  mName{ "temp" },
-	  mPlayerColours{ mColourSelector.getNextPair() }
+	  mPlayerColours{ mColourSelector.getNextPair() },
+	  mConstraint{ mFOV, mTILT }
 {
-	mConstraint = BallJointConstraint{ 170.f, 27.f };
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
 	setShaderData();
 }
@@ -21,9 +25,9 @@ Player::Player(const std::string name)
 	: GameObject{ GameObject::PLAYER, 50.f, glm::quat(glm::vec3(0.f)), 0.f },
 	  GeometryHandler("player", "diver"),
 	  mName{ name },
-	  mPlayerColours{ mColourSelector.getNextPair() }
+	  mPlayerColours{ mColourSelector.getNextPair() },
+	  mConstraint{ mFOV, mTILT }
 {
-	mConstraint = BallJointConstraint{ 170.f, 27.f };
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
 	setShaderData();
 }
@@ -35,10 +39,10 @@ Player::Player(const std::string & objectModelName, float radius,
 	  GeometryHandler("player", objectModelName),
 	  mName { name },
 	  mSpeed{ speed },
-	  mPlayerColours{ mColourSelector.getNextPair() }
+	  mPlayerColours{ mColourSelector.getNextPair() },
+	  mConstraint{ mFOV, mTILT }
 {
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
-	mConstraint = BallJointConstraint{ 170.f, 27.f };
 	setShaderData();
 }
 
@@ -48,7 +52,8 @@ Player::Player(const PlayerData& input)
 	  mName{ std::string(input.mNameLength, ' ') },
 	  mPoints{ input.mPoints },
 	  mIsAlive{ input.mIsAlive },
-	  mSpeed{ input.mSpeed }
+	  mSpeed{ input.mSpeed },
+	  mConstraint{ mFOV, mTILT }
 {
 	//Copy new player name
 	for (size_t i = 0; i < input.mNameLength; i++)
@@ -64,8 +69,6 @@ Player::Player(const PlayerData& input)
 	setPosition(temp);
 
 	mShaderProgram.unbind();
-	//Could probably be handled in a better way
-	mConstraint = BallJointConstraint{ 170.f, 27.f };
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
 	setShaderData();
 
