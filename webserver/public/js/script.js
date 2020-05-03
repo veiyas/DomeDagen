@@ -1,6 +1,6 @@
 
 var serverAddress;
-
+var returningPlayerUserName ="";
 //Request server adress when document is loaded
 $($.ajax({
   url: '/config',
@@ -44,18 +44,28 @@ function initialize() {
   socket.onmessage = function() {
     log(event.data);
   }
-
+  
   // Push all screens into a map of [screen ID, screen]
   document.querySelectorAll('.screen').forEach(screen => {
     screens.set(screen.id, screen)
   });
-
+  if(checkCookie()){
+    setCurrentScreen('returningPlayerScreen');
+    var usernameParagraph = document.getElementById("returnUserName");
+    var x = document.createElement("P");
+    var t = document.createTextNode(returningPlayerUserName);
+    x.appendChild(t);
+    usernameParagraph.appendChild(x);
+  }else{
+    setCurrentScreen('welcomeScreen');
+    /*var connectButton = document.querySelector('#connect');
+    connectButton.addEventListener('click', () => {
+      connected = true; // Mock connection state, should probably be handled in conjunction with the back-end
+      setCurrentScreen('gameRunningScreen');
+    })*/
+  }
   // Set up event listeners
-  var connectButton = document.querySelector('#connect');
-  connectButton.addEventListener('click', () => {
-    connected = true; // Mock connection state, should probably be handled in conjunction with the back-end
-    setCurrentScreen('gameRunningScreen');
-  })
+  
 }
 
 // Set the currently visible screen to the matching screenID argument.
@@ -78,12 +88,26 @@ function sendName() {
   // TODO Add input validation (no spaces, char limit, etc)
   // Should ofc be validated server-side as well
   name = document.getElementById("lname").value.trim();
+  setCookie("username", name, 30);
   if (socket.readyState === WebSocket.OPEN) {
     var stringToSend = `N ${name}`;
     socket.send(stringToSend);
   }
-}
+  //go to gamescreen
+  connected = true; // Mock connection state, should probably be handled in conjunction with the back-end
+  setCurrentScreen('gameRunningScreen');
 
+}
+//for returning user 
+function returnConnection(){
+  if (socket.readyState === WebSocket.OPEN) {
+    var stringToSend = `N ${returningPlayerUserName}`;
+    socket.send(stringToSend);
+  }
+  //go to gamescreen
+  connected = true; // Mock connection state, should probably be handled in conjunction with the back-end
+  setCurrentScreen('gameRunningScreen');
+}
 // Enable the connect button if and only if the user has entered something
 // into the input form.
 function handleTextInputChange() {
@@ -102,13 +126,15 @@ function handleTextInputChange() {
 function checkCookie() {
   var user = getCookie("username");
   if (user != "") {
-    // TODO send old user to another page
+    returningPlayerUserName = user;
+    return true;
   } else {
-    user = document.getElementById("lname").value.trim();
+    /* user = document.getElementById("lname").value.trim();
     if (user != "" && user != null) {
       setCookie("username", user, 30);
       console.log("New user");
-    }
+    }*/
+    return false;
   }
 }
 
@@ -118,6 +144,14 @@ function setCookie(cname, cvalue, exdays) {
   d.setTime(d.getTime() + (exdays*24*60*60*1000));
   var expires = "expires="+ d.toUTCString();
   document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+//delete cookie
+function deleteCookie(){
+  if(getCookie("username")){
+    document.cookie = returningPlayerUserName + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    returningPlayerUserName = "";
+  }
+  setCurrentScreen('welcomeScreen');
 }
 
 // Get a cookie
