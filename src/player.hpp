@@ -97,6 +97,9 @@ public:
 	const bool isAlive() const { return mIsAlive; };
 	const bool isEnabled() const { return mEnabled; };
 	const std::string& getName() const { return mName; };
+    
+    // Iris: trying to send colours
+    std::pair<glm::vec3, glm::vec3> getColours() const { return mPlayerColours; };
 
 	//Mutators
 	void setEnabled(bool state) { mEnabled = state; }

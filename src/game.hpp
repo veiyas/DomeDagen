@@ -92,6 +92,9 @@ public:
 
 	//DEBUGGING TOOL: apply orientation to all GameObjects
 	void rotateAllPlayers(float deltaOrientation);
+    
+    //Get and return player-colours
+    std::pair<glm::vec3, glm::vec3> getPlayerColours(unsigned id);
 
 	static constexpr size_t mMAXPLAYERS = 110;
 	static constexpr size_t mMAXCOLLECTIBLES = 300;

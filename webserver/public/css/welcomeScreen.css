@@ -2,18 +2,75 @@
     flex-direction: column;
     margin: auto;
     text-align: center;
+    background-image: url(../img/BeachBG.png);
+    background-size: cover;
+    background-position: bottom center;
 }
 
 #welcomeScreen input {
-    height: 10vh;
-    margin: auto;
-    margin-bottom: 0;
+    border-color: var(--oceanDark);
+    border-radius: 1em;
+    border-style: dotted;
+    border-width: 0.1em;
+    height: 2.5em;
     padding: 20px;
-    width: 50%;
+    width: 100%;
 }
 
 #welcomeScreen button {
-    margin: auto;
     padding: 20px;
-    width: 200px;
+    height: 3em;
+    width: 60%;
+}
+
+@media screen and (min-aspect-ratio: 13/9) {
+    #welcomeScreen input {
+        height: 2.5em;
+    }
+    
+    #welcomeScreen button {
+        font-size: 2em;
+        width: 100%;
+    }
+
+    #welcomeScreen > .col {
+        flex-direction: row;
+    }
+
+    #welcomeScreen > .col > div {
+        /* Targets containers for button and input */
+        justify-content: flex-start;
+        padding: 20px;
+    }
+
+    #nameInputContainer {
+        flex: 2;
+    }
+
+    #connectButtonContainer {
+        flex: 1;
+    }
+}
+
+/* Make first row take up less space than the second row */
+#welcomeScreen > .row:first-of-type {
+    flex: 1;
+}
+
+#welcomeScreen > .col:last-of-type {
+    flex: 2;
+}
+
+
+/* Character limit error message */
+#nameInputContainer {
+    justify-content: flex-end;
+    position: relative;
+}
+
+#charLimitMsg {
+    color: crimson;
+    font-size: 2em;
+    position: absolute;
+    top: -10%;
 }
