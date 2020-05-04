@@ -19,6 +19,7 @@
 #include "sceneobject.hpp"
 #include "player.hpp"
 #include "modelmanager.hpp"
+#include "backgroundobject.hpp"
 
 namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
@@ -61,13 +62,13 @@ const std::string rootDir = Utility::findRootDir();
 *****************************/
 int main(int argc, char** argv) {
 	std::vector<std::string> arg(argv + 1, argv + argc);
-	Configuration config = sgct::parseArguments(arg);
+	Configuration config = sgct::parseArguments(arg);	
 
 	//Choose which config file (.xml) to open
-	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
-	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
+	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
 
 	config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
@@ -84,6 +85,7 @@ int main(int argc, char** argv) {
 
 	//Initialize engine
 	try {
+		states.reserve(Game::mMAXPLAYERS);
 		Engine::create(cluster, callbacks, config);		
 	}
 	catch (const std::runtime_error & e) {
@@ -109,18 +111,27 @@ int main(int argc, char** argv) {
 
 	Engine::instance().render();
 
-	//Game::destroy();
+	Game::destroy();
 	Engine::destroy();
 	return EXIT_SUCCESS;
 }
+
 
 void draw(const RenderData& data) {
 	Game::instance().setMVP(data.modelViewProjectionMatrix);
 	Game::instance().setV(data.viewMatrix);
 
 
+	glClearColor(20.0/255.0, 157.0/255.0, 190.0/255.0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//Background object
+	//Game::instance()
+	//glDisable(GL_DEPTH_TEST);
+
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE); // TODO This should really be enabled but the normals of the
+	                          // background object are flipped atm
 	glCullFace(GL_BACK);
 
 	Game::instance().render();
@@ -141,7 +152,10 @@ void initOGL(GLFWwindow*) {
 	/*			 Debug Area			  */
 	/**********************************/
 
-	//Game::instance().addPlayer();
+	for (size_t i = 0; i < 1; i++)
+	{
+		Game::instance().addPlayer();
+	}
 }
 
 

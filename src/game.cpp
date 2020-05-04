@@ -1,6 +1,7 @@
 #include "game.hpp"
 #include "player.hpp"
 #include <sgct/engine.h>
+#include "sgct/sgct.h"
 
 
 //Define instance
@@ -52,6 +53,8 @@ void Game::init()
 	mInstance = new Game{};
 	mInstance->mPlayers.reserve(mMAXPLAYERS);
 	mInstance->printLoadedAssets();
+	BackgroundObject* background = new BackgroundObject();
+	mInstance->setBackground(background);
 }
 
 Game& Game::instance()
@@ -65,8 +68,10 @@ Game& Game::instance()
 
 void Game::destroy()
 {
-	if(mInstance->instanceExists())
+	if (mInstance->instanceExists()) {
+		delete mInstance->mBackground;
 		delete mInstance;
+	}
 }
 
 void Game::printShaderPrograms() const
@@ -86,6 +91,11 @@ void Game::printLoadedAssets() const
 
 void Game::render() const
 {
+	//Render background
+	mBackground->render(mMvp, mV);
+
+	glClear(GL_DEPTH_BUFFER_BIT); //Draw all other objects in front of background
+
 	//Render players
 	for (const Player& p : mPlayers)
 		p.render(mMvp, mV);
@@ -158,7 +168,7 @@ std::vector<std::byte> Game::getEncodedPlayerData()
 
 void Game::setDecodedPositionData(const std::vector<PlayerData>& newState)
 {
-	if (!sgct::Engine::instance().isMaster())
+	if (!sgct::Engine::instance().isMaster() && newState.size() > 0)
 	{
 		//number of unsynced players
 		size_t nUnsyncedPlayers = mPlayers.size();
