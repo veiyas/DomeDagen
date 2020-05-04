@@ -43,7 +43,7 @@ function initialize() {
     log('Connection is closed');
   }
 
-  socket.onmessage = function() {
+  socket.onmessage = function(event) {
     if (event.data === "Connected") log(event.data);
 
     // Receive player-colours
@@ -121,5 +121,39 @@ function handleTextInputChange() {
     charLimitMsg.classList.remove('hidden');
     connectButton.disabled = true;
     connectButton.classList.add('disabled');
+  }
+}
+
+const leftBtn = document.getElementById('turnLeft');
+const rightBtn = document.getElementById('turnRight');
+
+// Handle buttons when using mouse
+leftBtn.addEventListener('mousedown', () => sendSteeringData(1));
+leftBtn.addEventListener('mouseup', () => sendSteeringData(0));
+rightBtn.addEventListener('mousedown', () => sendSteeringData(-1));
+rightBtn.addEventListener('mouseup', () => sendSteeringData(0));
+
+// Handle buttons on touch devices
+leftBtn.addEventListener('touchstart', (event) => {
+  sendSteeringData(1);
+  event.preventDefault();
+});
+leftBtn.addEventListener('touchend', (event) => {
+  sendSteeringData(0);
+  event.preventDefault();
+});
+rightBtn.addEventListener('touchstart', (event) => {
+  sendSteeringData(-1);
+  event.preventDefault();
+});
+rightBtn.addEventListener('touchend', (event) => {
+  sendSteeringData(0);
+  event.preventDefault();
+});
+
+function sendSteeringData(direction) {
+  if(connected && socket.readyState === WebSocket.OPEN) {
+    console.log(direction);
+    socket.send(`C ${direction}`);
   }
 }
