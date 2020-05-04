@@ -5,6 +5,7 @@ Collectible::Collectible()
 	,GeometryHandler{ "collectible", "can1" }
 	,mEnabled{ false }, mNext{ nullptr }
 {
+	setShaderData();
 }
 
 Collectible::Collectible(const std::string objectModelName)
@@ -12,8 +13,7 @@ Collectible::Collectible(const std::string objectModelName)
 	,GeometryHandler{ "collectible", objectModelName }
 	,mEnabled{false}, mNext{nullptr}
 {
-	mMvpMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "mvp");
-	mTransMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "transformation");
+	setShaderData();
 }
 
 Collectible::Collectible(const Collectible& src)

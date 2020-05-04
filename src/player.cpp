@@ -139,13 +139,3 @@ void Player::render(const glm::mat4& mvp) const
 
 	mShaderProgram.unbind();
 }
-
-void Player::setShaderData()
-{
-	mShaderProgram.bind();
-
-	mMvpMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "mvp");
-	mTransMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "transformation");
-
-	mShaderProgram.unbind();
-}

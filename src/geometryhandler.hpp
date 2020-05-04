@@ -36,4 +36,13 @@ public:
 
 	//Render model
 	void renderModel() const { mModel->render(); };
+
+	//Set shader data
+	void setShaderData()
+	{
+		mShaderProgram.bind();
+		mMvpMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "mvp");
+		mTransMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "transformation");
+		mShaderProgram.unbind();
+	}
 };

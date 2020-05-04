@@ -38,7 +38,7 @@ void Game::detectCollisions()
 
 				if (std::abs(xAngle) <= collisionDistance && std::abs(yAngle) <= collisionDistance)
 				{
-					mPlayers[i].addPoint();
+					mPlayers[i].addPoints();
 					mCollectPool.disableCollectible(j);
 				}
 			}
@@ -112,7 +112,7 @@ void Game::addPlayer(std::tuple<unsigned int, std::string>&& inputTuple)
 	mPlayers.emplace_back(std::get<1>(inputTuple));
 }
 
-//DEBUGGING PURPOSES, TODO REMOVE WHEN DONE
+//DEBUGGING PURPOSES, TODO BETTER SOLUTION
 bool outputted = false;
 int spawnTime = 2;
 void Game::update()
@@ -127,12 +127,11 @@ void Game::update()
 
 	float deltaTime = currentFrameTime - mLastFrameTime;
 	
-	//DEBUGGING PURPOSES, TODO REMOVE WHEN DONE
+	//DEBUGGING PURPOSES, TODO BETTER SOLUTION
 	std::random_device randomDevice;
 	std::mt19937 gen(randomDevice());
 	std::uniform_real_distribution<> rng(-1.5f, 1.5f);
 
-	//COLLECTIBLE SPAWN DEBUGGING
 	if ((int)currentFrameTime % spawnTime == 0 && !outputted)
 	{
 		mCollectPool.enableCollectible(glm::vec3(1.5f + rng(gen), rng(gen), 0.f));
@@ -177,6 +176,7 @@ std::vector<SyncableData> Game::getSyncableData()
 
 		tempData.push_back(tempState);
 	}
+
 	//Players not present on client nodes needs some book keeping
 	for (size_t i = mLastSyncedPlayer; i < mPlayers.size(); ++i)
 	{
@@ -189,6 +189,7 @@ std::vector<SyncableData> Game::getSyncableData()
 
 		tempData.push_back(tempState);
 	}
+
 	//Get enabled collectibles
 	for (size_t i = 0; i < CollectiblePool::mMAXNUMCOLLECTIBLES; i++)
 	{
@@ -235,61 +236,47 @@ void Game::setSyncableData(const std::vector<SyncableData> newState) //Copy atm 
 
 void Game::setDecodedCollectibleData(const std::vector<SyncableData>& newState)
 {
-	if (newState.size() > 0)
+	mCollectPool.setNumEnabled(newState.size());
+	for (size_t i = 0; i < newState.size(); i++)
 	{
-		mCollectPool.setNumEnabled(newState.size());
-		for (size_t i = 0; i < newState.size(); i++)
-		{
-			const SyncableData& currentState = newState[i];
-			mCollectPool[currentState.mCollectData.mIndex].setCollectibleData(currentState.mPositionData);
-		}
-
-		//Disable rest of elements
-		std::vector<size_t> enabledSlots;
-		enabledSlots.reserve(newState.size());
-		for (const auto& state : newState)
-		{
-			enabledSlots.push_back(state.mCollectData.mIndex);
-		}
-		for (size_t i = 0; i < CollectiblePool::mMAXNUMCOLLECTIBLES; i++)
-		{
-			bool isEnabled = std::binary_search(enabledSlots.begin(), enabledSlots.end(), i);
-			if (!isEnabled)
-				mCollectPool.disableCollectible(i);
-		}
+		const SyncableData& currentState = newState[i];
+		mCollectPool[currentState.mCollectData.mIndex].setCollectibleData(currentState.mPositionData);
 	}
-	else
-		return;
+
+	//Disable rest of elements
+	//TODO this can probably be done faster
+	std::vector<size_t> enabledSlots;
+	enabledSlots.reserve(newState.size());
+	for (const auto& state : newState)
+	{
+		enabledSlots.push_back(state.mCollectData.mIndex);
+	}
+	for (size_t i = 0; i < CollectiblePool::mMAXNUMCOLLECTIBLES; i++)
+	{
+		bool isEnabled = std::binary_search(enabledSlots.begin(), enabledSlots.end(), i);
+		if (!isEnabled)
+			mCollectPool.disableCollectible(i);
+	}
 }
 
 void Game::setDecodedPlayerData(const std::vector<SyncableData>& newState)
 {
-	if (newState.size() > 0)
-	{		
-		//number of unsynced players
-		size_t nUnsyncedPlayers = mPlayers.size();
+	size_t nUnsyncedPlayers = mPlayers.size();
 
-		//New players get instanciated with correct value from the start
-		if (newState.size() > mPlayers.size())
+	//New players get instanciated with correct value from the start
+	if (newState.size() > mPlayers.size())
+	{
+		for (size_t i = nUnsyncedPlayers; i < newState.size(); ++i)
 		{
-			for (size_t i = nUnsyncedPlayers; i < newState.size(); ++i)
-			{
-				addPlayer(newState[i].mPlayerData, newState[i].mPositionData);
-			}
+			addPlayer(newState[i].mPlayerData, newState[i].mPositionData);
 		}
-
-		for (size_t i = 0; i < nUnsyncedPlayers; ++i)
-		{
-			mPlayers[i].setPlayerData(newState[i].mPlayerData, newState[i].mPositionData);
-		}
-		nUnsyncedPlayers = mPlayers.size();
 	}
-}
 
-void Game::deserializeData(const std::vector<std::byte>& data, unsigned int pos, std::vector<PlayerData>& playerBuffer, std::vector<CollectibleData>& collectBuffer)
-{
-	sgct::deserializeObject(data, pos, collectBuffer);
-	sgct::deserializeObject(data, pos, playerBuffer);
+	for (size_t i = 0; i < nUnsyncedPlayers; ++i)
+	{
+		mPlayers[i].setPlayerData(newState[i].mPlayerData, newState[i].mPositionData);
+	}
+	nUnsyncedPlayers = mPlayers.size();	
 }
 
 void Game::updateTurnSpeed(std::tuple<unsigned int, float>&& input)

@@ -56,7 +56,7 @@ public:
 	virtual void render(const glm::mat4& mvp) const = 0;
 
 	//Update object (position, collision?)
-	virtual void update(float deltaTime);
+	virtual void update(float deltaTime) = 0;
 	//HACK This is very much a hack, and it would probably be better to keep different
 	//types of gameobjects in different list to be able to use all functionality
 	virtual void setSpeed(float speed) = 0;

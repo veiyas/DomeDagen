@@ -87,12 +87,6 @@ public:
 
 	//Get and encode object data for syncing
 	std::vector<std::byte> getEncodedData();
-	
-	//Deserialize data
-	void deserializeData(const std::vector<std::byte>& data,
-		unsigned int pos,
-		std::vector<PlayerData>& playerBuffer,
-		std::vector<CollectibleData>& collectBuffer);
 
 	//Set the turn speed of player player with id id
 	void updateTurnSpeed(std::tuple<unsigned int, float>&& input);    

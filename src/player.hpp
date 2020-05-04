@@ -78,7 +78,7 @@ public:
 	const std::string& getName() const { return mName; };
 
 	//Mutators
-	void addPoint() { ++mPoints; }
+	void addPoints() { mPoints += 10; }
 	void setEnabled(bool state) { mEnabled = state; }
 	void setSpeed(float speed) override { mSpeed = speed; };
 	void setPoints(int points) { mPoints = points; };
@@ -94,8 +94,5 @@ private:
 	std::string mName;
 
 	//If person disconnect/reconnect
-	bool mEnabled = true;
-
-	//Set shader data
-	void setShaderData();
+	bool mEnabled = true;	
 };

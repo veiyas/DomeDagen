@@ -23,11 +23,6 @@ GameObject::GameObject(const unsigned objType, float radius, const glm::quat& po
 
 }
 
-void GameObject::update(float deltaTime)
-{
-	
-}
-
 glm::mat4 GameObject::getTransformation() const
 {
 	glm::mat4 trans  = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -mRadius));
