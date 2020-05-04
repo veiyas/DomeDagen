@@ -44,8 +44,13 @@ add_executable(${PROJECT_NAME}
   src/mesh.cpp
   src/model.hpp
   src/model.cpp
+  src/constants.hpp
+  src/backgroundobject.hpp
+  src/backgroundobject.cpp
   src/sceneobject.hpp
   src/sceneobject.cpp
+  src/balljointconstraint.hpp
+  src/balljointconstraint.cpp
   src/modelmanager.hpp
   src/modelmanager.cpp
   src/constants.hpp
@@ -55,6 +60,8 @@ add_executable(${PROJECT_NAME}
   src/shaders/sceneobjectfrag.glsl
   src/shaders/testingvert.glsl
   src/shaders/testingfrag.glsl
+  src/shaders/backgroundvert.glsl
+  src/shaders/backgroundfrag.glsl
   src/configs/fisheye_testing.xml
   src/configs/simple.xml
   src/configs/six_nodes.xml

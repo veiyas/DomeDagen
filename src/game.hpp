@@ -21,6 +21,7 @@
 
 #include "player.hpp"
 #include "utility.hpp"
+#include "backgroundobject.hpp"
 
 // abock;  consider implementing all of this as an "implicit" singleton.  Instead of
 // making the functions static, you create a single instance of Game in the main.cpp and
@@ -95,6 +96,9 @@ public:
     //Get and return player-colours
     std::pair<glm::vec3, glm::vec3> getPlayerColours(unsigned id);
 
+	static constexpr size_t mMAXPLAYERS = 110;
+	static constexpr size_t mMAXCOLLECTIBLES = 300;
+
 private:
 //Members
 	//Singleton instance of game
@@ -124,8 +128,9 @@ private:
 	float mLastFrameTime;
 
 	static constexpr double collisionDistance = 0.2f; //TODO make this object specific
-	static constexpr size_t mMAXPLAYERS = 110;
-	static constexpr size_t mMAXCOLLECTIBLES = 300;
+	
+
+	BackgroundObject *mBackground; //Holds pointer to the background
 
 //Functions
 	//Constructor
@@ -136,6 +141,11 @@ private:
 
 	//Read shader into ShaderManager
 	void loadShader(const std::string& shaderName);
+
+	//Set background
+	void setBackground(BackgroundObject* background){
+		mBackground = background;
+	}
 
 	//Display current list of shaders, called by printLoadedAssets()
 	void printShaderPrograms() const;
