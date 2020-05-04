@@ -19,7 +19,7 @@ void Game::detectCollisions()
 	{
 		for (size_t i = 0; i < mPlayers.size(); i++)
 		{
-			for (size_t j = 0; j < CollectiblePool::mNumCollectibles && mCollectPool[j].isEnabled(); j++)
+			for (size_t j = 0; j < CollectiblePool::mMAXNUMCOLLECTIBLES && mCollectPool[j].isEnabled(); j++)
 			{
 				auto playerQuat = mPlayers[i].getPosition();
 				auto collectibleQuat = mCollectPool[j].getPosition();
@@ -100,10 +100,10 @@ void Game::addPlayer(const glm::vec3& pos)
 	mPlayers.emplace_back(Player{ "fish", 50.f, pos, 0.f, "player", 0.5 });
 }
 
-void Game::addPlayer(const PlayerData& p)
+void Game::addPlayer(const PlayerData& newPlayerData, const PositionData& newPosData)
 {
 	//Create player from PositionData object
-	mPlayers.emplace_back(p);
+	mPlayers.emplace_back(newPlayerData, newPosData);
 }
 
 void Game::addPlayer(std::tuple<unsigned int, std::string>&& inputTuple)
@@ -114,7 +114,7 @@ void Game::addPlayer(std::tuple<unsigned int, std::string>&& inputTuple)
 
 //DEBUGGING PURPOSES, TODO REMOVE WHEN DONE
 bool outputted = false;
-int spawnTime = 3;
+int spawnTime = 2;
 void Game::update()
 {
 	if (mLastFrameTime == -1) //First update?
@@ -156,42 +156,115 @@ void Game::update()
 std::vector<std::byte> Game::getEncodedData()
 {
 	std::vector<std::byte> allEncodedData;
-	std::vector<PlayerData> allPlayerData = getPlayerData();
-	std::vector<CollectibleData> allCollectibleData = getCollectibleData();
-
-	sgct::serializeObject(allEncodedData, allCollectibleData);
-	sgct::serializeObject(allEncodedData, allPlayerData);
 
 	return allEncodedData;
 }
 
-std::vector<PlayerData> Game::getPlayerData()
+std::vector<SyncableData> Game::getSyncableData()
 {
-	std::vector<PlayerData> allPositionData(mPlayers.size());
+	std::vector<SyncableData> tempData;
+	tempData.reserve(mCollectPool.getNumEnabled() * 1.5);
 
 	//Sync data for players present on all nodes first
 	for (size_t i = 0; i < mLastSyncedPlayer; ++i)
 	{
-		allPositionData[i] = mPlayers[i].getPlayerData(false);
+		SyncableData tempState;
+		Player& currentPlayer = mPlayers[i];
+
+		tempState.mPlayerData = currentPlayer.getPlayerData(false);
+		tempState.mPositionData = currentPlayer.getPositionData();
+		tempState.mIsPlayer = true;
+
+		tempData.push_back(tempState);
 	}
 	//Players not present on client nodes needs some book keeping
 	for (size_t i = mLastSyncedPlayer; i < mPlayers.size(); ++i)
 	{
-		allPositionData[i] = mPlayers[i].getPlayerData(true);
+		SyncableData tempState;
+		Player& currentPlayer = mPlayers[i];
+
+		tempState.mPlayerData = currentPlayer.getPlayerData(true);
+		tempState.mPositionData = currentPlayer.getPositionData();
+		tempState.mIsPlayer = true;
+
+		tempData.push_back(tempState);
+	}
+	//Get enabled collectibles
+	for (size_t i = 0; i < CollectiblePool::mMAXNUMCOLLECTIBLES; i++)
+	{
+		if (mCollectPool[i].isEnabled())
+		{
+			SyncableData tempState;
+			Collectible& currentCollectible = mCollectPool[i];
+
+			tempState.mCollectData = currentCollectible.getCollectibleData(i);
+			tempState.mPositionData = currentCollectible.getPositionData();
+			tempState.mIsPlayer = false;
+
+			tempData.push_back(tempState);
+		}
 	}
 
-	mLastSyncedPlayer = mPlayers.size();		
-	return allPositionData;
+	return tempData;
 }
 
-std::vector<CollectibleData> Game::getCollectibleData()
+void Game::setSyncableData(const std::vector<SyncableData> newState) //Copy atm bc of sgct synchronocity issues
 {
-	return mCollectPool.getPoolState();
+	if (newState.size() > 10000) //If this happens something got corrupt along the way
+		return;
+
+	std::vector<SyncableData> newPlayerStates;
+	newPlayerStates.reserve(newState.size() / 2 + 1);
+	std::vector<SyncableData> newCollectibleStates;
+	newCollectibleStates.reserve(newState.size() / 1.5 + 1);
+
+	size_t i = 0;
+	while (i < newState.size())
+	{
+		if (newState[i].mIsPlayer)
+			newPlayerStates.push_back(newState[i++]);
+		else
+			newCollectibleStates.push_back(newState[i++]);
+	}
+
+	if (newPlayerStates.size() > 0)
+		setDecodedPlayerData(newPlayerStates);
+	if (newCollectibleStates.size() > 0)
+		setDecodedCollectibleData(newCollectibleStates);
 }
 
-void Game::setDecodedPlayerData(const std::vector<PlayerData>& newState)
+void Game::setDecodedCollectibleData(const std::vector<SyncableData>& newState)
 {
-	if (!sgct::Engine::instance().isMaster() && newState.size() > 0)
+	if (newState.size() > 0)
+	{
+		mCollectPool.setNumEnabled(newState.size());
+		for (size_t i = 0; i < newState.size(); i++)
+		{
+			const SyncableData& currentState = newState[i];
+			mCollectPool[currentState.mCollectData.mIndex].setCollectibleData(currentState.mPositionData);
+		}
+
+		//Disable rest of elements
+		std::vector<size_t> enabledSlots;
+		enabledSlots.reserve(newState.size());
+		for (const auto& state : newState)
+		{
+			enabledSlots.push_back(state.mCollectData.mIndex);
+		}
+		for (size_t i = 0; i < CollectiblePool::mMAXNUMCOLLECTIBLES; i++)
+		{
+			bool isEnabled = std::binary_search(enabledSlots.begin(), enabledSlots.end(), i);
+			if (!isEnabled)
+				mCollectPool.disableCollectible(i);
+		}
+	}
+	else
+		return;
+}
+
+void Game::setDecodedPlayerData(const std::vector<SyncableData>& newState)
+{
+	if (newState.size() > 0)
 	{		
 		//number of unsynced players
 		size_t nUnsyncedPlayers = mPlayers.size();
@@ -201,22 +274,16 @@ void Game::setDecodedPlayerData(const std::vector<PlayerData>& newState)
 		{
 			for (size_t i = nUnsyncedPlayers; i < newState.size(); ++i)
 			{
-				addPlayer(newState[i]);
+				addPlayer(newState[i].mPlayerData, newState[i].mPositionData);
 			}
 		}
 
 		for (size_t i = 0; i < nUnsyncedPlayers; ++i)
 		{
-			mPlayers[i].setPlayerData(newState[i]);
+			mPlayers[i].setPlayerData(newState[i].mPlayerData, newState[i].mPositionData);
 		}
 		nUnsyncedPlayers = mPlayers.size();
 	}
-}
-
-void Game::setDecodedCollectibleData(const std::vector<CollectibleData>& newState)
-{
-	if(newState.size() > 0)
-		mCollectPool.setNewPoolState(newState);
 }
 
 void Game::deserializeData(const std::vector<std::byte>& data, unsigned int pos, std::vector<PlayerData>& playerBuffer, std::vector<CollectibleData>& collectBuffer)

@@ -42,3 +42,37 @@ glm::mat4 GameObject::getTransformation() const
 		* glm::rotate(glm::mat4(1.f), -glm::half_pi<float>(), glm::vec3(0.f, 0.f, 1.f))
 		* glm::rotate(glm::mat4(1.f), glm::half_pi<float>(), glm::vec3(1.f, 0.f, 0.f));
 }
+
+const PositionData GameObject::getPositionData() const
+{
+	PositionData temp;
+	//Positional data
+	temp.mOrientation = getOrientation();
+	temp.mRadius = getRadius();
+	temp.mScale = getScale();
+	//temp.mSpeed = getSpeed();
+
+	//Quat stuff
+	temp.mW = getPosition().w;
+	temp.mX = getPosition().x;
+	temp.mY = getPosition().y;
+	temp.mZ = getPosition().z;
+
+	return temp;
+}
+
+void GameObject::setPositionData(const PositionData& newPosition)
+{
+	//Position data
+	setOrientation(newPosition.mOrientation);
+	setRadius(newPosition.mRadius);
+	setScale(newPosition.mScale);
+
+	//Quat stuff
+	glm::quat newQuat;
+	newQuat.w = newPosition.mW;
+	newQuat.x = newPosition.mX;
+	newQuat.y = newPosition.mY;
+	newQuat.z = newPosition.mZ;
+	setPosition(newQuat);
+}

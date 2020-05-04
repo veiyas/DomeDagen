@@ -23,16 +23,7 @@ namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
 
 	//Container for deserialized game state info
-	std::vector<PlayerData> playerStates;
-	std::vector<CollectibleData> collectibleStates;
-
-	unsigned collectiblesSize;
-	unsigned playersSize;
-	int syncTest3;
-	std::vector<int> syncTestIntVec;
-	int syncTest5;
-	int syncTest6;
-	int syncTest7;
+	std::vector<SyncableData> gameObjectStates;
 
 	//TEMPORARY used to control rotation of all players 
 	float updatedRotation{ 0 };
@@ -53,13 +44,6 @@ void preSync();
 void postSyncPreDraw();
 
 void keyboard(Key key, Modifier modifier, Action action, int);
-
-template<typename T>
-void deserializeObjectFix(const std::vector<std::byte>& buffer, unsigned int& pos,
-	std::vector<T>& value, unsigned valueSize);
-
-template <typename T>
-void serializeObjectFix(std::vector<std::byte>& buffer, const std::vector<T>& value, unsigned valueSize);
 
 void connectionEstablished();
 void connectionClosed();
@@ -124,7 +108,7 @@ int main(int argc, char** argv)
 
 	Engine::instance().render();
 
-	//Game::destroy();
+	Game::destroy();
 	Engine::destroy();
 	return EXIT_SUCCESS;
 }
@@ -147,17 +131,6 @@ void initOGL(GLFWwindow*)
 {
 	ModelManager::init();
 	Game::init();
-
-	collectiblesSize = 0;
-	playersSize = 0;
-	syncTest3 = 3;
-	syncTestIntVec.push_back(3);
-	syncTest5 = 5;
-	syncTest6 = 6;
-	syncTest7 = 7;
-	
-	assert(std::is_pod<PlayerData>());
-	assert(std::is_pod<CollectibleData>());
 
 	/**********************************/
 	/*			 Debug Area			  */
@@ -212,24 +185,8 @@ std::vector<std::byte> encode()
 {
 	std::vector<std::byte> output;
 
-	const auto& collects = Game::instance().getCollectibleData();
-	const auto& players = Game::instance().getPlayerData();
-
-	output.reserve(collects.size()*sizeof(CollectibleData) + players.size()*sizeof(PlayerData));
-
-	//Serialize the vectors sizes to circumvent sgct bug
-	serializeObject(output, static_cast<unsigned>(players.size()));
-	serializeObject(output, static_cast<unsigned>(collects.size()));
-
-	//serializeObject(output, players);
-	serializeObject(output, collects);
-	//serializeObject(output, syncTest3);
-		
-
-
-	//serializeObject(output, syncTest5);
-	//serializeObject(output, syncTest6);
-	//serializeObject(output, syncTestIntVec);	
+	//For some reason everything has to to be put in one vector to avoid sgct syncing bugs
+	serializeObject(output, Game::instance().getSyncableData());
 
 	return output;
 }
@@ -239,22 +196,8 @@ void decode(const std::vector<std::byte>& data, unsigned int pos)
 	if (!Game::exists()) //No point in syncing data if no instance of Game exist yet
 		return;
 
-	//Deserialize the vectors sizes to circumvent sgct bug
-	deserializeObject(data, pos, playersSize);
-	deserializeObject(data, pos, collectiblesSize);
-
-	//deserializeObjectFix(data, pos, playerStates, playersSize);
-	deserializeObjectFix(data, pos, collectibleStates, collectiblesSize);
-	//deserializeObject(data, pos, syncTest3);
-	
-
-
-	//deserializeObject(data, pos, syncTest5);
-	//deserializeObject(data, pos, syncTest6);
-	//deserializeObjectFix(data, pos, syncTestIntVec, 1);
-	
-
-	std::cout << collectiblesSize << "\n" << playersSize << "\n\n";
+	//For some reason everything has to to be put in one vector to avoid sgct syncing bugs
+	deserializeObject(data, pos, gameObjectStates);
 }
 
 void cleanup()
@@ -266,54 +209,11 @@ void cleanup()
 void postSyncPreDraw()
 {
 	//Sync gameobjects' state on clients only
-	if (!Engine::instance().isMaster() && Game::exists())
+	if (!Engine::instance().isMaster() && Game::exists() && gameObjectStates.size() > 0)
 	{
-		Game::instance().setDecodedPlayerData(playerStates);
-		Game::instance().setDecodedCollectibleData(collectibleStates);
-		std::cout << Game::instance().getCollectibleData().size() << "\n" << Game::instance().getPlayerData().size() << "\n\n";
-	}
-	
-}
-
-template <typename T>
-void serializeObjectFix(std::vector<std::byte>& buffer, const std::vector<T>& value, unsigned valueSize) {
-	static_assert(std::is_pod_v<T>, "Type has to be a plain-old data type");
-
-	const uint32_t size = static_cast<uint32_t>(valueSize);
-	serializeObject(buffer, size);
-
-	if (size > 0) {
-		buffer.insert(
-			buffer.end(),
-			reinterpret_cast<const std::byte*>(value.data()),
-			reinterpret_cast<const std::byte*>(value.data()) + size * sizeof(T)
-			);
+		Game::instance().setSyncableData(std::move(gameObjectStates));
 	}
 }
-
-template<typename T>
-void deserializeObjectFix(const std::vector<std::byte>& buffer, unsigned int& pos,
-	std::vector<T>& value, unsigned valueSize)
-{
-	value.clear();
-
-	uint32_t size;
-	deserializeObject<uint32_t>(buffer, pos, size);
-	size = valueSize;
-	//pos += 4;
-
-	if (size == 0) {
-		return;
-	}
-
-	value.clear();
-	value.assign(
-		reinterpret_cast<const T*>(buffer.data() + pos),
-		reinterpret_cast<const T*>(buffer.data() + pos + size * sizeof(T))
-		);
-}
-
-
 
 void connectionEstablished()
 {

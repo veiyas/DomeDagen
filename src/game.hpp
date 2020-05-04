@@ -27,12 +27,17 @@
 #include "collectiblepool.hpp"
 #include "utility.hpp"
 
-// abock;  consider implementing all of this as an "implicit" singleton.  Instead of
-// making the functions static, you create a single instance of Game in the main.cpp and
-// then pass this around.  Personally, I enjoy that method of handling singletons better
-// see also https://github.com/OpenSpace/OpenSpace/blob/master/include/openspace/engine/globals.h
-// and https://github.com/OpenSpace/OpenSpace/blob/master/src/engine/globals.cpp for a
-// way to implement that functionality
+//Because sgct can't handle syncting separate vectors all sync data gets put in one vector
+//This needs a master type to handle all syncable objects
+struct SyncableData
+{
+	PositionData mPositionData;
+
+	bool mIsPlayer;
+	PlayerData mPlayerData;
+
+	CollectibleData mCollectData;
+};
 
 //Implemented as explicit singleton, handles pretty much everything
 class Game
@@ -67,7 +72,8 @@ public:
 	void addPlayer(const glm::vec3& pos);
 
 	//Add player from playerdata for instant sync
-	void addPlayer(const PlayerData& p);
+	void addPlayer(const PlayerData& newPlayerData,
+				   const PositionData& newPosData);
 
 	//Add player from server request
 	void addPlayer(std::tuple<unsigned int, std::string>&& inputTuple);
@@ -81,11 +87,7 @@ public:
 
 	//Get and encode object data for syncing
 	std::vector<std::byte> getEncodedData();
-
-	//Set object data from inputted data
-	void setDecodedPlayerData(const std::vector<PlayerData>& newState);
-	void setDecodedCollectibleData(const std::vector<CollectibleData>& newState);
-
+	
 	//Deserialize data
 	void deserializeData(const std::vector<std::byte>& data,
 		unsigned int pos,
@@ -98,8 +100,8 @@ public:
 	//DEBUGGING TOOL: apply orientation to all GameObjects
 	void rotateAllPlayers(float deltaOrientation);
 
-	std::vector<PlayerData> getPlayerData();
-	std::vector<CollectibleData> getCollectibleData();
+	std::vector<SyncableData> getSyncableData();
+	void setSyncableData(const std::vector<SyncableData> newState);
 
 private:
 //Members
@@ -138,8 +140,10 @@ private:
 	//Collision detection in mInteractObjects, bubble style
 	void detectCollisions();
 
-	//Get encoded player & collectible data
-	
+	//Set object data from inputted data
+	void setDecodedPlayerData(const std::vector<SyncableData>& newState);
+	void setDecodedCollectibleData(const std::vector<SyncableData>& newState);
+
 
 	//Read shader into ShaderManager
 	void loadShader(const std::string& shaderName);

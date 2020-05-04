@@ -26,9 +26,6 @@ public:
 
 	//Render enabled objects
 	void render(const glm::mat4& mvp) const;
-
-	//Sync collectiblepool state
-	void setNewPoolState(const std::vector<CollectibleData>& newStates);
 	
 	//Get collectiblepool state
 	std::vector<CollectibleData> getPoolState() const;
@@ -36,17 +33,18 @@ public:
 	//Returns shared_ptr and points mFirstAvailable to next in list. O(1)!
 	void enableCollectible(const glm::vec3& pos);
 
-	//Deactivates object at index and rethreads all objects accordingly
+	//Deactivates object at index
 	void disableCollectible(const size_t index);
 
 	//Operator overloading to hide internal data
 	Collectible& operator[](const size_t i) { return mPool[i]; }
 
-	//Accessors
+	//Accessors/Mutator
 	size_t getNumEnabled() const { return mNumEnabled; }
+	void setNumEnabled(size_t size) { mNumEnabled = size; }
 
 	//Max number of collectibles
-	static constexpr unsigned mNumCollectibles = 300;
+	static constexpr unsigned mMAXNUMCOLLECTIBLES = 300;
 
 private:
 	//The pool of collectible objects

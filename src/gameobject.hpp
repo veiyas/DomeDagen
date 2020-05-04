@@ -20,7 +20,6 @@ public:
 	float mRadius;
 	float mOrientation;
 	float mScale;
-	float mSpeed;
 
 	//Quat stuff
 	float mW;
@@ -71,6 +70,7 @@ public:
 	const float getRadius() const { return mRadius; }
 	unsigned getObjType() const { return mObjType; }
 	const glm::quat& getPosition() const { return mPosition; }
+	const PositionData getPositionData() const;	
 	const float getOrientation() const { return mOrientation; }	
 
 	//Mutators
@@ -78,6 +78,7 @@ public:
 	void setScale(float scale) { mScale = scale; }
 	void setPosition(const glm::quat position) { mPosition = position; }
 	void setOrientation(float orientation) { mOrientation = orientation; }
+	void setPositionData(const PositionData& newPosition);
 
 private:
 	//The position on the sphere represented by a unit quaternion

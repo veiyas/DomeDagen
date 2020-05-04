@@ -32,22 +32,25 @@ Player::Player(const std::string & objectModelName, float radius,
 	setShaderData();
 }
 
-Player::Player(const PlayerData& input)
-	: GameObject{ GameObject::PLAYER, input.mPosData.mRadius, glm::quat{}, input.mPosData.mOrientation },
+//TODO fix this to work with SyncableData
+Player::Player(const PlayerData& newPlayerData,
+	const PositionData& newPosData)
+	: GameObject{ GameObject::PLAYER, newPosData.mRadius, glm::quat{}, 0.f },
 	GeometryHandler("player", "fish"),
-	mName{ std::string(input.mNameLength, ' ') }, mPoints{ input.mPoints }, mIsAlive{ input.mIsAlive }, mSpeed{ input.mPosData.mSpeed }
+	mName{ std::string(newPlayerData.mNameLength, ' ') }, mPoints{ newPlayerData.mPoints }, mIsAlive{ newPlayerData.mIsAlive },
+	mSpeed{ newPlayerData.mSpeed }
 {
 	//Copy new player name
-	for (size_t i = 0; i < input.mNameLength; i++)
+	for (size_t i = 0; i < newPlayerData.mNameLength; i++)
 	{
-		mName[i] = input.mPlayerName[i];
+		mName[i] = newPlayerData.mPlayerName[i];
 	}
 
 	glm::quat temp{};
-		temp.w = input.mPosData.mW;
-		temp.x = input.mPosData.mX;
-		temp.y = input.mPosData.mY;
-		temp.z = input.mPosData.mZ;
+		temp.w = newPosData.mW;
+		temp.x = newPosData.mX;
+		temp.y = newPosData.mY;
+		temp.z = newPosData.mZ;
 	setPosition(temp);
 
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
@@ -65,22 +68,11 @@ PlayerData Player::getPlayerData(bool isNewPlayer) const
 	temp.mNewPlayer = isNewPlayer;
 	temp.mNameLength = getName().length();
 
-	//Positional data
-	temp.mPosData.mOrientation = getOrientation();
-	temp.mPosData.mRadius = getRadius();
-	temp.mPosData.mScale = getScale();
-	temp.mPosData.mSpeed = getSpeed();
-
-	//Quat stuff
-	temp.mPosData.mW = getPosition().w;
-	temp.mPosData.mX = getPosition().x;
-	temp.mPosData.mY = getPosition().y;
-	temp.mPosData.mZ = getPosition().z;
-
 	//Game state data
 	temp.mPoints = getPoints();
 	temp.mIsAlive = isAlive();
 	temp.mEnabled = isEnabled();
+	temp.mSpeed = getSpeed();
 
 	//Send name if this is a new player not present on nodes yet
 	if (temp.mNewPlayer)
@@ -94,26 +86,27 @@ PlayerData Player::getPlayerData(bool isNewPlayer) const
 	return temp;
 }
 
-void Player::setPlayerData(const PlayerData& newState)
+void Player::setPlayerData(const PlayerData& newPlayerData, const PositionData& newPosData)
 {
 	//Position data
-	setOrientation(newState.mPosData.mOrientation);
-	setRadius(newState.mPosData.mRadius);
-	setScale(newState.mPosData.mScale);
-	setSpeed(newState.mPosData.mSpeed);
+	setOrientation(newPosData.mOrientation);
+	setRadius(newPosData.mRadius);
+	setScale(newPosData.mScale);
 
 	//Quat stuff
 	glm::quat newPosition;
-	newPosition.w = newState.mPosData.mW;
-	newPosition.x = newState.mPosData.mX;
-	newPosition.y = newState.mPosData.mY;
-	newPosition.z = newState.mPosData.mZ;
+	newPosition.w = newPosData.mW;
+	newPosition.x = newPosData.mX;
+	newPosition.y = newPosData.mY;
+	newPosition.z = newPosData.mZ;
 	setPosition(newPosition);
 
 	//Game state data
-	setPoints(newState.mPoints);
-	setIsAlive(newState.mIsAlive);	
-	setEnabled(newState.mEnabled);
+	setSpeed(newPlayerData.mSpeed);
+	setPoints(newPlayerData.mPoints);
+	setIsAlive(newPlayerData.mIsAlive);
+	setEnabled(newPlayerData.mEnabled);
+	setSpeed(newPlayerData.mSpeed);
 }
 
 void Player::update(float deltaTime)

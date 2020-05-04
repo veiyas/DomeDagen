@@ -6,7 +6,6 @@
 struct CollectibleData
 {
 	unsigned int mIndex;
-	PositionData mPosData;	
 };
 
 class Collectible : public GameObject, private GeometryHandler
@@ -17,6 +16,7 @@ public:
 	Collectible(const std::string objectModelName);
 
 	//WARNING: these ctors might be leaky
+	//TODO These are not used anymore, remove?
 	Collectible(const Collectible& src);
 	Collectible(Collectible&& src) noexcept;
 	Collectible& operator=(const Collectible& src);
@@ -30,7 +30,7 @@ public:
 
 	//Sync methods
 	CollectibleData getCollectibleData(unsigned index) const;
-	void setCollectibleData(const CollectibleData& newState);
+	void setCollectibleData(const PositionData& newPosData);
 
 	//Set next node in list
 	void setNext(Collectible* node);

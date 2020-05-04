@@ -66,37 +66,14 @@ CollectibleData Collectible::getCollectibleData(unsigned index) const
 {
 	CollectibleData temp;
 
-	//Positional data
-	temp.mPosData.mOrientation = getOrientation();
-	temp.mPosData.mRadius = getRadius();
-	temp.mPosData.mScale = getScale();
-	temp.mPosData.mSpeed = 0.1f;
-
-	//Quat stuff
-	temp.mPosData.mW = getPosition().w;
-	temp.mPosData.mX = getPosition().x;
-	temp.mPosData.mY = getPosition().y;
-	temp.mPosData.mZ = getPosition().z;
-
 	temp.mIndex = index;
 
 	return temp;
 }
 
-void Collectible::setCollectibleData(const CollectibleData& newState)
+void Collectible::setCollectibleData(const PositionData& newPosData)
 {
-	//Position data
-	setOrientation(newState.mPosData.mOrientation);
-	setRadius(newState.mPosData.mRadius);
-	setScale(newState.mPosData.mScale);
-
-	//Quat stuff
-	glm::quat newPosition;
-	newPosition.w = newState.mPosData.mW;
-	newPosition.x = newState.mPosData.mX;
-	newPosition.y = newState.mPosData.mY;
-	newPosition.z = newState.mPosData.mZ;
-	setPosition(newPosition);
+	setPositionData(newPosData);
 
 	enable();
 }

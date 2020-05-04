@@ -15,7 +15,7 @@ void CollectiblePool::init()
 	}
 
 	//Add objects to pool, set up list
-	for (size_t i = 0; i < mNumCollectibles; i++)
+	for (size_t i = 0; i < mMAXNUMCOLLECTIBLES; i++)
 	{
 		Collectible tempCollectible{ Collectible(trashModelNames[i % trashModelNames.size()])
 		};
@@ -24,7 +24,7 @@ void CollectiblePool::init()
 
 	//Set up pointer list
 	mFirstAvailable = &mPool[0];
-	for (size_t i = 0; i < mNumCollectibles - 1; i++)
+	for (size_t i = 0; i < mMAXNUMCOLLECTIBLES - 1; i++)
 	{
 		mPool[i].setNext(&mPool[i + 1]);
 	}
@@ -40,18 +40,6 @@ void CollectiblePool::render(const glm::mat4& mvp) const
 	{
 		mPool[i].render(mvp);
 	}
-}
-
-void CollectiblePool::setNewPoolState(const std::vector<CollectibleData>& newStates)
-{
-	//TODO removes deactivated collectibles
-	for (const auto& state : newStates)
-	{
-		if(state.mIndex < mNumCollectibles)
-			mPool.at(state.mIndex).setCollectibleData(state);
-	}
-
-	mNumEnabled = newStates.size();
 }
 
 std::vector<CollectibleData> CollectiblePool::getPoolState() const
