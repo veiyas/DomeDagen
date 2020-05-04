@@ -211,6 +211,7 @@ void Game::rotateAllPlayers(float newOrientation)
 
 std::pair<glm::vec3, glm::vec3> Game::getPlayerColours(unsigned id)
 {
+    assert(id < mPlayers.size() && "Player get colours desync (id out of bounds mPlayers");
     return mPlayers[id].getColours();
 }
 
