@@ -1,7 +1,7 @@
 #include "backgroundobject.hpp"
 
 BackgroundObject::BackgroundObject()
-	: GameObject{ GameObject::BACKGROUND, 1.0f, glm::quat(glm::vec3(0.49f, 1.0f, -1.0f)), 0.0f },
+	: GameObject{ GameObject::BACKGROUND, 1.0f, glm::quat(glm::vec3(0.49f, 1.0f, -1.0f)), 0.5f },
 	GeometryHandler("background", "background")
 {
 	sgct::Log::Info("Background object created");
