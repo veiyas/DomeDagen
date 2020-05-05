@@ -72,6 +72,7 @@ function initialize() {
   connectButton.addEventListener('click', () => {
     connected = true; // Mock connection state, should probably be handled in conjunction with the back-end
 
+    // setCurrentScreen('gameRunningScreen');
     setCurrentScreen('waitingScreen');
     handleInformationMessages();
   })
@@ -127,33 +128,61 @@ function handleTextInputChange() {
 const leftBtn = document.getElementById('turnLeft');
 const rightBtn = document.getElementById('turnRight');
 
+var leftIsPressed = false;
+var rightIsPressed = false;
+
 // Handle buttons when using mouse
-leftBtn.addEventListener('mousedown', () => sendSteeringData(1));
-leftBtn.addEventListener('mouseup', () => sendSteeringData(0));
-rightBtn.addEventListener('mousedown', () => sendSteeringData(-1));
-rightBtn.addEventListener('mouseup', () => sendSteeringData(0));
+leftBtn.addEventListener('mousedown', (event) => {
+  leftIsPressed = true;
+  sendSteeringData();
+});
+leftBtn.addEventListener('mouseup', (event) => {
+  leftIsPressed = false;
+  sendSteeringData();
+});
+rightBtn.addEventListener('mousedown', (event) => {
+  rightIsPressed = true;
+  sendSteeringData();
+});
+rightBtn.addEventListener('mouseup', (event) => {
+  rightIsPressed = false
+  sendSteeringData();
+});
 
 // Handle buttons on touch devices
 leftBtn.addEventListener('touchstart', (event) => {
-  sendSteeringData(1);
+  leftIsPressed = true;
+  sendSteeringData();
   event.preventDefault();
 });
 leftBtn.addEventListener('touchend', (event) => {
-  sendSteeringData(0);
+  leftIsPressed = false;
+  sendSteeringData();
   event.preventDefault();
 });
 rightBtn.addEventListener('touchstart', (event) => {
-  sendSteeringData(-1);
+  rightIsPressed = true;
+  sendSteeringData();
   event.preventDefault();
 });
 rightBtn.addEventListener('touchend', (event) => {
-  sendSteeringData(0);
+  rightIsPressed = false
+  sendSteeringData();
   event.preventDefault();
 });
 
-function sendSteeringData(direction) {
+function sendSteeringData() {
   if(connected && socket.readyState === WebSocket.OPEN) {
-    console.log(direction);
+    // console.log(direction);
+    let direction = 0;
+    if (rightIsPressed && leftIsPressed || (!rightIsPressed) && (!leftIsPressed)){
+      direction = 0;
+    } else if (rightIsPressed) {
+      direction = -1;
+    } else {
+      direction = 1;
+    }
+
     socket.send(`C ${direction}`);
   }
 }
