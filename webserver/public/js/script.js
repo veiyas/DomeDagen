@@ -75,6 +75,8 @@ function initialize() {
     setCurrentScreen('waitingScreen');
     handleInformationMessages();
   })
+
+  initTimeBar();
 }
 
 // Set the currently visible screen to the matching screenID argument.

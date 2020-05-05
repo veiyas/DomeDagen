@@ -2,7 +2,7 @@
     background: url(../img/OceanBG.png);
     background-size: cover;
     background-position: bottom center;
-    display: none;
+    /* display: none; */
 }
 
 #gameRunningScreen p {
@@ -16,7 +16,7 @@
 }
 
 /* Wrapping div to align score and colours */
-#gameRunningScreen > .row:first-of-type {
+#gameRunningScreen > div:first-of-type {
     height: 15vh;
     margin: 30px;
     justify-content: space-between;
@@ -57,6 +57,42 @@
     width: 100%;
 }
 
+/* Time indicator elements */
+#gameRunningScreen > div:last-of-type {
+    height: 50%;
+    position: absolute;
+    top: 10%;
+}
+
+#oxygenTank {
+    height: 100%;
+    z-index: 2;
+}
+
+#timeHeaderContainer {
+    height: auto;
+}
+
+#timeHeaderContainer p {
+    margin-bottom: 20px;
+}
+
+#timeBarContainer {
+    position: relative;
+    width: fit-content;
+}
+
+#timeBar {
+    background-color: var(--oceanLight);
+    border-radius: 10%;
+    bottom: 3%;
+    height: 75%;
+    position: absolute;
+    transition: height 0.5s linear;
+    width: 30%;
+    z-index: 1;
+}
+
 /* Old styling */
 #gameRunningScreen .row > button {
     background-color: var(--guiLightAccent);
@@ -80,5 +116,3 @@
     text-align: center;
     width: 50vw;
 }
-
-

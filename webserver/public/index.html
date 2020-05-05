@@ -30,7 +30,7 @@
     </div>
   </div>
 
-  <div id="welcomeScreen" class="screen">
+  <div id="welcomeScreen" class="screen hidden">
     <div class="row centered">
       <h1>Welcome to DomeDagen</h1>
     </div>
@@ -46,7 +46,7 @@
     <div id="debug-output">Debug info</div>
   </div>
 
-  <div id="waitingScreen" class="screen">
+  <div id="waitingScreen" class="screen hidden">
     <div id="playerCharacterContainer" class="col">
       <div class="row centered">
         <h1>This is your character</h1>
@@ -82,7 +82,16 @@
           <div class="playerColours" id="primaryColour"></div>
           <div class="playerColours" id="secondaryColour"></div>
         </div>
-      </div>   
+      </div> 
+    </div>
+    <div class="col centered">
+      <div id="timeHeaderContainer" class="row centered">
+        <p>Time remaining</p>
+      </div>
+      <div id="timeBarContainer" class="row centered">
+        <img id="oxygenTank" src="./img/oxygenTank.svg" alt="Time Indicator">
+        <div id="timeBar"></div>
+      </div>
     </div>
   </div>
 
@@ -98,6 +107,7 @@
 
   <script type="text/javascript" src="./js/playerColours.js"></script>
   <script type="text/javascript" src="./js/gameInformation.js"></script>
+  <script type="text/javascript" src="./js/timeBar.js"></script>
 
 </body>
 
