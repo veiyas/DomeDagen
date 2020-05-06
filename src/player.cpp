@@ -46,33 +46,34 @@ Player::Player(const std::string & objectModelName, float radius,
 	setShaderData();
 }
 
-Player::Player(const PlayerData& input)
-	: GameObject{ GameObject::PLAYER, input.mRadius, glm::quat{}, input.mOrientation },
-	  GeometryHandler("player", "diver"),
-	  mName{ std::string(input.mNameLength, ' ') },
-	  mPoints{ input.mPoints },
-	  mIsAlive{ input.mIsAlive },
-	  mSpeed{ input.mSpeed },
-	  mConstraint{ mFOV, mTILT }
+Player::Player(const PlayerData& newPlayerData,
+	const PositionData& newPosData)
+	: GameObject{ GameObject::PLAYER, newPosData.mRadius, glm::quat{}, 0.f },
+	GeometryHandler("player", "diver"),
+	mName{ std::string(newPlayerData.mNameLength, ' ') },
+	mPoints{ newPlayerData.mPoints },
+	mIsAlive{ newPlayerData.mIsAlive },
+	mSpeed{ newPlayerData.mSpeed },
+	mConstraint{ mFOV, mTILT }
 {
 	//Copy new player name
-	for (size_t i = 0; i < input.mNameLength; i++)
+	for (size_t i = 0; i < newPlayerData.mNameLength; i++)
 	{
-		mName[i] = input.mPlayerName[i];
+		mName[i] = newPlayerData.mPlayerName[i];
 	}
 
 	glm::quat temp{};
-		temp.w = input.mW;
-		temp.x = input.mX;
-		temp.y = input.mY;
-		temp.z = input.mZ;
+		temp.w = newPosData.mW;
+		temp.x = newPosData.mX;
+		temp.y = newPosData.mY;
+		temp.z = newPosData.mZ;
 	setPosition(temp);
 
 	mShaderProgram.unbind();
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
 	setShaderData();
 
-	auto& col = input.mPlayerColours;
+	auto& col = newPlayerData.mPlayerColours;
 	mPlayerColours = std::make_pair(glm::vec3(col.mR1, col.mG1, col.mB1),
 	                                glm::vec3(col.mR2, col.mG2, col.mB2));
 }
@@ -88,22 +89,11 @@ PlayerData Player::getPlayerData(bool isNewPlayer) const
 	temp.mNewPlayer = isNewPlayer;
 	temp.mNameLength = getName().length();
 
-	//Positional data
-	temp.mOrientation = getOrientation();
-	temp.mRadius = getRadius();
-	temp.mScale = getScale();
-	temp.mSpeed = getSpeed();
-
-	//Quat stuff
-	temp.mW = getPosition().w;
-	temp.mX = getPosition().x;
-	temp.mY = getPosition().y;
-	temp.mZ = getPosition().z;
-
 	//Game state data
 	temp.mPoints = getPoints();
 	temp.mIsAlive = isAlive();
 	temp.mEnabled = isEnabled();
+	temp.mSpeed = getSpeed();
 
 	//Color data
 	glm::vec3 color1 = mPlayerColours.first;
@@ -127,26 +117,27 @@ PlayerData Player::getPlayerData(bool isNewPlayer) const
 	return temp;
 }
 
-void Player::setPlayerData(const PlayerData& newState)
+void Player::setPlayerData(const PlayerData& newPlayerData, const PositionData& newPosData)
 {
 	//Position data
-	setOrientation(newState.mOrientation);
-	setRadius(newState.mRadius);
-	setScale(newState.mScale);
-	setSpeed(newState.mSpeed);
+	setOrientation(newPosData.mOrientation);
+	setRadius(newPosData.mRadius);
+	setScale(newPosData.mScale);
 
 	//Quat stuff
 	glm::quat newPosition;
-		newPosition.w = newState.mW;
-		newPosition.x = newState.mX;
-		newPosition.y = newState.mY;
-		newPosition.z = newState.mZ;
+	newPosition.w = newPosData.mW;
+	newPosition.x = newPosData.mX;
+	newPosition.y = newPosData.mY;
+	newPosition.z = newPosData.mZ;
 	setPosition(newPosition);
 
 	//Game state data
-	setPoints(newState.mPoints);
-	setIsAlive(newState.mIsAlive);	
-	setEnabled(newState.mEnabled);
+	setSpeed(newPlayerData.mSpeed);
+	setPoints(newPlayerData.mPoints);
+	setIsAlive(newPlayerData.mIsAlive);
+	setEnabled(newPlayerData.mEnabled);
+	setSpeed(newPlayerData.mSpeed);
 }
 
 void Player::update(float deltaTime)
@@ -228,21 +219,4 @@ void Player::ColourSelector::reset()
 {
 	mPrimaryIt = mPrimaryColours.begin();
 	mSecondaryIt = mSecondaryColours.begin();
-}
-
-void Player::setShaderData()
-{
-	mShaderProgram.bind();
-
-	mMvpMatrixLoc    = glGetUniformLocation(mShaderProgram.id(), "mvp");
-	mTransMatrixLoc  = glGetUniformLocation(mShaderProgram.id(), "transformation");
-	mViewMatrixLoc   = glGetUniformLocation(mShaderProgram.id(), "view");
-	mCameraPosLoc    = glGetUniformLocation(mShaderProgram.id(), "cameraPos");
-	mNormalMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "normalMatrix");
-
-	// frans; More color things
-	mPrimaryColLoc = glGetUniformLocation(mShaderProgram.id(), "primaryCol");
-	mSecondaryColLoc = glGetUniformLocation(mShaderProgram.id(), "secondaryCol");
-
-	mShaderProgram.unbind();
 }

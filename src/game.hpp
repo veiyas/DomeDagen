@@ -9,6 +9,9 @@
 #include <utility>
 #include <tuple>
 #include <cmath>
+#include <random>
+#include <mutex>
+#include <cstddef>
 
 #include "sgct/mutexes.h"
 #include "sgct/shareddata.h"
@@ -16,19 +19,26 @@
 #include "glad/glad.h"
 #include "glm/packing.hpp"
 #include "sgct/shadermanager.h"
+#include <sgct/engine.h>
 #include "sgct/shaderprogram.h"
 #include "glm/matrix.hpp"
 
 #include "player.hpp"
+#include "collectiblepool.hpp"
 #include "utility.hpp"
 #include "backgroundobject.hpp"
 
-// abock;  consider implementing all of this as an "implicit" singleton.  Instead of
-// making the functions static, you create a single instance of Game in the main.cpp and
-// then pass this around.  Personally, I enjoy that method of handling singletons better
-// see also https://github.com/OpenSpace/OpenSpace/blob/master/include/openspace/engine/globals.h
-// and https://github.com/OpenSpace/OpenSpace/blob/master/src/engine/globals.cpp for a
-// way to implement that functionality
+//Because sgct can't handle syncting separate vectors all sync data gets put in one vector
+//This needs a master type to handle all syncable objects
+struct SyncableData
+{
+	PositionData mPositionData;
+
+	bool mIsPlayer;
+	PlayerData mPlayerData;
+
+	CollectibleData mCollectData;
+};
 
 //Implemented as explicit singleton, handles pretty much everything
 class Game
@@ -39,9 +49,7 @@ public:
 
 	//Get instance
 	static Game& instance();
-
-	//Check if instance is running
-	static bool instanceExists() { return mInstance != nullptr; }
+	static bool exists() { return mInstance != nullptr; }
 
 	//Destroy instance
 	static void destroy();
@@ -65,31 +73,28 @@ public:
 	//Mostly used for debugging
 	void addPlayer();
 
+	void addPlayer(const glm::vec3& pos);
+
 	//Add player from playerdata for instant sync
-	void addPlayer(const PlayerData& p);
+	void addPlayer(const PlayerData& newPlayerData,
+				   const PositionData& newPosData);
 
 	//Add player from server request
 	void addPlayer(std::tuple<unsigned int, std::string>&& inputTuple);
 
+	//enable/disable player 
+	void enablePlayer(unsigned id);
+	void disablePlayer(unsigned id);
+
 	//Update all gameobjects
 	void update();
 
-	//ALEX'S WISDOM: LET'S NOT GIVE ACCESS TO THIS CLASS INTERNALS OUTSIDE
-	//WRAP EVERYTHING IN METHODS THAT WONT EXPOSE INTERNALS
-
-	//Get and encode position data
-	std::vector<std::byte> getEncodedPlayerData();
-
-	//Set position data from inputted data
-	void setDecodedPositionData(const std::vector<PlayerData>& newState);
+	//Get and encode object data for syncing
+	std::vector<std::byte> getEncodedData();
 
 	//Set the turn speed of player player with id id
-	void updateTurnSpeed(std:: tuple<unsigned int, float>&& input);
-    
-    //enable/disable player 
-    void enablePlayer(unsigned id);
-    void disablePlayer(unsigned id);
-
+	void updateTurnSpeed(std::tuple<unsigned int, float>&& input);    
+   
 	//DEBUGGING TOOL: apply orientation to all GameObjects
 	void rotateAllPlayers(float deltaOrientation);
     
@@ -99,6 +104,9 @@ public:
 	static constexpr size_t mMAXPLAYERS = 110;
 	static constexpr size_t mMAXCOLLECTIBLES = 300;
 
+	std::vector<SyncableData> getSyncableData();
+	void setSyncableData(const std::vector<SyncableData> newState);
+
 private:
 //Members
 	//Singleton instance of game
@@ -107,7 +115,8 @@ private:
 	//All players stored sequentually
 	std::vector<Player> mPlayers;
 
-	//TODO add collectible storage
+	//Pool of collectibles for fast "generation" of objects
+	CollectiblePool mCollectPool;
 
 	//GameObjects unique id generator for player tagging
 	static unsigned int mUniqueId;
@@ -138,6 +147,11 @@ private:
 
 	//Collision detection in mInteractObjects, bubble style
 	void detectCollisions();
+
+	//Set object data from inputted data
+	void setDecodedPlayerData(const std::vector<SyncableData>& newState);
+	void setDecodedCollectibleData(const std::vector<SyncableData>& newState);
+
 
 	//Read shader into ShaderManager
 	void loadShader(const std::string& shaderName);
