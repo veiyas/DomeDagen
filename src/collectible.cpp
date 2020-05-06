@@ -46,7 +46,7 @@ Collectible& Collectible::operator=(Collectible&& src) noexcept
 	return *this;
 }
 
-void Collectible::render(const glm::mat4& mvp) const
+void Collectible::render(const glm::mat4& mvp, const glm::mat4& v) const
 {
 	if (mEnabled)
 	{

@@ -25,7 +25,7 @@ public:
 	void init();
 
 	//Render enabled objects
-	void render(const glm::mat4& mvp) const;
+	void render(const glm::mat4& mvp, const glm::mat4& v) const;
 	
 	//Get collectiblepool state
 	std::vector<CollectibleData> getPoolState() const;

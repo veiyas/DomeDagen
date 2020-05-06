@@ -110,9 +110,7 @@ private:
 	std::string mName;
 
 	// frans; Trying something with colors
-	std::pair<glm::vec3, glm::vec3> mPlayerColours;
-	GLint mPrimaryColLoc;
-	GLint mSecondaryColLoc;
+	std::pair<glm::vec3, glm::vec3> mPlayerColours;	
 
 	struct ColourSelector
 	{

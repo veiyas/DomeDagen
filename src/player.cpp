@@ -51,8 +51,8 @@ Player::Player(const PlayerData& newPlayerData,
 	: GameObject{ GameObject::PLAYER, newPosData.mRadius, glm::quat{}, 0.f },
 	GeometryHandler("player", "diver"),
 	mName{ std::string(newPlayerData.mNameLength, ' ') },
-  mPoints{ newPlayerData.mPoints },
-  mIsAlive{ newPlayerData.mIsAlive },
+	mPoints{ newPlayerData.mPoints },
+	mIsAlive{ newPlayerData.mIsAlive },
 	mSpeed{ newPlayerData.mSpeed },
 	mConstraint{ mFOV, mTILT }
 {
@@ -73,7 +73,7 @@ Player::Player(const PlayerData& newPlayerData,
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
 	setShaderData();
 
-	auto& col = input.mPlayerColours;
+	auto& col = newPlayerData.mPlayerColours;
 	mPlayerColours = std::make_pair(glm::vec3(col.mR1, col.mG1, col.mB1),
 	                                glm::vec3(col.mR2, col.mG2, col.mB2));
 }
@@ -219,21 +219,4 @@ void Player::ColourSelector::reset()
 {
 	mPrimaryIt = mPrimaryColours.begin();
 	mSecondaryIt = mSecondaryColours.begin();
-}
-
-void Player::setShaderData()
-{
-	mShaderProgram.bind();
-
-	mMvpMatrixLoc    = glGetUniformLocation(mShaderProgram.id(), "mvp");
-	mTransMatrixLoc  = glGetUniformLocation(mShaderProgram.id(), "transformation");
-	mViewMatrixLoc   = glGetUniformLocation(mShaderProgram.id(), "view");
-	mCameraPosLoc    = glGetUniformLocation(mShaderProgram.id(), "cameraPos");
-	mNormalMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "normalMatrix");
-
-	// frans; More color things
-	mPrimaryColLoc = glGetUniformLocation(mShaderProgram.id(), "primaryCol");
-	mSecondaryColLoc = glGetUniformLocation(mShaderProgram.id(), "secondaryCol");
-
-	mShaderProgram.unbind();
 }

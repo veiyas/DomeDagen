@@ -34,11 +34,11 @@ void CollectiblePool::init()
 	sgct::Log::Info("Collectible pool with %s elements created", sizeInfoString.c_str());
 }
 
-void CollectiblePool::render(const glm::mat4& mvp) const
+void CollectiblePool::render(const glm::mat4& mvp, const glm::mat4& v) const
 {
 	for (size_t i = 0; i < mPool.size(); i++)
 	{
-		mPool[i].render(mvp);
+		mPool[i].render(mvp, v);
 	}
 }
 

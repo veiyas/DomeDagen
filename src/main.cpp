@@ -85,7 +85,7 @@ int main(int argc, char** argv)
 
 	//Initialize engine
 	try {
-		states.reserve(Game::mMAXPLAYERS);
+		gameObjectStates.reserve(Game::mMAXPLAYERS*3);
 		Engine::create(cluster, callbacks, config);		
 	}
 	catch (const std::runtime_error & e) {

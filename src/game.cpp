@@ -69,7 +69,7 @@ Game& Game::instance()
 
 void Game::destroy()
 {
-	if (mInstance->instanceExists())
+	if (mInstance)
   {
 		delete mInstance->mBackground;
 		delete mInstance;
@@ -102,7 +102,7 @@ void Game::render() const
 	for (const Player& p : mPlayers)
 		p.render(mMvp, mV);
 
-	mCollectPool.render(mMvp);
+	mCollectPool.render(mMvp, mV);
 }
 
 void Game::addPlayer()
@@ -112,7 +112,7 @@ void Game::addPlayer()
 
 void Game::addPlayer(const glm::vec3& pos)
 {
-	mPlayers.emplace_back(Player{ "fish", 50.f, pos, 0.f, "player", 0.5 });
+	mPlayers.emplace_back(Player{ "diver", 50.f, pos, 0.f, "player", 0.5 });
 }
 
 void Game::addPlayer(const PlayerData& newPlayerData, const PositionData& newPosData)

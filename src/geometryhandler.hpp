@@ -28,6 +28,8 @@ public:
 	GLint mMvpMatrixLoc = -1;
 	GLint mViewMatrixLoc = -1;
 	GLint mNormalMatrixLoc = -1;
+	GLint mPrimaryColLoc = -1;
+	GLint mSecondaryColLoc = -1;
 
 	GLint mCameraPosLoc = -1;
 
@@ -45,8 +47,17 @@ public:
 	void setShaderData()
 	{
 		mShaderProgram.bind();
+
 		mMvpMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "mvp");
 		mTransMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "transformation");
+		mViewMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "view");
+		mCameraPosLoc = glGetUniformLocation(mShaderProgram.id(), "cameraPos");
+		mNormalMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "normalMatrix");
+
+		// frans; More color things
+		mPrimaryColLoc = glGetUniformLocation(mShaderProgram.id(), "primaryCol");
+		mSecondaryColLoc = glGetUniformLocation(mShaderProgram.id(), "secondaryCol");
+
 		mShaderProgram.unbind();
 	}
 };
