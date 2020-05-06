@@ -1,9 +1,7 @@
 #include "collectible.hpp"
 
 Collectible::Collectible()
-	:GameObject{ GameObject::COLLECTIBLE, 50.f, glm::vec3(1.f, 0.f, 0.f), 0.f }
-	,GeometryHandler{ "collectible", "can1" }
-	,mEnabled{ false }, mNext{ nullptr }
+	:Collectible{"can1"}
 {
 	setShaderData();
 }

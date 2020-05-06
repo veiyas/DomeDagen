@@ -14,6 +14,6 @@ out vec3 light;
 void main() {
 	gl_Position = mvp * transformation * vec4(position, 1.0);
 	light = mat3(mvp) * vec3(0.0, 1.0, 1.0);    
-    interpolatedNormal = mat3(mvp) * normal;
+	interpolatedNormal = mat3(mvp) * normal;
 	st = texCoord;
 }
