@@ -3,13 +3,17 @@
 std::string Utility::findRootDir()
 {
 	auto searcher = std::filesystem::current_path();
-	while (searcher.has_parent_path())
+	auto extRoot = searcher.root_path();
+
+	while (searcher.has_parent_path() && searcher != extRoot)
 	{
-		if (searcher.filename() == "DomeDagen" || searcher.filename() == "Domedagen" || searcher.filename() == "domedagen")
+		if (std::filesystem::exists(searcher / "domedagen_root.txt"))
 			return searcher.string();
 		else
 			searcher = searcher.parent_path();
 	}
+
+	assert(false && "Root directory could not be found");
 	return "";
 }
 
@@ -35,16 +39,15 @@ std::tuple<unsigned int, float> Utility::getTurnSpeed(std::istringstream& input)
 	return std::make_tuple(id, rotAngle);
 }
 
-unsigned int Utility::textureFromFile(const char* path, const std::string& directory, bool gamma)
+unsigned int Utility::textureFromFile(const char* path, const std::string& directory/* bool gamma*/)
 {
-	std::string filename = std::string(path);
-	filename = directory + '/' + filename;
+	std::filesystem::path filename{ directory + '/' + std::string(path) };
 
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
 
 	int width, height, nrComponents;
-	unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
+	unsigned char* data = stbi_load(filename.string().c_str(), &width, &height, &nrComponents, 0);
 	if (data)
 	{
 		GLenum format = GL_RGBA;

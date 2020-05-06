@@ -1,5 +1,6 @@
 #gameOverScreen {
     background: var(--guiLight);
+    display: none;
 }
 
 #gameOverScreen h1, #gameOverScreen h2, #gameOverScreen p {

@@ -26,6 +26,7 @@
 #include "player.hpp"
 #include "collectiblepool.hpp"
 #include "utility.hpp"
+#include "backgroundobject.hpp"
 
 //Because sgct can't handle syncting separate vectors all sync data gets put in one vector
 //This needs a master type to handle all syncable objects
@@ -66,6 +67,9 @@ public:
 	//Set MVP matrix
 	void setMVP(const glm::mat4& mvp) { mMvp = mvp;};
 
+	//Set view matrix
+	void setV(const glm::mat4& v) { mV = v; }
+
 	//Mostly used for debugging
 	void addPlayer();
 
@@ -93,6 +97,12 @@ public:
    
 	//DEBUGGING TOOL: apply orientation to all GameObjects
 	void rotateAllPlayers(float deltaOrientation);
+    
+    //Get and return player-colours
+    std::pair<glm::vec3, glm::vec3> getPlayerColours(unsigned id);
+
+	static constexpr size_t mMAXPLAYERS = 110;
+	static constexpr size_t mMAXCOLLECTIBLES = 300;
 
 	std::vector<SyncableData> getSyncableData();
 	void setSyncableData(const std::vector<SyncableData> newState);
@@ -109,13 +119,16 @@ private:
 	CollectiblePool mCollectPool;
 
 	//GameObjects unique id generator for player tagging
-	static unsigned int mUniqueId;	
+	static unsigned int mUniqueId;
 
 	//Track all loaded shaders' names
 	std::vector<std::string> mShaderNames;
 
 	//MVP matrix used for rendering
 	glm::mat4 mMvp;
+
+	//View matrix
+	glm::mat4 mV;
 
 	//Slot after which players only present on master node exist
 	size_t mLastSyncedPlayer;
@@ -124,8 +137,9 @@ private:
 	float mLastFrameTime;
 
 	static constexpr double collisionDistance = 0.2f; //TODO make this object specific
-	static constexpr size_t mMAXPLAYERS = 110;
-	static constexpr size_t mMAXCOLLECTIBLES = 300;
+	
+
+	BackgroundObject *mBackground; //Holds pointer to the background
 
 //Functions
 	//Constructor
@@ -142,8 +156,14 @@ private:
 	//Read shader into ShaderManager
 	void loadShader(const std::string& shaderName);
 
+	//Set background
+	void setBackground(BackgroundObject* background){
+		mBackground = background;
+	}
+
 	//Display current list of shaders, called by printLoadedAssets()
 	void printShaderPrograms() const;
 
 	const glm::mat4& getMVP() { return mMvp; };
+	const glm::mat4& getV() { return mV; };
 };

@@ -1,4 +1,8 @@
 #include "game.hpp"
+//TODO are these includes necessary
+#include "player.hpp"
+#include <sgct/engine.h>
+#include "sgct/sgct.h"
 
 //Define instance and id counter
 Game* Game::mInstance = nullptr;
@@ -51,6 +55,8 @@ void Game::init()
 	mInstance = new Game{};
 	mInstance->mPlayers.reserve(mMAXPLAYERS);
 	mInstance->printLoadedAssets();
+	BackgroundObject* background = new BackgroundObject();
+	mInstance->setBackground(background);
 }
 
 Game& Game::instance()
@@ -63,8 +69,11 @@ Game& Game::instance()
 
 void Game::destroy()
 {
-	if(mInstance)
+	if (mInstance->instanceExists())
+  {
+		delete mInstance->mBackground;
 		delete mInstance;
+	}
 }
 
 void Game::printShaderPrograms() const
@@ -84,8 +93,14 @@ void Game::printLoadedAssets() const
 
 void Game::render() const
 {
+	//Render background
+	mBackground->render(mMvp, mV);
+
+	glClear(GL_DEPTH_BUFFER_BIT); //Draw all other objects in front of background
+
+	//Render players
 	for (const Player& p : mPlayers)
-		p.render(mMvp);
+		p.render(mMvp, mV);
 
 	mCollectPool.render(mMvp);
 }
@@ -216,6 +231,7 @@ void Game::setSyncableData(const std::vector<SyncableData> newState) //Copy atm 
 
 	std::vector<SyncableData> newPlayerStates;
 	newPlayerStates.reserve(newState.size() / 2 + 1);
+  
 	std::vector<SyncableData> newCollectibleStates;
 	newCollectibleStates.reserve(newState.size() / 1.5 + 1);
 
@@ -307,6 +323,12 @@ void Game::rotateAllPlayers(float newOrientation)
 	{
 		player.setOrientation(player.getOrientation() + newOrientation);
 	}
+}
+
+std::pair<glm::vec3, glm::vec3> Game::getPlayerColours(unsigned id)
+{
+    assert(id < mPlayers.size() && "Player get colours desync (id out of bounds mPlayers");
+    return mPlayers[id].getColours();
 }
 
 void Game::loadShader(const std::string& shaderName)

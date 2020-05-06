@@ -1,30 +1,74 @@
-#gameRunningScreen .row {
-    /*display: none;*/
-    height: 90%;
-    width: 90%;
-    position: relative;
+#gameRunningScreen {
+    background: url(../img/OceanBG.png);
+    background-size: cover;
+    background-position: bottom center;
+    display: none;
 }
 
-#gameRunningScreen .row > p {
-    background-color: #ffda73;
-    color: var(--guiDark);
+#gameRunningScreen p {
+    color: var(--guiLight);
     font-size: 1.5rem;
-    left: 0;
-    padding: 10px;
-    position: absolute;
-    top: 0;
+    
+    /* padding: 10px; */
+    /* left: 0; */
+    /* position: absolute; */
+    /* top: 0; */
 }
 
+/* Wrapping div to align score and colours */
+#gameRunningScreen > .row:first-of-type {
+    height: 15vh;
+    margin: 30px;
+    justify-content: space-between;
+}
+
+/* Show score in left corner */
+#scoreContainer {
+    align-items: center;
+    background-color: #2423317e; /* Slightly ugly to copy the colour like this, but I wanted to add opacity to just the background colour */ 
+    display: flex;
+    padding: 0 20px;
+    width: auto;
+}
+
+/* Show player colours in the right corner */
+#characterInfoContainer {
+    align-items: center;
+    background-color: #2423317e;
+    display: flex;
+    height: 100%;
+    padding: 10px;
+    width: 30%;
+}
+
+#characterInfoContainer div > p {
+    font-size: 1rem;
+}
+
+#coloursContainer {
+    display: flex;
+    flex-shrink: 2;
+    height: 100%;
+    width: 100%;
+}
+
+.playerColours {
+    height: 100%;
+    width: 100%;
+}
+
+/* Old styling */
 #gameRunningScreen .row > button {
     background-color: var(--guiLightAccent);
-    bottom: 0;
-    border-radius: 100%;
     height: 20vw;
     font-size: 2rem;
-    right: 0;
     padding: 20px;
-    position: absolute;
     width: 20vw;
+    
+    /* bottom: 0; */
+    /* border-radius: 100%; */
+    /* right: 0; */
+    /* position: absolute; */
 }
 
 #gameRunningScreen .row > button:active {

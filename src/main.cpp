@@ -9,6 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <random>
+#include <glm/gtx/string_cast.hpp>
 
 #include "sgct/sgct.h"
 
@@ -18,6 +19,7 @@
 #include "sceneobject.hpp"
 #include "player.hpp"
 #include "modelmanager.hpp"
+#include "backgroundobject.hpp"
 
 namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
@@ -83,6 +85,7 @@ int main(int argc, char** argv)
 
 	//Initialize engine
 	try {
+		states.reserve(Game::mMAXPLAYERS);
 		Engine::create(cluster, callbacks, config);		
 	}
 	catch (const std::runtime_error & e) {
@@ -116,15 +119,28 @@ int main(int argc, char** argv)
 void draw(const RenderData& data)
 {
 	Game::instance().setMVP(data.modelViewProjectionMatrix);
+	Game::instance().setV(data.viewMatrix);
+
+
+	glClearColor(20.0/255.0, 157.0/255.0, 190.0/255.0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//Background object
+	//Game::instance()
+	//glDisable(GL_DEPTH_TEST);
 
 	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_CULL_FACE); // TODO This should really be enabled but the normals of the
+	                          // background object are flipped atm
 	glCullFace(GL_BACK);
 
 	Game::instance().render();
-	while (glGetError() != GL_NO_ERROR)
-    {
-      std::cout << "GL Error: " << glGetError() << std::endl;
-    }
+
+	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		sgct::Log::Error("GL Error: 0x%x", err);
+	}
 }
 
 void initOGL(GLFWwindow*)
@@ -135,7 +151,6 @@ void initOGL(GLFWwindow*)
 	/**********************************/
 	/*			 Debug Area			  */
 	/**********************************/
-	
 	if (Engine::instance().isMaster())
 	{
 		for (size_t i = 0; i < 1; i++)
@@ -250,11 +265,26 @@ void messageReceived(const void* data, size_t length)
 			Game::instance().updateTurnSpeed(Utility::getTurnSpeed(iss));
 		}
         
-        // If first slot is 'D', player to be removed has been sent
+        // If first slot is 'D', player to be deleted has been sent
         if (msgType == 'D') {
             unsigned int playerId;
             iss >> playerId;
             Game::instance().disablePlayer(playerId);
+        }
+        
+        // If first slot is 'I', player's ID has been sent
+        if (msgType == 'I') {
+            unsigned int playerId;
+            iss >> playerId;
+            // Send colour information back to server
+            std::pair<glm::vec3, glm::vec3> colours = Game::instance().getPlayerColours(playerId);
+            std::string colourOne = glm::to_string(colours.first);
+            std::string colourTwo = glm::to_string(colours.second);
+            
+//            Log::Info("Player colour 1: %s", colourOne.c_str());
+//            Log::Info("Player colour 2: %s", colourTwo.c_str());
+            wsHandler->queueMessage("A " + colourOne);
+            wsHandler->queueMessage("B " + colourTwo);
         }
 	}
 }
