@@ -12,9 +12,7 @@ Game::Game()
 	: mMvp{ glm::mat4{1.f} }, mLastFrameTime{ -1 }, mLastSyncedPlayer{ 0 }
 {	
 	for (const std::string& shaderName : allShaderNames)
-		loadShader(shaderName);
-
-	mCollectPool.init();	
+		loadShader(shaderName);	
 }
 
 void Game::detectCollisions()
@@ -52,11 +50,11 @@ void Game::detectCollisions()
 
 void Game::init()
 {
-	mInstance = new Game{};
-	mInstance->mPlayers.reserve(mMAXPLAYERS);
+	mInstance = new Game{};	
 	mInstance->printLoadedAssets();
-	BackgroundObject* background = new BackgroundObject();
-	mInstance->setBackground(background);
+	mInstance->mCollectPool.init();
+	mInstance->mPlayers.reserve(mMAXPLAYERS);	
+	mInstance->setBackground(new BackgroundObject());
 }
 
 Game& Game::instance()
@@ -70,7 +68,7 @@ Game& Game::instance()
 void Game::destroy()
 {
 	if (mInstance)
-  {
+	{
 		delete mInstance->mBackground;
 		delete mInstance;
 	}

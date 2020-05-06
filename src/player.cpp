@@ -70,12 +70,12 @@ Player::Player(const PlayerData& newPlayerData,
 	setPosition(temp);
 
 	mShaderProgram.unbind();
-	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
-	setShaderData();
+	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());	
 
 	auto& col = newPlayerData.mPlayerColours;
 	mPlayerColours = std::make_pair(glm::vec3(col.mR1, col.mG1, col.mB1),
 	                                glm::vec3(col.mR2, col.mG2, col.mB2));
+	setShaderData();
 }
 
 Player::~Player()
@@ -181,6 +181,14 @@ void Player::render(const glm::mat4& mvp, const glm::mat4& v) const
 	this->renderModel();
 
 	mShaderProgram.unbind();
+}
+
+void Player::setShaderData()
+{
+	GeometryHandler::setShaderData();
+	// frans; More color things
+	mPrimaryColLoc = glGetUniformLocation(mShaderProgram.id(), "primaryCol");
+	mSecondaryColLoc = glGetUniformLocation(mShaderProgram.id(), "secondaryCol");
 }
 
 Player::ColourSelector::ColourSelector()

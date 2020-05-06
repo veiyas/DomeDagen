@@ -28,9 +28,6 @@ public:
 	GLint mMvpMatrixLoc = -1;
 	GLint mViewMatrixLoc = -1;
 	GLint mNormalMatrixLoc = -1;
-	GLint mPrimaryColLoc = -1;
-	GLint mSecondaryColLoc = -1;
-
 	GLint mCameraPosLoc = -1;
 
 	//Reference to shader in shader pool
@@ -53,10 +50,6 @@ public:
 		mViewMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "view");
 		mCameraPosLoc = glGetUniformLocation(mShaderProgram.id(), "cameraPos");
 		mNormalMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "normalMatrix");
-
-		// frans; More color things
-		mPrimaryColLoc = glGetUniformLocation(mShaderProgram.id(), "primaryCol");
-		mSecondaryColLoc = glGetUniformLocation(mShaderProgram.id(), "secondaryCol");
 
 		mShaderProgram.unbind();
 	}
