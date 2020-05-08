@@ -6,7 +6,7 @@ void CollectiblePool::init()
 	std::vector<std::string> trashModelNames;
 	for (const std::string& name : allModelNames)
 	{
-		if (name == "fish" || name == "diver")
+		if (name == "fish" || name == "diver" || name == "background")
 			continue;
 
 		trashModelNames.push_back(name);
