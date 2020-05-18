@@ -13,6 +13,21 @@
 
 #include "renderable.hpp"
 
+struct PositionData
+{
+public:
+	//TODO all of this data might not be needed to send
+	float mRadius;
+	float mOrientation;
+	float mScale;
+
+	//Quat stuff
+	float mW;
+	float mX;
+	float mY;
+	float mZ;
+};
+
 //A GameObject is located att the surface of a sphere
 //and it has a side that is always facing origin.
 class GameObject : public Renderable
@@ -26,9 +41,11 @@ public:
 		COLLECTIBLE,
 		BACKGROUND
 	};
-
-	//No default ctor
 	GameObject() = delete;
+	GameObject(const GameObject&) = default;
+	GameObject(GameObject&&) = default;
+	GameObject& operator=(const GameObject&) = default;
+	GameObject& operator=(GameObject&& src) noexcept;
 
 	//Ctor
 	GameObject(const unsigned objType, float radius, const glm::quat& position, float orientation);
@@ -40,7 +57,11 @@ public:
 	//virtual void render(const glm::mat4& mvp, const glm::mat4& v) const = 0;
 
 	//Update object (position, collision?)
-	virtual void update(float deltaTime);
+	virtual void update(float deltaTime) = 0;
+	//HACK This is very much a hack, and it would probably be better to keep different
+	//types of gameobjects in different list to be able to use all functionality
+	virtual void setSpeed(float speed) = 0;
+	virtual void setTurnSpeed(float) {};
 
 	//Calculates and returns the objects transformation matrix
 	glm::mat4 getTransformation() const; // is there any reason for this not returning const&?
@@ -50,6 +71,7 @@ public:
 	const float getRadius() const { return mRadius; }
 	unsigned getObjType() const { return mObjType; }
 	const glm::quat& getPosition() const { return mPosition; }
+	const PositionData getPositionData() const;	
 	const float getOrientation() const { return mOrientation; }	
 
 	//Mutators
@@ -57,11 +79,7 @@ public:
 	void setScale(float scale) { mScale = scale; }
 	void setPosition(const glm::quat position) { mPosition = position; }
 	void setOrientation(float orientation) { mOrientation = orientation; }
-
-	//HACK This is very much a hack, and it would probably be better to keep different
-	//types of gameobjects in different list to be able to use all functionality
-	virtual void setSpeed(float speed) = 0;
-	virtual void setTurnSpeed(float) {};
+	void setPositionData(const PositionData& newPosition);
 
 private:
 	//The position on the sphere represented by a unit quaternion
