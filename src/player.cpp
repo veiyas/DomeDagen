@@ -173,6 +173,11 @@ void Player::render(const glm::mat4& mvp, const glm::mat4& v) const
 	glUniformMatrix4fv(mTransMatrixLoc, 1, GL_FALSE, glm::value_ptr(transformation));
 	this->renderModel();
 
+	//Bone stuff
+	auto transforms = mModel.getTransforms(); //TODO handle this in a way that avoids copying
+	//What happens if theres too many bones?
+	glUniformMatrix4fv(mBonesLoc, transforms.size(), GL_FALSE, reinterpret_cast<GLfloat *>(transforms.data()));
+
 	mShaderProgram.unbind();
 }
 
@@ -223,6 +228,8 @@ void Player::setShaderData()
 	mViewMatrixLoc   = glGetUniformLocation(mShaderProgram.id(), "view");
 	mCameraPosLoc    = glGetUniformLocation(mShaderProgram.id(), "cameraPos");
 	mNormalMatrixLoc = glGetUniformLocation(mShaderProgram.id(), "normalMatrix");
+
+	mBonesLoc = glGetUniformLocation(mShaderProgram.id(), "bones");
 
 	// frans; More color things
 	mPrimaryColLoc = glGetUniformLocation(mShaderProgram.id(), "primaryCol");

@@ -8,7 +8,7 @@ class GeometryHandler
 public:
 	GeometryHandler(const std::string& shaderProgramName, const std::string& objectModelName)
 		:mShaderProgram{sgct::ShaderManager::instance().shaderProgram(shaderProgramName)},
-		 mModel{ModelManager::instance().getModel(objectModelName)} {}
+		 mModel{ModelManager::instance().getModel(objectModelName)}  {}
 
 	//Shader matrix locations
 	GLint mTransMatrixLoc = -1;
@@ -17,6 +17,8 @@ public:
 	GLint mNormalMatrixLoc = -1;
 
 	GLint mCameraPosLoc = -1;
+
+	GLint mBonesLoc = -1;
 
 	//Reference to shader in shader pool
 	const sgct::ShaderProgram& mShaderProgram;

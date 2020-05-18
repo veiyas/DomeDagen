@@ -29,7 +29,7 @@ ModelManager::ModelManager()
 void ModelManager::loadModel(const std::string& modelName)
 {
 	std::string path = Utility::findRootDir() + "/src/models/" + modelName + "/" + modelName + ".fbx";
-	mModels[modelName] = Model(path.data());
+	mModels.emplace(modelName, path.data());
 }
 
 void ModelManager::printModelNames() const

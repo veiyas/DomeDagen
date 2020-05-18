@@ -5,11 +5,18 @@
 #include "glm/glm.hpp"
 #include "glad/glad.h"
 
+//TODO rethink placement of constant and name maybe
+const unsigned NUM_BONES_PER_VERTEX = 4;
+
 struct Vertex
 {
 	glm::vec3 mPosition;
 	glm::vec3 mNormal;
 	glm::vec2 mTexCoords;
+
+	//Bone data
+	unsigned mBoneIds[NUM_BONES_PER_VERTEX];
+	float mWeights[NUM_BONES_PER_VERTEX] = { 0 };
 };
 
 struct Texture

@@ -30,6 +30,7 @@ public:
 
 	static unsigned int textureFromFile(const char* path, const std::string& directory/*bool gamma = false*/);
 
+	static glm::mat4 aiMatrixToGlm(const aiMatrix4x4& in);
 private:
 	
 };

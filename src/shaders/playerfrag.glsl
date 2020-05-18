@@ -37,6 +37,8 @@ void main() {
     vec3 viewDir = normalize(cameraPos - fragPos);
     float specularAmount = mask * pow(max(0.0, dot(rLight, viewDir)), shininess);
 
-    color = albedo * (ambientStrength + diffuseAmount * diffuseStrength)
-        + specularAmount * specularStrength * specularColour;
+    /*color = albedo * (ambientStrength + diffuseAmount * diffuseStrength)
+        + specularAmount * specularStrength * specularColour;*/
+
+    color = vec4(1.0, 1.0, 1.0, 1.0);
 }
