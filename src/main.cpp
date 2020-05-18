@@ -281,10 +281,22 @@ void messageReceived(const void* data, size_t length)
             std::string colourOne = glm::to_string(colours.first);
             std::string colourTwo = glm::to_string(colours.second);
             
-//            Log::Info("Player colour 1: %s", colourOne.c_str());
-//            Log::Info("Player colour 2: %s", colourTwo.c_str());
             wsHandler->queueMessage("A " + colourOne);
             wsHandler->queueMessage("B " + colourTwo);
+        }
+        
+        // If first slot is 'P', player's ID has been sent
+        if (msgType == 'P') {
+            unsigned int playerId;
+            iss >> playerId;
+            // Send colour information back to server
+            const int playerPoints = Game::instance().getPlayerPoints(playerId);
+            std::string points = std::to_string(playerPoints);
+            Log::Info("Points: %s", points.c_str());
+
+            //const int playerPoints = 150;
+            wsHandler->tick();
+            wsHandler->queueMessage("P " + std::to_string(playerPoints));
         }
 	}
 }

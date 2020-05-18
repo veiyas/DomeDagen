@@ -100,6 +100,9 @@ public:
     
     //Get and return player-colours
     std::pair<glm::vec3, glm::vec3> getPlayerColours(unsigned id);
+    
+    //Get and return player-points
+    unsigned int getPlayerPoints(unsigned id);
 
 	static constexpr size_t mMAXPLAYERS = 110;
 	static constexpr size_t mMAXCOLLECTIBLES = 300;

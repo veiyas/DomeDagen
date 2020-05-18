@@ -163,7 +163,7 @@ void Game::update()
 	//TODO Update other type of objects
 
 	detectCollisions();
-	
+    
 	mLastFrameTime = currentFrameTime;
 }
 
@@ -329,6 +329,12 @@ std::pair<glm::vec3, glm::vec3> Game::getPlayerColours(unsigned id)
 {
     assert(id < mPlayers.size() && "Player get colours desync (id out of bounds mPlayers");
     return mPlayers[id].getColours();
+}
+
+unsigned int Game::getPlayerPoints(unsigned id)
+{
+    assert(id < mPlayers.size() && "Player update points desync (id out of bounds mPlayers");
+    return mPlayers[id].getPoints();
 }
 
 void Game::loadShader(const std::string& shaderName)

@@ -60,6 +60,11 @@ function initialize() {
       }
       setPlayerColours(primary, secondary);
     }
+    
+    if (event.data[0] == 'P') {
+      var points = event.data.substring(2);
+      document.getElementById("currentScore").innerHTML = points;
+    }
   }
 
   // Push all screens into a map of [screen ID, screen]
