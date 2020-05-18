@@ -62,7 +62,7 @@ void Collectible::render(const glm::mat4& mvp, const glm::mat4& v) const
 
 void Collectible::update(float deltaTime)
 {
-	setModelRotation(getModelRotation() * glm::quat(deltaTime * 0.1f * glm::vec3(1.f, 1.f, 1.f)));
+	setModelRotation(getModelRotation() * glm::quat(deltaTime * 0.3f * glm::vec3(1.f, 1.f, 1.f)));
 }
 
 CollectibleData Collectible::getCollectibleData(unsigned index) const
