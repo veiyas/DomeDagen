@@ -50,6 +50,12 @@ const PositionData GameObject::getPositionData() const
 	temp.mScale = getScale();
 	//temp.mSpeed = getSpeed();
 
+	//Model rotation stuff
+	temp.mModelW = getModelRotation().w;
+	temp.mModelX = getModelRotation().x;
+	temp.mModelY = getModelRotation().y;
+	temp.mModelZ = getModelRotation().z;
+
 	//Quat stuff
 	temp.mW = getPosition().w;
 	temp.mX = getPosition().x;
@@ -65,6 +71,14 @@ void GameObject::setPositionData(const PositionData& newPosition)
 	setOrientation(newPosition.mOrientation);
 	setRadius(newPosition.mRadius);
 	setScale(newPosition.mScale);
+
+	//Model rotation stuff
+	glm::quat newModelRotation;
+	newModelRotation.w = newPosition.mModelW;
+	newModelRotation.x = newPosition.mModelX;
+	newModelRotation.y = newPosition.mModelY;
+	newModelRotation.z = newPosition.mModelZ;
+	setModelRotation(newModelRotation);
 
 	//Quat stuff
 	glm::quat newQuat;

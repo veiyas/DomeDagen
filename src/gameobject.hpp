@@ -21,6 +21,12 @@ public:
 	float mOrientation;
 	float mScale;
 
+	//Model rotation stuff
+	float mModelW;
+	float mModelX;
+	float mModelY;
+	float mModelZ;
+
 	//Quat stuff
 	float mW;
 	float mX;
