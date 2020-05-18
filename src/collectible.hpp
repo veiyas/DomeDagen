@@ -25,7 +25,7 @@ public:
 
 	//Inherited methods
 	void render(const glm::mat4& mvp, const glm::mat4& v) const override;
-	void update(float deltaTime) override {};
+	void update(float deltaTime) override;
 	void setSpeed(float speed) override {};
 
 	//Sync methods

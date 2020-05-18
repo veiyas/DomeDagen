@@ -16,26 +16,31 @@ GameObject& GameObject::operator=(GameObject&& src) noexcept
 	return *this;
 }
 
-GameObject::GameObject(const unsigned objType, float radius, const glm::quat& position, float orientation, float scale)
+
+GameObject::GameObject(const unsigned objType,
+                       float radius,
+                       const glm::quat& position,
+                       float orientation,
+					   float scale,
+                       const glm::quat& modelRotation)
 	: mRadius{ radius }, mPosition{ position }, mOrientation{ orientation },
-	 mScale{ scale }, mObjType{ objType }
+	 mScale{ scale }, mObjType{ objType }, mModelRotation{ modelRotation }
 {
 
 }
 
 glm::mat4 GameObject::getTransformation() const
 {
-	glm::mat4 trans  = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -mRadius));
-	glm::mat4 orient = glm::rotate(glm::mat4(1.f), mOrientation, glm::vec3(0, 0, 1));
-	glm::mat4 rot    = glm::toMat4(mPosition);
-	glm::mat4 scale  = glm::scale(glm::mat4(1.f), glm::vec3(mScale));
+	glm::mat4 trans    = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -mRadius));
+	glm::mat4 orient   = glm::rotate(glm::mat4(1.f), mOrientation, glm::vec3(0, 0, 1));
+	glm::mat4 rot      = glm::toMat4(mPosition);
+	glm::mat4 scale    = glm::scale(glm::mat4(1.f), glm::vec3(mScale));
+	glm::mat4 localRot = glm::toMat4(mModelRotation);
 
 	//std::cout << glm::to_string(trans) << '\n';
 
 	//TODO Put model rotation in a variable to allow models with different orientation
-	return rot * trans * orient * scale
-		* glm::rotate(glm::mat4(1.f), -glm::half_pi<float>(), glm::vec3(0.f, 0.f, 1.f))
-		* glm::rotate(glm::mat4(1.f), glm::half_pi<float>(), glm::vec3(1.f, 0.f, 0.f));
+	return rot * trans * orient * scale * localRot;
 }
 
 const PositionData GameObject::getPositionData() const
@@ -46,6 +51,12 @@ const PositionData GameObject::getPositionData() const
 	temp.mRadius = getRadius();
 	temp.mScale = getScale();
 	//temp.mSpeed = getSpeed();
+
+	//Model rotation stuff
+	temp.mModelW = getModelRotation().w;
+	temp.mModelX = getModelRotation().x;
+	temp.mModelY = getModelRotation().y;
+	temp.mModelZ = getModelRotation().z;
 
 	//Quat stuff
 	temp.mW = getPosition().w;
@@ -62,6 +73,14 @@ void GameObject::setPositionData(const PositionData& newPosition)
 	setOrientation(newPosition.mOrientation);
 	setRadius(newPosition.mRadius);
 	setScale(newPosition.mScale);
+
+	//Model rotation stuff
+	glm::quat newModelRotation;
+	newModelRotation.w = newPosition.mModelW;
+	newModelRotation.x = newPosition.mModelX;
+	newModelRotation.y = newPosition.mModelY;
+	newModelRotation.z = newPosition.mModelZ;
+	setModelRotation(newModelRotation);
 
 	//Quat stuff
 	glm::quat newQuat;

@@ -158,6 +158,12 @@ void Game::update()
 	for (auto& player : mPlayers)
 		player.update(deltaTime);
 
+	//for (size_t i = 0; i < CollectiblePool::mMAXNUMCOLLECTIBLES && mCollectPool[i].isEnabled(); i++)
+	for (size_t i = 0; i < CollectiblePool::mMAXNUMCOLLECTIBLES; i++)
+	{
+		mCollectPool[i].update(deltaTime);
+	}
+
 	//TODO Update other type of objects
 
 	detectCollisions();
