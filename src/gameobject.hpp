@@ -48,7 +48,11 @@ public:
 	GameObject& operator=(GameObject&& src) noexcept;
 
 	//Ctor
-	GameObject(const unsigned objType, float radius, const glm::quat& position, float orientation);
+	GameObject(const unsigned objType,
+	           float radius,
+	           const glm::quat& position,
+	           float orientation,
+	           const glm::quat& modelRotation = glm::quat(glm::vec3(glm::half_pi<float>(), 0.f, glm::pi<float>())));
 
 	//Dtor implemented by subclasses
 	virtual ~GameObject() override = default;
@@ -71,13 +75,15 @@ public:
 	const float getRadius() const { return mRadius; }
 	unsigned getObjType() const { return mObjType; }
 	const glm::quat& getPosition() const { return mPosition; }
+	const glm::quat& getModelRotation() const { return mModelRotation; }
+	const float getOrientation() const { return mOrientation; }
 	const PositionData getPositionData() const;	
-	const float getOrientation() const { return mOrientation; }	
 
 	//Mutators
 	void setRadius(float radius) { mRadius = radius; }
 	void setScale(float scale) { mScale = scale; }
 	void setPosition(const glm::quat position) { mPosition = position; }
+	void setModelRotation(const glm::quat& modelRotation) { mModelRotation = modelRotation; }
 	void setOrientation(float orientation) { mOrientation = orientation; }
 	void setPositionData(const PositionData& newPosition);
 
@@ -87,6 +93,9 @@ private:
 
 	//The radius of the sphere the object is positioned on
 	float mRadius;
+
+	//Rotation of model, i.e. rotation applied before all other transformations
+	glm::quat mModelRotation;
 
 	//The orientation in radians of the object (tangential to sphere)
 	float mOrientation;

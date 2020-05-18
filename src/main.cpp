@@ -65,7 +65,7 @@ int main(int argc, char** argv)
 	Configuration config = sgct::parseArguments(arg);	
 
 	//Choose which config file (.xml) to open
-	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
 	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
@@ -151,13 +151,13 @@ void initOGL(GLFWwindow*)
 	/**********************************/
 	/*			 Debug Area			  */
 	/**********************************/
-	//if (Engine::instance().isMaster())
-	//{
-	//	for (size_t i = 0; i < 1; i++)
-	//	{
-	//		Game::instance().addPlayer(glm::vec3(0.f + 0.2f*i));
-	//	}
-	//}
+	if (Engine::instance().isMaster())
+	{
+		for (size_t i = 0; i < 1; i++)
+		{
+			Game::instance().addPlayer(glm::vec3(0.f + 0.2f*i));
+		}
+	}
 }
 
 void keyboard(Key key, Modifier modifier, Action action, int)
