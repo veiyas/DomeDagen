@@ -48,7 +48,7 @@ public:
 	GameObject& operator=(GameObject&& src) noexcept;
 
 	//Ctor
-	GameObject(const unsigned objType, float radius, const glm::quat& position, float orientation);
+	GameObject(const unsigned objType, float radius, const glm::quat& position, float orientation, float scale);
 
 	//Dtor implemented by subclasses
 	virtual ~GameObject() override = default;

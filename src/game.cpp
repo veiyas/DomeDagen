@@ -110,7 +110,7 @@ void Game::addPlayer()
 
 void Game::addPlayer(const glm::vec3& pos)
 {
-	mPlayers.emplace_back(Player{ "diver", 50.f, pos, 0.f, "player", 0.5 });
+	mPlayers.push_back(Player{ "diver", 50.f, pos, 0.f, "player", 0.5 });
 }
 
 void Game::addPlayer(const PlayerData& newPlayerData, const PositionData& newPosData)

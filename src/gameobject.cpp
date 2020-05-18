@@ -16,9 +16,9 @@ GameObject& GameObject::operator=(GameObject&& src) noexcept
 	return *this;
 }
 
-GameObject::GameObject(const unsigned objType, float radius, const glm::quat& position, float orientation)
+GameObject::GameObject(const unsigned objType, float radius, const glm::quat& position, float orientation, float scale)
 	: mRadius{ radius }, mPosition{ position }, mOrientation{ orientation },
-	 mScale{ 10.f }, mObjType{ objType }
+	 mScale{ scale }, mObjType{ objType }
 {
 
 }

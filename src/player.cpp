@@ -11,7 +11,7 @@ const float Player::mTILT = 27.0f;
 Player::ColourSelector Player::mColourSelector = Player::ColourSelector{ };
 
 Player::Player()
-	: GameObject{ GameObject::PLAYER, 50.f, glm::quat(glm::vec3(0.f)), 0.f },
+	: GameObject{ GameObject::PLAYER, 50.f, glm::quat(glm::vec3(0.f)), 0.f, PLAYERSCALE },
 	  GeometryHandler("player", "diver"),
 	  mName{ "temp" },
 	  mPlayerColours{ mColourSelector.getNextPair() },
@@ -22,7 +22,7 @@ Player::Player()
 }
 
 Player::Player(const std::string name)
-	: GameObject{ GameObject::PLAYER, 50.f, glm::quat(glm::vec3(0.f)), 0.f },
+	: GameObject{ GameObject::PLAYER, 50.f, glm::quat(glm::vec3(0.f)), 0.f, PLAYERSCALE },
 	  GeometryHandler("player", "diver"),
 	  mName{ name },
 	  mPlayerColours{ mColourSelector.getNextPair() },
@@ -35,7 +35,7 @@ Player::Player(const std::string name)
 Player::Player(const std::string & objectModelName, float radius,
 	           const glm::quat & position, float orientation,
 	           const std::string & name, float speed)
-	: GameObject{ GameObject::PLAYER, radius, position, orientation },
+	: GameObject{ GameObject::PLAYER, radius, position, orientation, PLAYERSCALE },
 	  GeometryHandler("player", objectModelName),
 	  mName { name },
 	  mSpeed{ speed },
@@ -48,7 +48,7 @@ Player::Player(const std::string & objectModelName, float radius,
 
 Player::Player(const PlayerData& newPlayerData,
 	const PositionData& newPosData)
-	: GameObject{ GameObject::PLAYER, newPosData.mRadius, glm::quat{}, 0.f },
+	: GameObject{ GameObject::PLAYER, newPosData.mRadius, glm::quat{}, 0.f, PLAYERSCALE },
 	GeometryHandler("player", "diver"),
 	mName{ std::string(newPlayerData.mNameLength, ' ') },
 	mPoints{ newPlayerData.mPoints },
