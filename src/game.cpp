@@ -1,62 +1,64 @@
 #include "game.hpp"
+//TODO are these includes necessary
 #include "player.hpp"
 #include <sgct/engine.h>
+#include "sgct/sgct.h"
 
-
-//Define instance
+//Define instance and id counter
 Game* Game::mInstance = nullptr;
 unsigned int Game::mUniqueId = 0;
 
 Game::Game()
-	: mMvp{ glm::mat4{1.f} }, mLastFrameTime{ -1 }, mLastSyncedPlayer{0}
-{
-	//Loads all models and shaders into pool
+	: mMvp{ glm::mat4{1.f} }, mLastFrameTime{ -1 }, mLastSyncedPlayer{ 0 }
+{	
 	for (const std::string& shaderName : allShaderNames)
-		loadShader(shaderName);
+		loadShader(shaderName);	
 }
 
 void Game::detectCollisions()
 {
-	//TODO Rework collision detection when collectibles are implemented
-	//if (mInteractObjects.size() > 1)
-	//{
-	//	for (size_t i = 0; i < mInteractObjects.size(); i++)
-	//	{
-	//		for (size_t j = i + 1; j < mInteractObjects.size(); j++)
-	//		{
-	//			auto quat1 = (mInteractObjects[i].second->getPosition());
-	//			auto quat2 = (mInteractObjects[j].second->getPosition());
+	if (mPlayers.size() > 0 && mCollectPool.getNumEnabled() > 0)
+	{
+		for (size_t i = 0; i < mPlayers.size(); i++)
+		{
+			for (size_t j = 0; j < CollectiblePool::mMAXNUMCOLLECTIBLES && mCollectPool[j].isEnabled(); j++)
+			{
+				auto playerQuat = mPlayers[i].getPosition();
+				auto collectibleQuat = mCollectPool[j].getPosition();
 
-	//			auto z = glm::normalize(glm::inverse(quat1) * quat2);
+				auto deltaQuat = glm::normalize(glm::inverse(playerQuat) * collectibleQuat);
 
-	//			//Collision detection by comparing how small the angle between the fishes are
-	//			//From https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
-	//			auto sinxPart = 2.f * (z.w * z.x + z.y * z.z);
-	//			auto cosxPart = 1.f - 2.f * (z.x*z.x + z.y*z.y);
-	//			auto xAngle = std::atan2(sinxPart, cosxPart);
-	//			
-	//			auto sinyPart = 2.f * (z.w * z.y - z.z * z.x);
-	//			auto yAngle = std::asin(sinyPart);
+				//Collision detection by comparing how small the angle between the objects are
+				//TODO Algot "Quat Guru" Sandahl needs to review this part
+				//From https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+				auto sinxPart = 2.f * (deltaQuat.w * deltaQuat.x + deltaQuat.y * deltaQuat.z);
+				auto cosxPart = 1.f - 2.f * (deltaQuat.x*deltaQuat.x + deltaQuat.y*deltaQuat.y);
+				auto xAngle = std::atan2(sinxPart, cosxPart);
+				
+				auto sinyPart = 2.f * (deltaQuat.w * deltaQuat.y - deltaQuat.z * deltaQuat.x);
+				auto yAngle = std::asin(sinyPart);
 
-	//			if (std::abs(xAngle) <= collisionDistance && std::abs(yAngle) <= collisionDistance)
-	//			{
-	//				std::cout << i << " <=> " << j << " collided\n";
-	//			}
-	//		}
-	//	}
-	//}
+				if (std::abs(xAngle) <= collisionDistance && std::abs(yAngle) <= collisionDistance)
+				{
+					mPlayers[i].addPoints();
+					mCollectPool.disableCollectible(j);
+				}
+			}
+		}
+	}
 }
 
 void Game::init()
 {
-	mInstance = new Game{};
-	mInstance->mPlayers.reserve(mMAXPLAYERS);
+	mInstance = new Game{};	
 	mInstance->printLoadedAssets();
+	mInstance->mCollectPool.init();
+	mInstance->mPlayers.reserve(mMAXPLAYERS);	
+	mInstance->setBackground(new BackgroundObject());
 }
 
 Game& Game::instance()
 {
-	//If Game doesnt exist, create one. Return it.
 	if (!mInstance) {
 		mInstance = new Game{};
 	}
@@ -65,8 +67,11 @@ Game& Game::instance()
 
 void Game::destroy()
 {
-	if(mInstance->instanceExists())
+	if (mInstance)
+	{
+		delete mInstance->mBackground;
 		delete mInstance;
+	}
 }
 
 void Game::printShaderPrograms() const
@@ -86,11 +91,16 @@ void Game::printLoadedAssets() const
 
 void Game::render() const
 {
+	//Render background
+	mBackground->render(mMvp, mV);
+
+	glClear(GL_DEPTH_BUFFER_BIT); //Draw all other objects in front of background
+
 	//Render players
 	for (const Player& p : mPlayers)
-		p.render(mMvp);
+		p.render(mMvp, mV);
 
-	//TODO render rest of objects
+	mCollectPool.render(mMvp, mV);
 }
 
 void Game::addPlayer()
@@ -98,10 +108,15 @@ void Game::addPlayer()
 	mPlayers.emplace_back();
 }
 
-void Game::addPlayer(const PlayerData& p)
+void Game::addPlayer(const glm::vec3& pos)
+{
+	mPlayers.emplace_back(Player{ "diver", 50.f, pos, 0.f, "player", 0.5 });
+}
+
+void Game::addPlayer(const PlayerData& newPlayerData, const PositionData& newPosData)
 {
 	//Create player from PositionData object
-	mPlayers.emplace_back(p);
+	mPlayers.emplace_back(newPlayerData, newPosData);
 }
 
 void Game::addPlayer(std::tuple<unsigned int, std::string>&& inputTuple)
@@ -110,6 +125,9 @@ void Game::addPlayer(std::tuple<unsigned int, std::string>&& inputTuple)
 	mPlayers.emplace_back(std::get<1>(inputTuple));
 }
 
+//DEBUGGING PURPOSES, TODO BETTER SOLUTION
+bool outputted = false;
+int spawnTime = 2;
 void Game::update()
 {
 	if (mLastFrameTime == -1) //First update?
@@ -119,64 +137,160 @@ void Game::update()
 	}
 
 	float currentFrameTime = static_cast<float>(sgct::Engine::getTime());
-	float deltaTime = currentFrameTime - mLastFrameTime;	
+
+	float deltaTime = currentFrameTime - mLastFrameTime;
+	
+	//DEBUGGING PURPOSES, TODO BETTER SOLUTION
+	std::random_device randomDevice;
+	std::mt19937 gen(randomDevice());
+	std::uniform_real_distribution<> rng(-1.5f, 1.5f);
+
+	if ((int)currentFrameTime % spawnTime == 0 && !outputted)
+	{
+		mCollectPool.enableCollectible(glm::vec3(1.5f + rng(gen), rng(gen), 0.f));
+		outputted = true;
+	}
+
+	if ((int)currentFrameTime % spawnTime == 1 || (int)currentFrameTime % 2 == 2)
+		outputted = false;
 
 	//Update players
 	for (auto& player : mPlayers)
 		player.update(deltaTime);
 
-	detectCollisions();
-
 	//TODO Update other type of objects
 
+	detectCollisions();
+	
 	mLastFrameTime = currentFrameTime;
 }
 
-std::vector<std::byte> Game::getEncodedPlayerData()
+std::vector<std::byte> Game::getEncodedData()
 {
-	std::vector<PlayerData> allPositionData(mPlayers.size());
+	std::vector<std::byte> allEncodedData;
+
+	return allEncodedData;
+}
+
+std::vector<SyncableData> Game::getSyncableData()
+{
+	std::vector<SyncableData> tempData;
+	tempData.reserve(mCollectPool.getNumEnabled() * 1.5);
 
 	//Sync data for players present on all nodes first
 	for (size_t i = 0; i < mLastSyncedPlayer; ++i)
 	{
-		allPositionData[i] = mPlayers[i].getPlayerData(false);
+		SyncableData tempState;
+		Player& currentPlayer = mPlayers[i];
+
+		tempState.mPlayerData = currentPlayer.getPlayerData(false);
+		tempState.mPositionData = currentPlayer.getPositionData();
+		tempState.mIsPlayer = true;
+
+		tempData.push_back(tempState);
 	}
+
+	//Players not present on client nodes needs some book keeping
 	for (size_t i = mLastSyncedPlayer; i < mPlayers.size(); ++i)
 	{
-		allPositionData[i] = mPlayers[i].getPlayerData(true);
+		SyncableData tempState;
+		Player& currentPlayer = mPlayers[i];
+
+		tempState.mPlayerData = currentPlayer.getPlayerData(true);
+		tempState.mPositionData = currentPlayer.getPositionData();
+		tempState.mIsPlayer = true;
+
+		tempData.push_back(tempState);
 	}
 
-	std::vector<std::byte> tempEncodedData;
+	//Get enabled collectibles
+	for (size_t i = 0; i < CollectiblePool::mMAXNUMCOLLECTIBLES; i++)
+	{
+		if (mCollectPool[i].isEnabled())
+		{
+			SyncableData tempState;
+			Collectible& currentCollectible = mCollectPool[i];
 
-	sgct::serializeObject(tempEncodedData, allPositionData);
-	allPositionData.clear();
+			tempState.mCollectData = currentCollectible.getCollectibleData(i);
+			tempState.mPositionData = currentCollectible.getPositionData();
+			tempState.mIsPlayer = false;
 
-	mLastSyncedPlayer = mPlayers.size();
+			tempData.push_back(tempState);
+		}
+	}
 
-	return tempEncodedData;
+	return tempData;
 }
 
-void Game::setDecodedPositionData(const std::vector<PlayerData>& newState)
+void Game::setSyncableData(const std::vector<SyncableData> newState) //Copy atm bc of sgct synchronocity issues
 {
-	if (!sgct::Engine::instance().isMaster())
+	if (newState.size() > 10000) //If this happens something got corrupt along the way
+		return;
+
+	std::vector<SyncableData> newPlayerStates;
+	newPlayerStates.reserve(newState.size() / 2 + 1);
+  
+	std::vector<SyncableData> newCollectibleStates;
+	newCollectibleStates.reserve(newState.size() / 1.5 + 1);
+
+	size_t i = 0;
+	while (i < newState.size())
 	{
-		//number of unsynced players
-		size_t nUnsyncedPlayers = mPlayers.size();
+		if (newState[i].mIsPlayer)
+			newPlayerStates.push_back(newState[i++]);
+		else
+			newCollectibleStates.push_back(newState[i++]);
+	}
 
-		//New players get instanciated with correct value from the start
-		if (newState.size() > mPlayers.size())
-		{
-			for (size_t i = nUnsyncedPlayers; i < newState.size(); ++i)
-			{
-				addPlayer(newState[i]);
-			}
-		}
+	if (newPlayerStates.size() > 0)
+		setDecodedPlayerData(newPlayerStates);
+	if (newCollectibleStates.size() > 0)
+		setDecodedCollectibleData(newCollectibleStates);
+}
 
-		for (size_t i = 0; i < nUnsyncedPlayers; ++i)
+void Game::setDecodedCollectibleData(const std::vector<SyncableData>& newState)
+{
+	mCollectPool.setNumEnabled(newState.size());
+	for (size_t i = 0; i < newState.size(); i++)
+	{
+		const SyncableData& currentState = newState[i];
+		mCollectPool[currentState.mCollectData.mIndex].setCollectibleData(currentState.mPositionData);
+	}
+
+	//Disable rest of elements
+	//TODO this can probably be done faster
+	std::vector<size_t> enabledSlots;
+	enabledSlots.reserve(newState.size());
+	for (const auto& state : newState)
+	{
+		enabledSlots.push_back(state.mCollectData.mIndex);
+	}
+	for (size_t i = 0; i < CollectiblePool::mMAXNUMCOLLECTIBLES; i++)
+	{
+		bool isEnabled = std::binary_search(enabledSlots.begin(), enabledSlots.end(), i);
+		if (!isEnabled)
+			mCollectPool.disableCollectible(i);
+	}
+}
+
+void Game::setDecodedPlayerData(const std::vector<SyncableData>& newState)
+{
+	size_t nUnsyncedPlayers = mPlayers.size();
+
+	//New players get instanciated with correct value from the start
+	if (newState.size() > mPlayers.size())
+	{
+		for (size_t i = nUnsyncedPlayers; i < newState.size(); ++i)
 		{
-			mPlayers[i].setPlayerData(newState[i]);
+			addPlayer(newState[i].mPlayerData, newState[i].mPositionData);
 		}
 	}
+
+	for (size_t i = 0; i < nUnsyncedPlayers; ++i)
+	{
+		mPlayers[i].setPlayerData(newState[i].mPlayerData, newState[i].mPositionData);
+	}
+	nUnsyncedPlayers = mPlayers.size();	
 }
 
 void Game::updateTurnSpeed(std::tuple<unsigned int, float>&& input)
@@ -207,6 +321,12 @@ void Game::rotateAllPlayers(float newOrientation)
 	{
 		player.setOrientation(player.getOrientation() + newOrientation);
 	}
+}
+
+std::pair<glm::vec3, glm::vec3> Game::getPlayerColours(unsigned id)
+{
+    assert(id < mPlayers.size() && "Player get colours desync (id out of bounds mPlayers");
+    return mPlayers[id].getColours();
 }
 
 void Game::loadShader(const std::string& shaderName)

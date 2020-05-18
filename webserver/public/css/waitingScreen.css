@@ -1,3 +1,90 @@
 #waitingScreen {
     display: none;
+    background: url(../img/BeachBG.png);
+    background-size: cover;
+    background-position: top center;
+    position: relative;
+}
+
+#playerCharacterContainer {
+    /* "This is your character" */
+    background-color: var(--oceanDark);
+    box-shadow: 5px 0px 15px rgba(32, 32, 32, 0.5);
+    left: 0;
+    position: fixed;
+    width: 30%;
+
+    /* flex: 1; */
+}
+
+#playerCharacterContainer > :first-child {
+    /* Header */
+    padding: 15px;
+
+    /* height: 30%; */
+    /* flex: 1; */
+}
+
+#gameInformationContainer {
+    /* Game information */
+    position: fixed;
+    right: 0;
+    width: 70%;
+
+    /* flex: 1.5; */
+}
+
+#gameInformationContainer p {
+    font-size: 1.8rem;
+    transition: opacity 0.5s;
+    width: 60%;
+}
+
+#playerCharacterContainer h1 {
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+#playerCharacterSVG {
+    background-color: var(--guiLight);
+    border-radius: 1em;
+    box-shadow: 0px 0px 10px rgba(32, 32, 32, 0.5) inset;
+    height: 80%;
+    padding: 20px;
+    width: 50%;
+}
+
+#playerCharacterSVG path {
+    transition: fill 0.5s;
+}
+
+/* Fix layout on portrait for enhanced user experience */
+@media screen and (max-aspect-ratio: 13/9) {
+    #waitingScreen {
+        flex-direction: column-reverse;
+    }
+
+    #playerCharacterContainer {
+        bottom: 0;
+        flex-direction: row;
+        height: 30%;
+        left: unset;
+        width: 100%;
+    }
+
+    #playerCharacterContainer h1 {
+        font-size: 4rem;
+    }
+
+    #gameInformationContainer {
+        height: 70%;
+        position: fixed;
+        right: unset;
+        top: 0;
+        width: 100%;
+    }
+
+    #gameInformationContainer p {
+        font-size: 4rem;
+    }
 }

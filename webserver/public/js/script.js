@@ -15,6 +15,8 @@ $($.ajax({
 // const serverAddress = 'ws://192.168.10.225:81/';
 var socket;
 var screens = new Map();
+const nameLimit = 20;
+var connected = false;
 
 function log(msg) {
     document.getElementById('debug-output').innerHTML = msg;
@@ -42,7 +44,22 @@ function initialize() {
   }
 
   socket.onmessage = function() {
-    log(event.data);
+    if (event.data === "Connected") log(event.data);
+
+    // Receive player-colours
+    if (event.data[0] == 'A' || event.data[0] == 'B')
+    {
+      var primary;
+      var secondary;
+      if (event.data[0] === 'A') {
+        primary = event.data.substring(2);
+        log("Colour 1: " + primary);
+      } else if (event.data[0] === 'B') {
+        secondary = event.data.substring(2);
+        log("Colour 2: " + secondary);
+      }
+      setPlayerColours(primary, secondary);
+    }
   }
   
   // Push all screens into a map of [screen ID, screen]
@@ -65,7 +82,13 @@ function initialize() {
     })*/
   }
   // Set up event listeners
-  
+  var connectButton = document.querySelector('#connect');
+  connectButton.addEventListener('click', () => {
+    connected = true; // Mock connection state, should probably be handled in conjunction with the back-end
+
+    setCurrentScreen('waitingScreen');
+    handleInformationMessages();
+  })
 }
 
 // Set the currently visible screen to the matching screenID argument.
@@ -113,13 +136,18 @@ function returnConnection(){
 function handleTextInputChange() {
   var connectButton = document.querySelector('#connect');
   var inputTextForm = document.querySelector('#lname');
+  var charLimitMsg = document.querySelector('#charLimitMsg');
 
-  if (inputTextForm.value === '') {
-    connectButton.disabled = true;
-    connectButton.classList.add('disabled');
-  } else {
+  if (inputTextForm.value !== '' && inputTextForm.value.length <= nameLimit) {
+    inputTextForm.classList.remove('error');
+    charLimitMsg.classList.add('hidden');
     connectButton.disabled = false;
     connectButton.classList.remove('disabled');
+  } else {
+    inputTextForm.classList.add('error');
+    charLimitMsg.classList.remove('hidden');
+    connectButton.disabled = true;
+    connectButton.classList.add('disabled');
   }
 }
 

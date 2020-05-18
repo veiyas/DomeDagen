@@ -28,6 +28,7 @@ set_property(TARGET assimp PROPERTY CXX_STANDARD_REQUIRED ON)
 #
 add_executable(${PROJECT_NAME}
   src/main.cpp
+  src/constants.hpp
   src/websockethandler.h
   src/websockethandler.cpp
   src/utility.hpp
@@ -44,16 +45,30 @@ add_executable(${PROJECT_NAME}
   src/mesh.cpp
   src/model.hpp
   src/model.cpp
+  src/constants.hpp
+  src/backgroundobject.hpp
+  src/backgroundobject.cpp
   src/sceneobject.hpp
   src/sceneobject.cpp
   src/modelmanager.hpp
   src/modelmanager.cpp
+  src/collectible.hpp
+  src/collectible.cpp
+  src/collectiblepool.hpp
+  src/collectiblepool.cpp
+  src/balljointconstraint.hpp
+  src/balljointconstraint.cpp
+  src/constants.hpp
   src/shaders/playervert.glsl
   src/shaders/playerfrag.glsl
   src/shaders/sceneobjectvert.glsl
   src/shaders/sceneobjectfrag.glsl
   src/shaders/testingvert.glsl
   src/shaders/testingfrag.glsl
+  src/shaders/collectiblevert.glsl
+  src/shaders/collectiblefrag.glsl
+  src/shaders/backgroundvert.glsl
+  src/shaders/backgroundfrag.glsl
   src/configs/fisheye_testing.xml
   src/configs/simple.xml
   src/configs/six_nodes.xml
