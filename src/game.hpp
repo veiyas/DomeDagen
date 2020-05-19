@@ -91,6 +91,15 @@ public:
 	//Get and encode object data for syncing
 	std::vector<std::byte> getEncodedData();
 
+	//Get leaderboard string
+	std::string getLeaderboard() const;
+
+	//Check if game has ended
+	bool hasGameEnded() const { return mGameIsEnded; }
+	
+	//End the game (stop updating state)
+	void endGame() { mGameIsEnded = true; }
+
 	//Set the turn speed of player player with id id
 	void updateTurnSpeed(std::tuple<unsigned int, float>&& input);    
    
@@ -117,7 +126,11 @@ private:
 	//Pool of collectibles for fast "generation" of objects
 	CollectiblePool mCollectPool;
 
+	//Has the game ended?
+	bool mGameIsEnded = false;
+
 	//GameObjects unique id generator for player tagging
+	//Deprecated
 	static unsigned int mUniqueId;
 
 	//Track all loaded shaders' names
