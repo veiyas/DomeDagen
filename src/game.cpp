@@ -1,8 +1,4 @@
 #include "game.hpp"
-//TODO are these includes necessary
-#include "player.hpp"
-#include <sgct/engine.h>
-#include "sgct/sgct.h"
 
 //Define instance and id counter
 Game* Game::mInstance = nullptr;
@@ -91,14 +87,13 @@ void Game::printLoadedAssets() const
 
 void Game::render() const
 {
+	ZoneScoped;
 	//Render background
 	mBackground->render(mMvp, mV);
 
 	glClear(GL_DEPTH_BUFFER_BIT); //Draw all other objects in front of background
 
-	//Render players
-	for (const Player& p : mPlayers)
-		p.render(mMvp, mV);
+	renderPlayers();
 
 	mCollectPool.render(mMvp, mV);
 }
@@ -131,6 +126,7 @@ bool outputted = false;
 int spawnTime = 4;
 void Game::update()
 {
+	ZoneScoped;
 	if (mGameIsEnded)
 		return;
 	if (mLastFrameTime == -1) //First update?
@@ -316,6 +312,21 @@ void Game::setDecodedCollectibleData(const std::vector<SyncableData>& newState)
 		bool isEnabled = std::binary_search(enabledSlots.begin(), enabledSlots.end(), i);
 		if (!isEnabled)
 			mCollectPool.disableCollectible(i);
+	}
+}
+
+void Game::renderPlayers() const
+{
+	ZoneScoped;
+	if (mPlayers.size() > 0)
+	{
+		auto const& playerShader = sgct::ShaderManager::instance().shaderProgram("player");
+		playerShader.bind();
+
+		for (const Player& p : mPlayers)
+			p.render(mMvp, mV);
+
+		playerShader.unbind();
 	}
 }
 

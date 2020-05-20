@@ -2,6 +2,7 @@
 
 void CollectiblePool::init()
 {
+	ZoneScoped;
 	//Copy trash models from allModelNames
 	std::vector<std::string> trashModelNames;
 	for (const std::string& name : allModelNames)
@@ -34,14 +35,22 @@ void CollectiblePool::init()
 
 void CollectiblePool::render(const glm::mat4& mvp, const glm::mat4& v) const
 {
-	for (size_t i = 0; i < mPool.size(); i++)
+	ZoneScoped;
+	if (mPool.size() > 0)
 	{
-		mPool[i].render(mvp, v);
+		auto const& collectibleShader = sgct::ShaderManager::instance().shaderProgram("collectible");
+		collectibleShader.bind();
+		for (size_t i = 0; i < mPool.size(); i++)
+		{
+			mPool[i].render(mvp, v);
+		}
+		collectibleShader.unbind();
 	}
 }
 
 std::vector<CollectibleData> CollectiblePool::getPoolState() const
 {
+	ZoneScoped;
 	std::vector<CollectibleData> poolData;
 	poolData.reserve(mNumEnabled);
 
@@ -58,6 +67,7 @@ std::vector<CollectibleData> CollectiblePool::getPoolState() const
 
 void CollectiblePool::enableCollectible(const glm::vec3& pos)
 {
+	ZoneScoped;
 	if (mFirstAvailable == nullptr)
 		return;
 
@@ -72,6 +82,7 @@ void CollectiblePool::enableCollectible(const glm::vec3& pos)
 
 void CollectiblePool::disableCollectible(const size_t index)
 {
+	ZoneScoped;
 	/*
 	
 		This swap code is hella good for performance

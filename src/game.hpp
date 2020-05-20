@@ -5,21 +5,20 @@
 #include <fstream>
 #include <iostream>
 #include <map>
-#include <memory>
 #include <utility>
 #include <tuple>
 #include <cmath>
 #include <random>
-#include <mutex>
 #include <cstddef>
 
 #include "sgct/shareddata.h"
 #include "sgct/log.h"
+#include "sgct/profiling.h"
+#include "sgct/shadermanager.h"
+#include "sgct/shaderprogram.h"
+#include "sgct/engine.h"
 #include "glad/glad.h"
 #include "glm/packing.hpp"
-#include "sgct/shadermanager.h"
-#include <sgct/engine.h>
-#include "sgct/shaderprogram.h"
 #include "glm/matrix.hpp"
 
 #include "player.hpp"
@@ -92,6 +91,7 @@ public:
 	std::vector<std::byte> getEncodedData();
 
 	//Get leaderboard string
+	//Only gets called at end of game
 	std::string getLeaderboard() const;
 
 	//Check if game has ended
@@ -164,6 +164,7 @@ private:
 	void setDecodedPlayerData(const std::vector<SyncableData>& newState);
 	void setDecodedCollectibleData(const std::vector<SyncableData>& newState);
 
+	void renderPlayers() const;
 
 	//Read shader into ShaderManager
 	void loadShader(const std::string& shaderName);

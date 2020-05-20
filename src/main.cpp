@@ -10,25 +10,24 @@
 #include <sstream>
 #include <random>
 #include <glm/gtx/string_cast.hpp>
-
 #include "sgct/sgct.h"
+
+#include "sgct/profiling.h"
 
 #include "websockethandler.h"
 #include "utility.hpp"
 #include "game.hpp"
-#include "sceneobject.hpp"
-#include "player.hpp"
 #include "modelmanager.hpp"
-#include "backgroundobject.hpp"
 
 namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
 
+	//Variables to catch sync data
+	bool isGameEnded = false;
+	bool areStatsVisible = false;
+
 	//Container for deserialized game state info
 	std::vector<SyncableData> gameObjectStates;
-
-	//TEMPORARY used to control rotation of all players 
-	float updatedRotation{ 0 };
 } // namespace
 
 using namespace sgct;
@@ -66,7 +65,7 @@ int main(int argc, char** argv)
 	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
-	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
 	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
@@ -119,10 +118,9 @@ int main(int argc, char** argv)
 }
 
 void draw(const RenderData& data)
-{
+{	
 	Game::instance().setMVP(data.modelViewProjectionMatrix);
 	Game::instance().setV(data.viewMatrix);
-
 
 	glClearColor(20.0/255.0, 157.0/255.0, 190.0/255.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -142,13 +140,13 @@ void draw(const RenderData& data)
 
 void draw2D(const RenderData& data)
 {
-	if (!Game::instance().hasGameEnded())
+	if (!isGameEnded)
 		return;
 	static constexpr int bigFontSize = 24;
 
-	std::string leaderboardString = Game::instance().getLeaderboard();
-	glm::ivec2 screenRes = data.window.resolution();
-
+	const std::string leaderboardString = Game::instance().getLeaderboard();
+	const glm::ivec2& screenRes = data.window.resolution();
+	
 	//Leaderboard header
 	text::print(
 		data.window,
@@ -156,7 +154,7 @@ void draw2D(const RenderData& data)
 		*text::FontManager::instance().font("SGCTFont", bigFontSize),
 		text::Alignment::TopCenter,
 		screenRes.x / 2,
-		screenRes.y / 1.2,
+		screenRes.y / 2.5,
 		glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
 		"%s", "Leaderboard"
 		);
@@ -167,7 +165,7 @@ void draw2D(const RenderData& data)
 		*text::FontManager::instance().font("SGCTFont", 12),
 		text::Alignment::TopCenter,
 		screenRes.x / 2,
-		screenRes.y / 1.2 - bigFontSize,
+		screenRes.y / 2.5 - bigFontSize,
 		glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
 		"%s", leaderboardString.c_str()
 		);
@@ -181,13 +179,13 @@ void initOGL(GLFWwindow*)
 	/**********************************/
 	/*			 Debug Area			  */
 	/**********************************/
-	//if (Engine::instance().isMaster())
-	//{
-	//	for (size_t i = 0; i < 10; i++)
-	//	{
-	//		Game::instance().addPlayer(glm::vec3(0.f + 0.3f * i));
-	//	}
-	//}
+	if (Engine::instance().isMaster())
+	{
+		for (size_t i = 0; i < 10; i++)
+		{
+			Game::instance().addPlayer(glm::vec3(0.f + 0.3f * i));
+		}
+	}
 }
 
 void keyboard(Key key, Modifier modifier, Action action, int)
@@ -197,6 +195,15 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 	}
 	if (key == Key::Q && action == Action::Press) {
 		Game::instance().endGame();
+		isGameEnded = true;
+	}
+	if (key == Key::T && action == Action::Press) {
+		Engine::instance().setStatsGraphVisibility(true);
+		areStatsVisible = true;
+	}
+	if (key == Key::G && action == Action::Press) {
+		Engine::instance().setStatsGraphVisibility(false);
+		areStatsVisible = false;
 	}
 	if (key == Key::Space && modifier == Modifier::Shift && action == Action::Release)
 	{
@@ -230,10 +237,14 @@ void preSync()
 }
 
 std::vector<std::byte> encode()
-{
+{	
 	std::vector<std::byte> output;
 
-	//For some reason everything has to to be put in one vector to avoid sgct syncing bugs
+	//Sync if game has ended yet
+	serializeObject(output, Game::instance().hasGameEnded());
+	//Sync if stats window is visible
+	serializeObject(output, areStatsVisible);
+	//For some reason all game state has to to be put in one vector to avoid sgct syncing bugs
 	serializeObject(output, Game::instance().getSyncableData());
 
 	return output;
@@ -243,8 +254,10 @@ void decode(const std::vector<std::byte>& data, unsigned int pos)
 {
 	if (!Game::exists()) //No point in syncing data if no instance of Game exist yet
 		return;
+	deserializeObject(data, pos, isGameEnded);
+	deserializeObject(data, pos, areStatsVisible);
 
-	//For some reason everything has to to be put in one vector to avoid sgct syncing bugs
+	//For some reason all game state has to to be put in one vector to avoid sgct syncing bugs
 	deserializeObject(data, pos, gameObjectStates);
 }
 
@@ -259,6 +272,7 @@ void postSyncPreDraw()
 	//Sync gameobjects' state on clients only
 	if (!Engine::instance().isMaster() && Game::exists() && gameObjectStates.size() > 0)
 	{
+		Engine::instance().setStatsGraphVisibility(areStatsVisible);
 		Game::instance().setSyncableData(std::move(gameObjectStates));
 	}
 }

@@ -48,15 +48,12 @@ Collectible& Collectible::operator=(Collectible&& src) noexcept
 
 void Collectible::render(const glm::mat4& mvp, const glm::mat4& v) const
 {
+	//ZoneScoped;
 	if (mEnabled)
 	{
-		mShaderProgram.bind();
-
 		glUniformMatrix4fv(mMvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(mvp));
 		glUniformMatrix4fv(mTransMatrixLoc, 1, GL_FALSE, glm::value_ptr(getTransformation()));
-		this->renderModel();
-
-		mShaderProgram.unbind();
+		renderModel();
 	}
 }
 

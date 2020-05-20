@@ -5,7 +5,7 @@
       <Stereo type="none" />
       <Pos x="900" y="30"/>
       <!-- 16:9 aspect ratio -->
-      <Size x="1024" y="1024" />
+      <Size x="1020" y="1020" />
       <!-- Frame buffer resolution
 			<Res x="4096" y="4096" /> -->
       <!--

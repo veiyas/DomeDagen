@@ -31,13 +31,13 @@ public:
 	GLint mCameraPosLoc = -1;
 
 	//Reference to shader in shader pool
-	const sgct::ShaderProgram& mShaderProgram;
+	const sgct::ShaderProgram& mShaderProgram;	
 
 	//POINTER to model in model pool (references are not swappable)
 	//Needs to be swappable for collectible pooling
 	Model* mModel;
 
-	//Render model
+	//Render geometry and texture
 	void renderModel() const { mModel->render(); };
 
 	//Set shader data
