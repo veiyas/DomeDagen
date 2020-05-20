@@ -43,7 +43,7 @@ function initialize() {
     log('Connection is closed');
   }
 
-  socket.onmessage = function() {
+  socket.onmessage = function(event) {
     if (event.data === "Connected") log(event.data);
 
     // Receive player-colours
@@ -87,6 +87,7 @@ function initialize() {
   connectButton.addEventListener('click', () => {
     connected = true; // Mock connection state, should probably be handled in conjunction with the back-end
 
+    // setCurrentScreen('gameRunningScreen');
     setCurrentScreen('waitingScreen');
     handleInformationMessages();
   })
@@ -154,6 +155,67 @@ function handleTextInputChange() {
   }
 }
 
+const leftBtn = document.getElementById('turnLeft');
+const rightBtn = document.getElementById('turnRight');
+
+var leftIsPressed = false;
+var rightIsPressed = false;
+
+// Handle buttons when using mouse
+leftBtn.addEventListener('mousedown', (event) => {
+  leftIsPressed = true;
+  sendSteeringData();
+});
+leftBtn.addEventListener('mouseup', (event) => {
+  leftIsPressed = false;
+  sendSteeringData();
+});
+rightBtn.addEventListener('mousedown', (event) => {
+  rightIsPressed = true;
+  sendSteeringData();
+});
+rightBtn.addEventListener('mouseup', (event) => {
+  rightIsPressed = false
+  sendSteeringData();
+});
+
+// Handle buttons on touch devices
+leftBtn.addEventListener('touchstart', (event) => {
+  leftIsPressed = true;
+  sendSteeringData();
+  event.preventDefault();
+});
+leftBtn.addEventListener('touchend', (event) => {
+  leftIsPressed = false;
+  sendSteeringData();
+  event.preventDefault();
+});
+rightBtn.addEventListener('touchstart', (event) => {
+  rightIsPressed = true;
+  sendSteeringData();
+  event.preventDefault();
+});
+rightBtn.addEventListener('touchend', (event) => {
+  rightIsPressed = false
+  sendSteeringData();
+  event.preventDefault();
+});
+
+function sendSteeringData() {
+  if(connected && socket.readyState === WebSocket.OPEN) {
+    // console.log(direction);
+    let direction = 0;
+    if (rightIsPressed && leftIsPressed || (!rightIsPressed) && (!leftIsPressed)){
+      direction = 0;
+    } else if (rightIsPressed) {
+      direction = -1;
+    } else {
+      direction = 1;
+    }
+
+    socket.send(`C ${direction}`);
+  }
+}
 function checkCookie() {
   var user = getCookie("username");
   if (user != "") {
