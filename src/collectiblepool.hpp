@@ -10,7 +10,7 @@
 
 //Contain all collectibles with object pool design pattern
 //Game contains an instance of this class
-//Pool is stable partitioned with enabled objects in front
+//Pool is stable partitioned with enabled objects in front ACTUALLY this does not seem to be the case?
 class CollectiblePool
 {
 public:
