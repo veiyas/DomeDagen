@@ -52,15 +52,17 @@
     <div class="row centered">
       <h1>Welcome back</h1>
     </div>
-    <div class="row">
-      <div class="col">
-        <p>do you want to continue as <div id="returnUserName"></div></p>
+    <div id="reconnectionContainer" class="col padded centered">
+      <div class="row centered">
+        <p>Do you want to continue as <span id="returnUserName"></span>?</p>
+      </div>
+      <div class="row centered">
         <button id="returnConnect" onclick="returnConnection()">Yes</button>
         <button id="returnDontConnect" onclick="deleteCookie()">No</button>
       </div>
     </div>
     <!-- Add connection to get name in input, in initialize() function -->
-    <div id="debug-output">Debug info</div>
+    <!-- <div id="debug-output">Debug info</div> -->
   </div>
 
   <div id="waitingScreen" class="screen">

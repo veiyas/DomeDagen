@@ -68,11 +68,8 @@ function initialize() {
   });
   if(checkCookie()) {
     setCurrentScreen('returningPlayerScreen');
-    var usernameParagraph = document.getElementById("returnUserName");
-    var x = document.createElement("P");
-    var t = document.createTextNode(returningPlayerUserName);
-    x.appendChild(t);
-    usernameParagraph.appendChild(x);
+    var username = document.querySelector("#returnUserName");
+    username.innerHTML = returningPlayerUserName;
   }else {
     setCurrentScreen('welcomeScreen');
     /*var connectButton = document.querySelector('#connect');
