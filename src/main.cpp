@@ -38,6 +38,7 @@ using namespace sgct;
 *****************************/
 void initOGL(GLFWwindow*);
 void draw(const RenderData& data);
+void draw2D(const RenderData& data);
 void cleanup();
 
 std::vector<std::byte> encode();
@@ -65,7 +66,7 @@ int main(int argc, char** argv)
 	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
-	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
 	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
@@ -80,6 +81,7 @@ int main(int argc, char** argv)
 	callbacks.decode = decode;
 	callbacks.postSyncPreDraw = postSyncPreDraw;
 	callbacks.draw = draw;
+	callbacks.draw2D = draw2D;
 	callbacks.cleanup = cleanup;
 	callbacks.keyboard = keyboard;
 
@@ -124,11 +126,6 @@ void draw(const RenderData& data)
 
 	glClearColor(20.0/255.0, 157.0/255.0, 190.0/255.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	//Background object
-	//Game::instance()
-	//glDisable(GL_DEPTH_TEST);
-
 	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_CULL_FACE); // TODO This should really be enabled but the normals of the
 	                          // background object are flipped atm
@@ -143,6 +140,39 @@ void draw(const RenderData& data)
 	}
 }
 
+void draw2D(const RenderData& data)
+{
+	if (!Game::instance().hasGameEnded())
+		return;
+	static constexpr int bigFontSize = 24;
+
+	std::string leaderboardString = Game::instance().getLeaderboard();
+	glm::ivec2 screenRes = data.window.resolution();
+
+	//Leaderboard header
+	text::print(
+		data.window,
+		data.viewport,
+		*text::FontManager::instance().font("SGCTFont", bigFontSize),
+		text::Alignment::TopCenter,
+		screenRes.x / 2,
+		screenRes.y / 1.2,
+		glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
+		"%s", "Leaderboard"
+		);
+	//Actual leaderboard
+	text::print(
+		data.window,
+		data.viewport,
+		*text::FontManager::instance().font("SGCTFont", 12),
+		text::Alignment::TopCenter,
+		screenRes.x / 2,
+		screenRes.y / 1.2 - bigFontSize,
+		glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
+		"%s", leaderboardString.c_str()
+		);
+}
+
 void initOGL(GLFWwindow*)
 {
 	ModelManager::init();
@@ -151,19 +181,22 @@ void initOGL(GLFWwindow*)
 	/**********************************/
 	/*			 Debug Area			  */
 	/**********************************/
-	if (Engine::instance().isMaster())
-	{
-		for (size_t i = 0; i < 10; i++)
-		{
-			Game::instance().addPlayer(glm::vec3(0.f + 0.3f * i));
-		}
-	}
+	//if (Engine::instance().isMaster())
+	//{
+	//	for (size_t i = 0; i < 10; i++)
+	//	{
+	//		Game::instance().addPlayer(glm::vec3(0.f + 0.3f * i));
+	//	}
+	//}
 }
 
 void keyboard(Key key, Modifier modifier, Action action, int)
 {
 	if (key == Key::Esc && action == Action::Press) {
 		Engine::instance().terminate();
+	}
+	if (key == Key::Q && action == Action::Press) {
+		Game::instance().endGame();
 	}
 	if (key == Key::Space && modifier == Modifier::Shift && action == Action::Release)
 	{
