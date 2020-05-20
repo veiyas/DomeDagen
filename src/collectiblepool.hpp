@@ -4,6 +4,7 @@
 
 #include "sgct/log.h"
 #include "sgct/shadermanager.h"
+#include "sgct/profiling.h"
 
 #include "collectible.hpp"
 #include "constants.hpp"

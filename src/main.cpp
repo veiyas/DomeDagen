@@ -24,11 +24,12 @@
 namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
 
+	//Vars to catch sync data
+	bool isGameEnded = false;
+	bool areStatsVisible = false;
+
 	//Container for deserialized game state info
 	std::vector<SyncableData> gameObjectStates;
-
-	//TEMPORARY used to control rotation of all players 
-	float updatedRotation{ 0 };
 } // namespace
 
 using namespace sgct;
@@ -66,7 +67,7 @@ int main(int argc, char** argv)
 	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
-	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
 	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
@@ -142,7 +143,7 @@ void draw(const RenderData& data)
 
 void draw2D(const RenderData& data)
 {
-	if (!Game::instance().hasGameEnded())
+	if (!isGameEnded)
 		return;
 	static constexpr int bigFontSize = 24;
 
@@ -181,13 +182,13 @@ void initOGL(GLFWwindow*)
 	/**********************************/
 	/*			 Debug Area			  */
 	/**********************************/
-	//if (Engine::instance().isMaster())
-	//{
-	//	for (size_t i = 0; i < 10; i++)
-	//	{
-	//		Game::instance().addPlayer(glm::vec3(0.f + 0.3f * i));
-	//	}
-	//}
+	if (Engine::instance().isMaster())
+	{
+		for (size_t i = 0; i < 10; i++)
+		{
+			Game::instance().addPlayer(glm::vec3(0.f + 0.3f * i));
+		}
+	}
 }
 
 void keyboard(Key key, Modifier modifier, Action action, int)
@@ -197,6 +198,15 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 	}
 	if (key == Key::Q && action == Action::Press) {
 		Game::instance().endGame();
+		isGameEnded = true;
+	}
+	if (key == Key::T && action == Action::Press) {
+		Engine::instance().setStatsGraphVisibility(true);
+		areStatsVisible = true;
+	}
+	if (key == Key::G && action == Action::Press) {
+		Engine::instance().setStatsGraphVisibility(false);
+		areStatsVisible = false;
 	}
 	if (key == Key::Space && modifier == Modifier::Shift && action == Action::Release)
 	{
@@ -233,6 +243,8 @@ std::vector<std::byte> encode()
 {
 	std::vector<std::byte> output;
 
+	serializeObject(output, isGameEnded);
+	serializeObject(output, areStatsVisible);
 	//For some reason everything has to to be put in one vector to avoid sgct syncing bugs
 	serializeObject(output, Game::instance().getSyncableData());
 
@@ -244,6 +256,8 @@ void decode(const std::vector<std::byte>& data, unsigned int pos)
 	if (!Game::exists()) //No point in syncing data if no instance of Game exist yet
 		return;
 
+	deserializeObject(data, pos, isGameEnded);
+	deserializeObject(data, pos, areStatsVisible);
 	//For some reason everything has to to be put in one vector to avoid sgct syncing bugs
 	deserializeObject(data, pos, gameObjectStates);
 }
@@ -259,6 +273,7 @@ void postSyncPreDraw()
 	//Sync gameobjects' state on clients only
 	if (!Engine::instance().isMaster() && Game::exists() && gameObjectStates.size() > 0)
 	{
+		Engine::instance().setStatsGraphVisibility(areStatsVisible);
 		Game::instance().setSyncableData(std::move(gameObjectStates));
 	}
 }

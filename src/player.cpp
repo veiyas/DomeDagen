@@ -161,8 +161,6 @@ void Player::render(const glm::mat4& mvp, const glm::mat4& v) const
 	if (!mEnabled)
 		return;
 
-	mShaderProgram.bind();
-
 	// frans; Even more color things!
 	glUniform3fv(mPrimaryColLoc, 1, glm::value_ptr(mPlayerColours.first));
 	glUniform3fv(mSecondaryColLoc, 1, glm::value_ptr(mPlayerColours.second));
@@ -179,8 +177,6 @@ void Player::render(const glm::mat4& mvp, const glm::mat4& v) const
 	glUniformMatrix4fv(mViewMatrixLoc, 1, GL_FALSE, glm::value_ptr(v));
 	glUniformMatrix4fv(mTransMatrixLoc, 1, GL_FALSE, glm::value_ptr(transformation));
 	this->renderModel();
-
-	mShaderProgram.unbind();
 }
 
 void Player::setShaderData()
