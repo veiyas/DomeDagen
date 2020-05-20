@@ -3,6 +3,8 @@
 #include "player.hpp"
 #include <sgct/engine.h>
 #include "sgct/sgct.h"
+#include <glm/gtx/vector_angle.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 //Define instance and id counter
 Game* Game::mInstance = nullptr;
@@ -21,12 +23,15 @@ void Game::detectCollisions()
 	{
 		for (size_t i = 0; i < mPlayers.size(); i++)
 		{
-			for (size_t j = 0; j < CollectiblePool::mMAXNUMCOLLECTIBLES && mCollectPool[j].isEnabled(); j++)
-			{
-				auto playerQuat = mPlayers[i].getPosition();
-				auto collectibleQuat = mCollectPool[j].getPosition();
+			glm::quat playerQuat = mPlayers[i].getPosition();
 
-				auto deltaQuat = glm::normalize(glm::inverse(playerQuat) * collectibleQuat);
+			for (size_t j = 0; j < CollectiblePool::mMAXNUMCOLLECTIBLES; j++)
+			{
+				if (!mCollectPool[j].isEnabled())
+					continue;
+				
+				glm::quat collectibleQuat = mCollectPool[j].getPosition();
+				glm::quat deltaQuat = glm::normalize(glm::inverse(playerQuat) * collectibleQuat);
 
 				//Collision detection by comparing how small the angle between the objects are
 				//TODO Algot "Quat Guru" Sandahl needs to review this part
@@ -43,6 +48,7 @@ void Game::detectCollisions()
 					mPlayers[i].addPoints();
 					mCollectPool.disableCollectible(j);
 				}
+
 			}
 		}
 	}
