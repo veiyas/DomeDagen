@@ -66,14 +66,14 @@ function initialize() {
   document.querySelectorAll('.screen').forEach(screen => {
     screens.set(screen.id, screen)
   });
-  if(checkCookie()){
+  if(checkCookie()) {
     setCurrentScreen('returningPlayerScreen');
     var usernameParagraph = document.getElementById("returnUserName");
     var x = document.createElement("P");
     var t = document.createTextNode(returningPlayerUserName);
     x.appendChild(t);
     usernameParagraph.appendChild(x);
-  }else{
+  }else {
     setCurrentScreen('welcomeScreen');
     /*var connectButton = document.querySelector('#connect');
     connectButton.addEventListener('click', () => {
@@ -122,7 +122,7 @@ function sendName() {
 
 }
 //for returning user 
-function returnConnection(){
+function returnConnection() {
   if (socket.readyState === WebSocket.OPEN) {
     var stringToSend = `N ${returningPlayerUserName}`;
     socket.send(stringToSend);
@@ -174,8 +174,8 @@ function setCookie(cname, cvalue, exdays) {
   document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
 //delete cookie
-function deleteCookie(){
-  if(getCookie("username")){
+function deleteCookie() {
+  if(getCookie("username")) {
     document.cookie = returningPlayerUserName + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
     returningPlayerUserName = "";
   }
