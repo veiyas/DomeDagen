@@ -2,13 +2,14 @@
     background: url(../img/OceanBG.png);
     background-size: cover;
     background-position: bottom center;
-    /* display: none; */
+    display: none;
+    position: relative;
 }
 
 #gameRunningScreen p {
     color: var(--guiLight);
     font-size: 1.5rem;
-    
+
     /* padding: 10px; */
     /* left: 0; */
     /* position: absolute; */
@@ -25,7 +26,7 @@
 /* Show score in left corner */
 #scoreContainer {
     align-items: center;
-    background-color: #2423317e; /* Slightly ugly to copy the colour like this, but I wanted to add opacity to just the background colour */ 
+    background-color: #2423317e; /* Slightly ugly to copy the colour like this, but I wanted to add opacity to just the background colour */
     display: flex;
     padding: 0 20px;
     width: auto;
@@ -57,6 +58,7 @@
     width: 100%;
 }
 
+<<<<<<< HEAD
 /* Time indicator elements */
 #gameRunningScreen > div:last-of-type {
     height: 50%;
@@ -91,6 +93,25 @@
     transition: height 0.5s linear;
     width: 30%;
     z-index: 1;
+=======
+/* Two button controls */
+.buttonControls {
+    position: absolute;
+    bottom: 0;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+}
+
+#turnLeft {
+    left: 0;
+}
+
+#turnRight {
+    right: 0;
+>>>>>>> master
 }
 
 /* Old styling */
@@ -100,7 +121,7 @@
     font-size: 2rem;
     padding: 20px;
     width: 20vw;
-    
+
     /* bottom: 0; */
     /* border-radius: 100%; */
     /* right: 0; */
@@ -115,4 +136,8 @@
     height: 50vh;
     text-align: center;
     width: 50vw;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> master
