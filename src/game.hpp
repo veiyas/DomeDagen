@@ -148,7 +148,7 @@ private:
 	//The time of the last update (in seconds)
 	float mLastFrameTime;
 
-	static constexpr double collisionDistance = 0.2f; //TODO make this object specific
+	static constexpr double collisionDistance = 0.1f; //TODO make this object specific
 	
 
 	BackgroundObject *mBackground; //Holds pointer to the background
