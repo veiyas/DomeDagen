@@ -302,7 +302,16 @@ void messageReceived(const void* data, size_t length)
         if (msgType == 'D') {
             unsigned int playerId;
             iss >> playerId;
+            Log::Info("Player disabled: %s", message.c_str());
             Game::instance().disablePlayer(playerId);
+        }
+        
+        // If first slot is 'E', player to be enabled has been sent
+        if (msgType == 'E') {
+            Log::Info("Player enabled: %s", message.c_str());
+            unsigned int playerId;
+            iss >> playerId;
+            Game::instance().enablePlayer(playerId);
         }
         
         // If first slot is 'I', player's ID has been sent
