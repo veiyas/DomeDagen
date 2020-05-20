@@ -1,8 +1,10 @@
 #include "backgroundobject.hpp"
 
 BackgroundObject::BackgroundObject()
-	: GameObject{ GameObject::BACKGROUND, 1.0f, glm::quat(glm::vec3(0.49f, 1.0f, -1.0f)), 0.5f },
-	GeometryHandler("background", "background")
+
+	: GameObject{ GameObject::BACKGROUND, 1.0f, glm::quat(glm::vec3(0.49f, 1.0f, -1.0f)), 0.5f,
+	              10.f, glm::vec3(glm::half_pi<float>(), 0.f, -glm::half_pi<float>()) },
+	  GeometryHandler("background", "background")
 {
 	sgct::Log::Info("Background object created");
 	setOrientation(getOrientation() + 1.2f);

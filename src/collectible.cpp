@@ -7,7 +7,7 @@ Collectible::Collectible()
 }
 
 Collectible::Collectible(const std::string objectModelName)
-	:GameObject{ GameObject::COLLECTIBLE, 50.f, glm::vec3(1.f, 0.f, 0.f), 0.f }
+	:GameObject{ GameObject::COLLECTIBLE, 50.f, glm::vec3(1.f, 0.f, 0.f), 0.f, COLLECTIBLESCALE }
 	,GeometryHandler{ "collectible", objectModelName }
 	,mEnabled{false}, mNext{nullptr}
 {
@@ -58,6 +58,11 @@ void Collectible::render(const glm::mat4& mvp, const glm::mat4& v) const
 
 		mShaderProgram.unbind();
 	}
+}
+
+void Collectible::update(float deltaTime)
+{
+	setModelRotation(getModelRotation() * glm::quat(deltaTime * 1.2f * glm::vec3(1.f, 1.f, 1.f)));
 }
 
 CollectibleData Collectible::getCollectibleData(unsigned index) const

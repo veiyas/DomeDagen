@@ -21,12 +21,15 @@ void Game::detectCollisions()
 	{
 		for (size_t i = 0; i < mPlayers.size(); i++)
 		{
-			for (size_t j = 0; j < CollectiblePool::mMAXNUMCOLLECTIBLES && mCollectPool[j].isEnabled(); j++)
-			{
-				auto playerQuat = mPlayers[i].getPosition();
-				auto collectibleQuat = mCollectPool[j].getPosition();
+			glm::quat playerQuat = mPlayers[i].getPosition();
 
-				auto deltaQuat = glm::normalize(glm::inverse(playerQuat) * collectibleQuat);
+			for (size_t j = 0; j < CollectiblePool::mMAXNUMCOLLECTIBLES; j++)
+			{
+				if (!mCollectPool[j].isEnabled())
+					continue;
+				
+				glm::quat collectibleQuat = mCollectPool[j].getPosition();
+				glm::quat deltaQuat = glm::normalize(glm::inverse(playerQuat) * collectibleQuat);
 
 				//Collision detection by comparing how small the angle between the objects are
 				//TODO Algot "Quat Guru" Sandahl needs to review this part
@@ -43,6 +46,7 @@ void Game::detectCollisions()
 					mPlayers[i].addPoints();
 					mCollectPool.disableCollectible(j);
 				}
+
 			}
 		}
 	}
@@ -110,7 +114,8 @@ void Game::addPlayer()
 
 void Game::addPlayer(const glm::vec3& pos)
 {
-	mPlayers.emplace_back(Player{ "diver", 50.f, pos, 0.f, "player", 0.5 });
+	mPlayers.push_back(Player{ "diver", 50.f, pos, 0.f, "Player " + std::to_string(mUniqueId), 0.5 });
+	++mUniqueId;
 }
 
 void Game::addPlayer(const PlayerData& newPlayerData, const PositionData& newPosData)
@@ -127,9 +132,11 @@ void Game::addPlayer(std::tuple<unsigned int, std::string>&& inputTuple)
 
 //DEBUGGING PURPOSES, TODO BETTER SOLUTION
 bool outputted = false;
-int spawnTime = 2;
+int spawnTime = 4;
 void Game::update()
 {
+	if (mGameIsEnded)
+		return;
 	if (mLastFrameTime == -1) //First update?
 	{
 		mLastFrameTime = static_cast<float>(sgct::Engine::getTime());
@@ -147,7 +154,10 @@ void Game::update()
 
 	if ((int)currentFrameTime % spawnTime == 0 && !outputted)
 	{
-		mCollectPool.enableCollectible(glm::vec3(1.5f + rng(gen), rng(gen), 0.f));
+		for (size_t i = 0; i < mPlayers.size() / 2; i++)
+		{
+			mCollectPool.enableCollectible(glm::vec3(1.5f + rng(gen), rng(gen), 0.f));
+		}		
 		outputted = true;
 	}
 
@@ -157,6 +167,12 @@ void Game::update()
 	//Update players
 	for (auto& player : mPlayers)
 		player.update(deltaTime);
+
+	//for (size_t i = 0; i < CollectiblePool::mMAXNUMCOLLECTIBLES && mCollectPool[i].isEnabled(); i++)
+	for (size_t i = 0; i < CollectiblePool::mMAXNUMCOLLECTIBLES; i++)
+	{
+		mCollectPool[i].update(deltaTime);
+	}
 
 	//TODO Update other type of objects
 
@@ -170,6 +186,40 @@ std::vector<std::byte> Game::getEncodedData()
 	std::vector<std::byte> allEncodedData;
 
 	return allEncodedData;
+}
+
+std::string Game::getLeaderboard() const
+{
+	//Alias for pair of player name and points
+	using pointPair = std::pair<std::string, int>;
+
+	std::stringstream output;
+
+	std::vector<pointPair> sortedPlayersAndPoints;
+	sortedPlayersAndPoints.reserve(mPlayers.size());
+
+	//Make pairs of each players name and points
+	for (const auto& player : mPlayers)
+	{
+		sortedPlayersAndPoints.push_back(
+			std::make_pair(player.getName(), player.getPoints()));
+	}
+
+	//Sort decreasingly
+	std::sort(sortedPlayersAndPoints.begin(), sortedPlayersAndPoints.end(),
+		[](const pointPair& a, const pointPair& b)
+		{
+			return a.second > b.second;
+		});
+
+	for (const pointPair& p : sortedPlayersAndPoints)
+	{
+		output << std::setw(20) << std::left << p.first;
+		output << " - " << std::setw(8) << std::right << p.second;
+		output << "\n";
+	}
+
+	return output.str();
 }
 
 std::vector<SyncableData> Game::getSyncableData()

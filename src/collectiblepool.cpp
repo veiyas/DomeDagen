@@ -6,7 +6,7 @@ void CollectiblePool::init()
 	std::vector<std::string> trashModelNames;
 	for (const std::string& name : allModelNames)
 	{
-		if (name == "fish" || name == "diver")
+		if (name == "fish" || name == "diver" || name == "background")
 			continue;
 
 		trashModelNames.push_back(name);
@@ -58,7 +58,8 @@ std::vector<CollectibleData> CollectiblePool::getPoolState() const
 
 void CollectiblePool::enableCollectible(const glm::vec3& pos)
 {
-	assert(mFirstAvailable != nullptr && "Object pool is full");
+	if (mFirstAvailable == nullptr)
+		return;
 
 	Collectible& newCollectible = *mFirstAvailable; //VS shows a wrong warning here
 	mFirstAvailable = newCollectible.getNext();
