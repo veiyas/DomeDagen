@@ -14,7 +14,7 @@ ModelManager& ModelManager::instance()
 	return *mInstance;
 }
 
-const Model& ModelManager::getModel(const std::string& nameKey)
+Model& ModelManager::getModel(const std::string& nameKey)
 {
 	return mModels[nameKey];
 }

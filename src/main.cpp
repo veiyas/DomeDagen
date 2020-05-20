@@ -25,11 +25,10 @@ namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
 
 	//Container for deserialized game state info
-	std::vector<PlayerData> states;
+	std::vector<SyncableData> gameObjectStates;
 
 	//TEMPORARY used to control rotation of all players 
 	float updatedRotation{ 0 };
-
 } // namespace
 
 using namespace sgct;
@@ -60,15 +59,16 @@ const std::string rootDir = Utility::findRootDir();
 /****************************
 			MAIN
 *****************************/
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
 	std::vector<std::string> arg(argv + 1, argv + argc);
-	Configuration config = sgct::parseArguments(arg);	
+	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
-	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
-	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
+	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
 
 	config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
 
 	//Initialize engine
 	try {
-		states.reserve(Game::mMAXPLAYERS);
+		gameObjectStates.reserve(Game::mMAXPLAYERS*3);
 		Engine::create(cluster, callbacks, config);		
 	}
 	catch (const std::runtime_error & e) {
@@ -116,8 +116,8 @@ int main(int argc, char** argv) {
 	return EXIT_SUCCESS;
 }
 
-
-void draw(const RenderData& data) {
+void draw(const RenderData& data)
+{
 	Game::instance().setMVP(data.modelViewProjectionMatrix);
 	Game::instance().setV(data.viewMatrix);
 
@@ -143,21 +143,22 @@ void draw(const RenderData& data) {
 	}
 }
 
-void initOGL(GLFWwindow*) {
+void initOGL(GLFWwindow*)
+{
 	ModelManager::init();
 	Game::init();
-	assert(std::is_pod<PlayerData>());
 
 	/**********************************/
 	/*			 Debug Area			  */
 	/**********************************/
-
-	for (size_t i = 0; i < 1; i++)
+	if (Engine::instance().isMaster())
 	{
-		Game::instance().addPlayer();
+		for (size_t i = 0; i < 10; i++)
+		{
+			Game::instance().addPlayer(glm::vec3(0.f + 0.3f * i));
+		}
 	}
 }
-
 
 void keyboard(Key key, Modifier modifier, Action action, int)
 {
@@ -174,70 +175,73 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 	if (key == Key::A && (action == Action::Press || action == Action::Repeat))
 	{
 		Game::instance().rotateAllPlayers(0.1f);
-		//Game::instance().disablePlayer(0);
 	}
 	//Right
 	if (key == Key::D && (action == Action::Press || action == Action::Repeat))
 	{
 		Game::instance().rotateAllPlayers(-0.1f);
-		//Game::instance().enablePlayer(0);
 	}
 }
 
-void preSync() {
+void preSync()
+{
 	// Do the application simulation step on the server node in here and make sure that
-	// the computed state is serialized and deserialized in the encode/decode calls	
+	// the computed state is serialized and deserialized in the encode/decode calls
 
 	//Run game simulation on master only
 	if (Engine::instance().isMaster())
 	{
-		// This doesn't have to happen every frame, but why not?
 		wsHandler->tick();
-
 		Game::instance().update();
 	}
 }
 
-std::vector<std::byte> encode() {
+std::vector<std::byte> encode()
+{
+	std::vector<std::byte> output;
 
-	return Game::instance().getEncodedPlayerData();
+	//For some reason everything has to to be put in one vector to avoid sgct syncing bugs
+	serializeObject(output, Game::instance().getSyncableData());
+
+	return output;
 }
 
-void decode(const std::vector<std::byte>& data, unsigned int pos) {
-	// These are just two examples;  remove them and replace them with the logic of your
-	// application that you need to synchronize
+void decode(const std::vector<std::byte>& data, unsigned int pos)
+{
+	if (!Game::exists()) //No point in syncing data if no instance of Game exist yet
+		return;
 
-	//Decode position data into states vector
-	deserializeObject(data, pos, states);
+	//For some reason everything has to to be put in one vector to avoid sgct syncing bugs
+	deserializeObject(data, pos, gameObjectStates);
 }
 
-void cleanup() {
+void cleanup()
+{
 	// Cleanup all of your state, particularly the OpenGL state in here.  This function
 	// should behave symmetrically to the initOGL function
 }
 
-void postSyncPreDraw() {
+void postSyncPreDraw()
+{
 	//Sync gameobjects' state on clients only
-	if (!Engine::instance().isMaster())
+	if (!Engine::instance().isMaster() && Game::exists() && gameObjectStates.size() > 0)
 	{
-		Game::instance().setDecodedPositionData(states);
-
-		//Clear states for next frame, not needed but it's polite
-		states.clear();
+		Game::instance().setSyncableData(std::move(gameObjectStates));
 	}
-	else
-		return;
 }
 
-void connectionEstablished() {
+void connectionEstablished()
+{
 	Log::Info("Connection established");
 }
 
-void connectionClosed() {
+void connectionClosed()
+{
 	Log::Info("Connection closed");
 }
 
-void messageReceived(const void* data, size_t length) {
+void messageReceived(const void* data, size_t length)
+{
 	std::string_view msg = std::string_view(reinterpret_cast<const char*>(data), length);
 	//Log::Info("Message received: %s", msg.data());
 

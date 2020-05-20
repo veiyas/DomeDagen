@@ -37,6 +37,8 @@ public:
 	//Render obejct
 	void render(const glm::mat4& mvp, const glm::mat4& v) const override;
 
+	void update(float deltaTime) override {};
+
 	//Activator + deactivator	
 	void enableBackground() { mEnabled = true; }
 	void disableBackground() { mEnabled = false; }

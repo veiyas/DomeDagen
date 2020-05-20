@@ -21,28 +21,24 @@ constexpr unsigned NAMELIMIT = 20;
 struct PlayerData
 {
 public:
-	//Position data
-	float mRadius;
-	float mOrientation;
-	float mScale;
-	float mSpeed;
-
-	//Quat stuff
-	float mW;
-	float mX;
-	float mY;
-	float mZ;
-
 	//Game state data
 	int   mPoints;
 	bool  mEnabled;
 	bool  mIsAlive;
+	float mSpeed;
 
 	//These are only used when a new player is created on nodes
 	//C-style array because of POD
 	char mPlayerName[NAMELIMIT];
 	bool mNewPlayer;
 	unsigned mNameLength;
+
+	//Color data
+	struct
+	{
+		float mR1, mG1, mB1;
+		float mR2, mG2, mB2;
+	} mPlayerColours;
 };
 
 class Player : public GameObject, private GeometryHandler
@@ -60,7 +56,8 @@ public:
 		   const std::string& name, float speed);
 
 	//Ctor from positiondata (syncing new players on nodes)
-	Player(const PlayerData& input);
+	Player(const PlayerData& newPlayerData,
+		const PositionData& newPosData);
 
 	//Dtor
 	~Player();
@@ -71,7 +68,8 @@ public:
 
 	//Get/set playerdata during synchronisation
 	PlayerData getPlayerData(bool isNewPlayer) const;
-	void setPlayerData(const PlayerData& newState);
+	void setPlayerData(const PlayerData& newPlayerData,
+					   const PositionData& newPosData);
 
 	//Update position
 	void update(float deltaTime) override;
@@ -95,6 +93,7 @@ public:
     std::pair<glm::vec3, glm::vec3> getColours() const { return mPlayerColours; };
 
 	//Mutators
+	void addPoints() { mPoints += 10; }
 	void setEnabled(bool state) { mEnabled = state; }
 	void setSpeed(float speed) override { mSpeed = speed; };
 	void setPoints(int points) { mPoints = points; };
@@ -111,9 +110,9 @@ private:
 	std::string mName;
 
 	// frans; Trying something with colors
-	const std::pair<glm::vec3, glm::vec3> mPlayerColours;
-	GLint mPrimaryColLoc;
-	GLint mSecondaryColLoc;
+	std::pair<glm::vec3, glm::vec3> mPlayerColours;	
+	GLint mPrimaryColLoc = -1;
+	GLint mSecondaryColLoc = -1;
 
 	struct ColourSelector
 	{
@@ -152,6 +151,10 @@ private:
 	//If person disconnect/reconnect
 	bool mEnabled = true;
 
-	//Set shader data
+	//Constants for initializing mConstraint
+	static const float mFOV;
+	static const float mTILT;
+
+	//Specializes setShaderData() from GeometryHandler
 	void setShaderData();
 };

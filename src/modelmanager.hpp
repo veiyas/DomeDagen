@@ -23,7 +23,7 @@ public:
 	static ModelManager& instance();
 
 	//Get model for objects
-	const Model& getModel(const std::string& nameKey);
+	Model& getModel(const std::string& nameKey);
 
 private:
 	//The singleton instance, ctor that loads models

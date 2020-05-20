@@ -2,7 +2,7 @@
 
 SceneObject::SceneObject(const std::string & objectModelName,
 	                     float radius, const glm::quat& position, const float orientation)
-	: GameObject{ GameObject::SCENEOBJECT, radius, position, orientation }, GeometryHandler("sceneobject", objectModelName)
+	: GameObject{ GameObject::SCENEOBJECT, radius, position, orientation, 5.f }, GeometryHandler("sceneobject", objectModelName)
 {
 	mShaderProgram.bind();
 
