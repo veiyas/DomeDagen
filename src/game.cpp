@@ -3,8 +3,6 @@
 #include "player.hpp"
 #include <sgct/engine.h>
 #include "sgct/sgct.h"
-#include <glm/gtx/vector_angle.hpp>
-#include <glm/gtx/string_cast.hpp>
 
 //Define instance and id counter
 Game* Game::mInstance = nullptr;
