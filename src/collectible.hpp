@@ -5,7 +5,7 @@
 
 struct CollectibleData
 {
-	unsigned int mIndex;
+	int mModelIndex;
 };
 
 class Collectible : public GameObject, private GeometryHandler
@@ -29,14 +29,14 @@ public:
 	void setSpeed(float speed) override {};
 
 	//Sync methods
-	CollectibleData getCollectibleData(unsigned index) const;
-	void setCollectibleData(const PositionData& newPosData);
+	CollectibleData getCollectibleData(unsigned index);
+	void setCollectibleData(const PositionData& newPosData, const int modelIndex);
 
 	//Set next node in list
 	void setNext(Collectible* node);
 
 	//Get next node
-	Collectible* getNext();
+	Collectible* getNext();	
 
 	const bool isEnabled() const { return mEnabled; }
 

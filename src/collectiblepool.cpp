@@ -42,15 +42,13 @@ void CollectiblePool::render(const glm::mat4& mvp, const glm::mat4& v) const
 		collectibleShader.bind();
 		for (size_t i = 0; i < mNumEnabled; i++)
 		{
-			//if (!mPool[i].isEnabled())
-			//	continue;
 			mPool[i].render(mvp, v);
 		}
 		collectibleShader.unbind();
 	}
 }
 
-std::vector<CollectibleData> CollectiblePool::getPoolState() const
+std::vector<CollectibleData> CollectiblePool::getPoolState()
 {
 	ZoneScoped;
 	std::vector<CollectibleData> poolData;
@@ -82,7 +80,7 @@ void CollectiblePool::enableCollectible(const glm::vec3& pos)
 	++mNumEnabled;
 }
 
-void CollectiblePool::disableCollectible(const size_t index)
+void CollectiblePool::disableCollectibleAndSwap(const size_t index)
 {
 	ZoneScoped;
 	/*
@@ -91,27 +89,27 @@ void CollectiblePool::disableCollectible(const size_t index)
 		Unfortunately it doesn't play well with node sync
 
 	*/
-	//std::swap(mPool[index], mPool[mNumEnabled - 1]);
+	std::swap(mPool[index], mPool[mNumEnabled - 1]);
 
-	//auto& lastEnabledElement = mPool[index];
-	//auto& disabledElement = mPool[mNumEnabled - 1];
+	auto& lastEnabledElement = mPool[index];
+	auto& disabledElement = mPool[mNumEnabled - 1];
 
-	////Thread enabled object
-	//lastEnabledElement.setNext(&mPool[index+1]);
-	//if (index > 0)
-	//	mPool[index - 1].setNext(&lastEnabledElement);
+	//Thread enabled object
+	lastEnabledElement.setNext(&mPool[index+1]);
+	if (index > 0)
+		mPool[index - 1].setNext(&lastEnabledElement);
 
-	////Rethread and prime disabled object for usage
-	//disabledElement.disable();
-	//disabledElement.setNext(mFirstAvailable);
-	//if (mNumEnabled > 1)
-	//	mPool[mNumEnabled - 2].setNext(&disabledElement);	
-	//mFirstAvailable = &disabledElement;
-
-	auto& disabledElement = mPool[index];
+	//Rethread and prime disabled object for usage
 	disabledElement.disable();
 	disabledElement.setNext(mFirstAvailable);
+	if (mNumEnabled > 1)
+		mPool[mNumEnabled - 2].setNext(&disabledElement);	
 	mFirstAvailable = &disabledElement;
+
+	//auto& disabledElement = mPool[index];
+	//disabledElement.disable();
+	//disabledElement.setNext(mFirstAvailable);
+	//mFirstAvailable = &disabledElement;
 
 	--mNumEnabled;
 }

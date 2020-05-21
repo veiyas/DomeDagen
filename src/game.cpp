@@ -40,7 +40,7 @@ void Game::detectCollisions()
 				if (std::abs(xAngle) <= collisionDistance && std::abs(yAngle) <= collisionDistance)
 				{
 					mPlayers[i].addPoints();
-					mCollectPool.disableCollectible(j);
+					mCollectPool.disableCollectibleAndSwap(j);
 				}
 			}
 		}
@@ -239,19 +239,16 @@ std::vector<SyncableData> Game::getSyncableData()
 	}
 
 	//Get enabled collectibles
-	for (size_t i = 0; i < CollectiblePool::mMAXNUMCOLLECTIBLES; i++)
+	for (size_t i = 0; i < mCollectPool.getNumEnabled(); i++)
 	{
-		if (mCollectPool[i].isEnabled())
-		{
-			SyncableData tempState;
-			Collectible& currentCollectible = mCollectPool[i];
+		SyncableData tempState;
+		Collectible& currentCollectible = mCollectPool[i];
 
-			tempState.mCollectData = currentCollectible.getCollectibleData(i);
-			tempState.mPositionData = currentCollectible.getPositionData();
-			tempState.mIsPlayer = false;
+		tempState.mCollectData = currentCollectible.getCollectibleData(i);
+		tempState.mPositionData = currentCollectible.getPositionData();
+		tempState.mIsPlayer = false;
 
-			tempData.push_back(tempState);
-		}
+		tempData.push_back(tempState);
 	}
 
 	return tempData;
@@ -289,22 +286,14 @@ void Game::setDecodedCollectibleData(const std::vector<SyncableData>& newState)
 	for (size_t i = 0; i < newState.size(); i++)
 	{
 		const SyncableData& currentState = newState[i];
-		mCollectPool[currentState.mCollectData.mIndex].setCollectibleData(currentState.mPositionData);
+		mCollectPool.setNumEnabled(newState.size());
+		mCollectPool[i].setCollectibleData(currentState.mPositionData, currentState.mCollectData.mModelIndex);
 	}
 
 	//Disable rest of elements
-	//TODO this can probably be done faster
-	std::vector<size_t> enabledSlots;
-	enabledSlots.reserve(newState.size());
-	for (const auto& state : newState)
+	for (size_t i = newState.size(); i < CollectiblePool::mMAXNUMCOLLECTIBLES; i++)
 	{
-		enabledSlots.push_back(state.mCollectData.mIndex);
-	}
-	for (size_t i = 0; i < CollectiblePool::mMAXNUMCOLLECTIBLES; i++)
-	{
-		bool isEnabled = std::binary_search(enabledSlots.begin(), enabledSlots.end(), i);
-		if (!isEnabled)
-			mCollectPool.disableCollectible(i);
+		mCollectPool.disableCollectible(i);
 	}
 }
 

@@ -3,12 +3,14 @@
 #include "modelmanager.hpp"
 
 //This class is privately inherited to classes needing models and accompanied functionality
+//This class is also very unorganized
 class GeometryHandler
 {
 public:
 	GeometryHandler(const std::string& shaderProgramName, const std::string& objectModelName)
-		:mShaderProgram{sgct::ShaderManager::instance().shaderProgram(shaderProgramName)},
-		 mModel{&ModelManager::instance().getModel(objectModelName)} {}
+		:mShaderProgram{ sgct::ShaderManager::instance().shaderProgram(shaderProgramName) },
+		mModel{ &ModelManager::instance().getModel(objectModelName) },
+		mModelSlot{ ModelManager::instance().findModelSpot(objectModelName)} {}
 
 	GeometryHandler(const GeometryHandler&) = default;
 	GeometryHandler(GeometryHandler&&) = default;
@@ -18,10 +20,21 @@ public:
 		std::swap(mTransMatrixLoc, src.mTransMatrixLoc);
 		std::swap(mMvpMatrixLoc, src.mMvpMatrixLoc);
 		std::swap(mModel, src.mModel);
+		std::swap(mModelSlot, src.mModelSlot);
 		return *this;
 	}
 	//Do not remove mModel as this removes the model for all objects
 	~GeometryHandler() { mModel = nullptr; }
+
+	//Get model pointer index
+	int getModelPointerIndex() {
+		return mModelSlot;
+	}
+	//Set new model from int pointer
+	void setModelFromInt(const int index) {
+		mModel = nullptr;
+		mModel = &ModelManager::instance().getModel(index);
+	}
 	
 	//Shader matrix locations
 	GLint mTransMatrixLoc = -1;
@@ -36,6 +49,7 @@ public:
 	//POINTER to model in model pool (references are not swappable)
 	//Needs to be swappable for collectible pooling
 	Model* mModel;
+	int mModelSlot = -1;
 
 	//Render model
 	void renderModel() const { mModel->render(); };

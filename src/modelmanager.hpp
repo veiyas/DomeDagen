@@ -26,6 +26,9 @@ public:
 	Model& getModel(const std::string& nameKey);
 	Model& getModel(const int index);
 
+	//Find model spot in mModels
+	int findModelSpot(const std::string& nameKey);
+
 private:
 	//The singleton instance, ctor that loads models
 	static ModelManager* mInstance;
@@ -35,7 +38,7 @@ private:
 	void loadModel(const std::string& modelName);
 
 	//Model
-	std::map<std::string, Model> mModels;
+	std::vector<std::pair<std::string, Model>> mModels;
 
 	void printModelNames() const;
 };

@@ -134,6 +134,7 @@ private:
 	std::vector<std::string> mShaderNames;
 
 	//Track all collected collectibles for sync to nodes efficiently
+	//std::vector<size_t
 
 	//MVP matrix used for rendering
 	glm::mat4 mMvp;

@@ -58,19 +58,19 @@ void Collectible::update(float deltaTime)
 	setModelRotation(getModelRotation() * glm::quat(deltaTime * 1.2f * glm::vec3(1.f, 1.f, 1.f)));
 }
 
-CollectibleData Collectible::getCollectibleData(unsigned index) const
+CollectibleData Collectible::getCollectibleData(unsigned index)
 {
 	CollectibleData temp;
 
-	temp.mIndex = index;
+	temp.mModelIndex = getModelPointerIndex();
 
 	return temp;
 }
 
-void Collectible::setCollectibleData(const PositionData& newPosData)
+void Collectible::setCollectibleData(const PositionData& newPosData, const int modelIndex)
 {
 	setPositionData(newPosData);
-
+	setModelFromInt(modelIndex);
 	enable();
 }
 

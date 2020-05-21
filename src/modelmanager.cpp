@@ -16,12 +16,26 @@ ModelManager& ModelManager::instance()
 
 Model& ModelManager::getModel(const std::string& nameKey)
 {
-	return mModels[nameKey];
+	const auto& foundPair = std::find_if(mModels.begin(), mModels.end(),
+		[nameKey](std::pair<std::string, Model>& pair)
+		{
+			return pair.first == nameKey;
+		});
+	return (*foundPair).second;
 }
 
 Model& ModelManager::getModel(const int index)
 {
-	return mModels[index];
+	return mModels[index].second;
+}
+
+int ModelManager::findModelSpot(const std::string& nameKey)
+{
+	for (int i = 0; i < mModels.size(); i++)
+	{
+		if (mModels[i].first == nameKey)
+			return i;
+	}
 }
 
 ModelManager::ModelManager()
@@ -34,7 +48,7 @@ ModelManager::ModelManager()
 void ModelManager::loadModel(const std::string& modelName)
 {
 	std::string path = Utility::findRootDir() + "/src/models/" + modelName + "/" + modelName + ".fbx";
-	mModels[modelName] = Model(path.data());
+	mModels.push_back(std::make_pair(modelName, Model(path.data())));
 }
 
 void ModelManager::printModelNames() const
