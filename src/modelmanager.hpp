@@ -24,6 +24,7 @@ public:
 
 	//Get model for objects
 	Model& getModel(const std::string& nameKey);
+	Model& getModel(const int index);
 
 private:
 	//The singleton instance, ctor that loads models

@@ -19,6 +19,11 @@ Model& ModelManager::getModel(const std::string& nameKey)
 	return mModels[nameKey];
 }
 
+Model& ModelManager::getModel(const int index)
+{
+	return mModels[index];
+}
+
 ModelManager::ModelManager()
 {
 	for (const auto& modelName : allModelNames)

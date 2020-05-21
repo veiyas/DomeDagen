@@ -17,8 +17,11 @@ void Game::detectCollisions()
 	{
 		for (size_t i = 0; i < mPlayers.size(); i++)
 		{
-			for (size_t j = 0; j < CollectiblePool::mMAXNUMCOLLECTIBLES && mCollectPool[j].isEnabled(); j++)
+			for (size_t j = 0; j < CollectiblePool::mMAXNUMCOLLECTIBLES; j++)
 			{
+				if (!mCollectPool[j].isEnabled())
+					continue;
+
 				auto playerQuat = mPlayers[i].getPosition();
 				auto collectibleQuat = mCollectPool[j].getPosition();
 
@@ -146,7 +149,7 @@ void Game::update()
 
 	if ((int)currentFrameTime % spawnTime == 0 && !outputted)
 	{
-		for (size_t i = 0; i < mPlayers.size() / 2; i++)
+		for (size_t i = 0; i < mPlayers.size(); i++)
 		{
 			mCollectPool.enableCollectible(glm::vec3(1.5f + rng(gen), rng(gen), 0.f));
 		}		
@@ -160,24 +163,14 @@ void Game::update()
 	for (auto& player : mPlayers)
 		player.update(deltaTime);
 
-	//for (size_t i = 0; i < CollectiblePool::mMAXNUMCOLLECTIBLES && mCollectPool[i].isEnabled(); i++)
 	for (size_t i = 0; i < CollectiblePool::mMAXNUMCOLLECTIBLES; i++)
 	{
 		mCollectPool[i].update(deltaTime);
 	}
 
-	//TODO Update other type of objects
-
 	detectCollisions();
 	
 	mLastFrameTime = currentFrameTime;
-}
-
-std::vector<std::byte> Game::getEncodedData()
-{
-	std::vector<std::byte> allEncodedData;
-
-	return allEncodedData;
 }
 
 std::string Game::getLeaderboard() const

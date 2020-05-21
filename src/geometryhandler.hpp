@@ -20,7 +20,7 @@ public:
 		std::swap(mModel, src.mModel);
 		return *this;
 	}
-	//Do not want to remove mModel as this removes the model for all objects
+	//Do not remove mModel as this removes the model for all objects
 	~GeometryHandler() { mModel = nullptr; }
 	
 	//Shader matrix locations

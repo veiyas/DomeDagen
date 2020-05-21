@@ -87,9 +87,6 @@ public:
 	//Update all gameobjects
 	void update();
 
-	//Get and encode object data for syncing
-	std::vector<std::byte> getEncodedData();
-
 	//Get leaderboard string
 	//Only gets called at end of game
 	std::string getLeaderboard() const;
@@ -136,6 +133,8 @@ private:
 	//Track all loaded shaders' names
 	std::vector<std::string> mShaderNames;
 
+	//Track all collected collectibles for sync to nodes efficiently
+
 	//MVP matrix used for rendering
 	glm::mat4 mMvp;
 
@@ -150,7 +149,6 @@ private:
 
 	static constexpr double collisionDistance = 0.2f; //TODO make this object specific
 	
-
 	BackgroundObject *mBackground; //Holds pointer to the background
 
 //Functions

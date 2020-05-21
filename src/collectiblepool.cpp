@@ -40,8 +40,10 @@ void CollectiblePool::render(const glm::mat4& mvp, const glm::mat4& v) const
 	{
 		auto const& collectibleShader = sgct::ShaderManager::instance().shaderProgram("collectible");
 		collectibleShader.bind();
-		for (size_t i = 0; i < mPool.size(); i++)
+		for (size_t i = 0; i < mNumEnabled; i++)
 		{
+			//if (!mPool[i].isEnabled())
+			//	continue;
 			mPool[i].render(mvp, v);
 		}
 		collectibleShader.unbind();

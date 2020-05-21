@@ -48,12 +48,9 @@ Collectible& Collectible::operator=(Collectible&& src) noexcept
 
 void Collectible::render(const glm::mat4& mvp, const glm::mat4& v) const
 {
-	if (mEnabled)
-	{
-		glUniformMatrix4fv(mMvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(mvp));
-		glUniformMatrix4fv(mTransMatrixLoc, 1, GL_FALSE, glm::value_ptr(getTransformation()));
-		this->renderModel();
-	}
+	glUniformMatrix4fv(mMvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(mvp));
+	glUniformMatrix4fv(mTransMatrixLoc, 1, GL_FALSE, glm::value_ptr(getTransformation()));
+	this->renderModel();	
 }
 
 void Collectible::update(float deltaTime)
