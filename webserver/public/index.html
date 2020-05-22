@@ -17,7 +17,7 @@
 </head>
 
 <body>
-  <div id="emptyEntryScreen" class="screen"></div>
+  <!-- <div id="emptyEntryScreen" class="screen"></div> -->
   
   <div class="hidden" id="promptBackground"></div>
   <div class="hidden" id="orientationPrompt">
@@ -44,7 +44,7 @@
         <button id="connect" class="disabled" disabled="true" onclick="sendName()">Connect</button>
       </div>
     </div>
-    <div id="debug-output">Debug info</div>
+    <!-- <div id="debug-output">Debug info</div> -->
   </div>
   
   <div id="returningPlayerScreen" class="screen">
@@ -111,8 +111,12 @@
         <div id="timeBar"></div>
       </div>
     </div>
-    <button class="buttonControls" id="turnLeft">Left</button>
-    <button class="buttonControls" id="turnRight">Right</button>
+    <button class="buttonControls" id="turnLeft">
+      <img src="./img/turnArrow.png" alt="Left">
+    </button>
+    <button class="buttonControls" id="turnRight">
+      <img src="./img/turnArrow.png" alt="Right">
+    </button>
   </div>
 
   <div class="screen" id="gameOverScreen">
