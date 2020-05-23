@@ -3,111 +3,116 @@
 
 Model::Model(char* path) : mImporter{ }
 {
-    loadModel(path);
+	loadModel(path);
 }
 
 void Model::render() const
 {
-    for (const Mesh& m : mMeshes)
-    {
-        m.render();
-    }
+	for (const Mesh& m : mMeshes)
+	{
+		m.render();
+	}
 }
 
 void Model::loadModel(const std::string& path)
 {
-    mImporter.SetPropertyBool(AI_CONFIG_PP_PTV_NORMALIZE, true);
-    mScene = mImporter.ReadFile(path, aiProcess_Triangulate| aiProcess_FlipUVs | aiProcess_PreTransformVertices);
-    //const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+	mImporter.SetPropertyBool(AI_CONFIG_PP_PTV_NORMALIZE, true);
+	//mScene = mImporter.ReadFile(path, aiProcess_Triangulate| aiProcess_FlipUVs | aiProcess_PreTransformVertices);
+	mScene = mImporter.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
+	//const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
-    if (!mScene || mScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !mScene->mRootNode)
-    {
-        std::cout << "ERROR::ASSIMP::" << mImporter.GetErrorString() << "\n";
-        return;
-    }
-    mDirectory = path.substr(0, path.find_last_of('/'));
-    mGlobalInverseTransform = Utility::aiMatrixToGlm((mScene->mRootNode->mTransformation).Inverse());
-    processNode(mScene->mRootNode, mScene);
+	if (!mScene || mScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !mScene->mRootNode)
+	{
+		std::cout << "ERROR::ASSIMP::" << mImporter.GetErrorString() << "\n";
+		return;
+	}
+	mDirectory = path.substr(0, path.find_last_of('/'));
+	mGlobalInverseTransform = Utility::aiMatrixToGlm((mScene->mRootNode->mTransformation).Inverse());
+	processNode(mScene->mRootNode, mScene);
 }
 
 void Model::processNode(aiNode* node, const aiScene* scene)
 {
-    //Process all the node's meshes (if any)
-    for (size_t i = 0; i < node->mNumMeshes; i++)
-    {
-        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        mMeshes.push_back(processMesh(mesh, scene));
-    }
-    // then do the same for each of its children
-    for (unsigned int i = 0; i < node->mNumChildren; i++)
-    {
-        processNode(node->mChildren[i], scene);
-    }
+	//Process all the node's meshes (if any)
+	for (size_t i = 0; i < node->mNumMeshes; i++)
+	{
+		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+		mMeshes.push_back(processMesh(mesh, scene));
+	}
+	// then do the same for each of its children
+	for (unsigned int i = 0; i < node->mNumChildren; i++)
+	{
+		processNode(node->mChildren[i], scene);
+	}
 }
 
 Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
-    std::vector<Texture> textures;
+	std::vector<Vertex> vertices;
+	std::vector<unsigned int> indices;
+	std::vector<Texture> textures;
 
-    for (size_t i = 0; i < mesh->mNumVertices; i++)
-    {
-        Vertex tempVertex;
+	for (size_t i = 0; i < mesh->mNumVertices; i++)
+	{
+		Vertex tempVertex;
 
-        //Process vertex positions
-        glm::vec3 vertexVector;
-        vertexVector.x = mesh->mVertices[i].x;
-        vertexVector.y = mesh->mVertices[i].y;
-        vertexVector.z = mesh->mVertices[i].z;
-        tempVertex.mPosition = vertexVector;
+		//Process vertex positions
+		glm::vec3 vertexVector;
+		vertexVector.x = mesh->mVertices[i].x;
+		vertexVector.y = mesh->mVertices[i].y;
+		vertexVector.z = mesh->mVertices[i].z;
+		tempVertex.mPosition = vertexVector;
 
-        //Process normals
-        glm::vec3 normalVector;
-        normalVector.x = mesh->mNormals[i].x;
-        normalVector.y = mesh->mNormals[i].y;
-        normalVector.z = mesh->mNormals[i].z;
-        tempVertex.mNormal = normalVector;
+		//Process normals
+		glm::vec3 normalVector;
+		normalVector.x = mesh->mNormals[i].x;
+		normalVector.y = mesh->mNormals[i].y;
+		normalVector.z = mesh->mNormals[i].z;
+		tempVertex.mNormal = normalVector;
 
-        //Process textures
-        if (mesh->mTextureCoords[0])
-        {
-            glm::vec2 texVector;
-            texVector.x = mesh->mTextureCoords[0][i].x;
-            texVector.y = mesh->mTextureCoords[0][i].y;
-            tempVertex.mTexCoords = texVector;
-        }
-        else
-            tempVertex.mTexCoords = glm::vec2(0.f, 0.f);
+		//Process textures
+		if (mesh->mTextureCoords[0])
+		{
+			glm::vec2 texVector;
+			texVector.x = mesh->mTextureCoords[0][i].x;
+			texVector.y = mesh->mTextureCoords[0][i].y;
+			tempVertex.mTexCoords = texVector;
+		}
+		else
+			tempVertex.mTexCoords = glm::vec2(0.f, 0.f);
 
-        vertices.push_back(tempVertex);
-    }
+		vertices.push_back(tempVertex);
+	}
 
-    //Process indices
-    for (size_t i = 0; i < mesh->mNumFaces; i++)
-    {
-        aiFace face = mesh->mFaces[i];
-        for (size_t j = 0; j < face.mNumIndices; j++)
-            indices.push_back(face.mIndices[j]);
-    }
+	//Process indices
+	for (size_t i = 0; i < mesh->mNumFaces; i++)
+	{
+		aiFace face = mesh->mFaces[i];
+		for (size_t j = 0; j < face.mNumIndices; j++)
+			indices.push_back(face.mIndices[j]);
+	}
 
-    //Process material
-    if (mesh->mMaterialIndex >= 0)
-    {
-        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-        std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-        textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+	//Process material
+	if (mesh->mMaterialIndex >= 0)
+	{
+		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+		std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
-        std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-        textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-    }
+		std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+	}
 
-    return Mesh(vertices, indices, textures);
+	processBones(mesh, vertices);
+
+	return Mesh(vertices, indices, textures);
 }
 
-void Model::processBones(unsigned meshIndex, const aiMesh* mesh, Vertex& vertex)
+void Model::processBones(const aiMesh* mesh, std::vector<Vertex>& vertices)
 {
-	unsigned numInserted = 0;
+	//unsigned numInserted = 0;
+
+	std::cout << "mNumBones: " << mesh->mNumBones << '\n';
 
 	for (unsigned i = 0; i < mesh->mNumBones; ++i)
 	{
@@ -129,18 +134,31 @@ void Model::processBones(unsigned meshIndex, const aiMesh* mesh, Vertex& vertex)
 
 		for (unsigned j = 0; j < mesh->mBones[i]->mNumWeights; ++j)
 		{
-			assert(numInserted <= NUM_BONES_PER_VERTEX);
+			// FIXME wat am i even doing here hhehe 
+
+			//std::cout << "mesh->mBones[i]->mNumWeights: " << mesh->mBones[i]->mNumWeights << '\n';
 
 			float weight = mesh->mBones[i]->mWeights[j].mWeight;
 			//vertex.addBoneData(boneIndex, weight);
-			vertex.mBoneIds[numInserted] = boneIndex;
-			vertex.mWeights[numInserted] = weight;
-			++numInserted;
+			//vertex.mBoneIds[numInserted] = boneIndex;
+			//vertex.mWeights[numInserted] = weight;
+			//++numInserted;
+
+
+			auto& vertex = vertices[mesh->mBones[i]->mWeights[j].mVertexId];
+
+			for (unsigned k = 0; i < NUM_BONES_PER_VERTEX; ++k) {
+				if (vertex.mWeights[k] == 0.0) {
+					vertex.mBoneIds[k] = boneIndex;
+					vertex.mWeights[k] = weight;
+					break;
+				}
+			}
 		}
 	}
 }
 
-void Model::boneTransform(float time, std::vector<glm::mat4>& transforms)
+void Model::boneTransform(float time) // actually this should be in each mesh maybe 
 {
 	glm::mat4 identity{ 1.0f };
 
@@ -153,11 +171,11 @@ void Model::boneTransform(float time, std::vector<glm::mat4>& transforms)
 
 	readNodeHeirarchy(animationTime, mScene->mRootNode, identity);
 
-	transforms.resize(mNumBones);
+	mTransforms.resize(mNumBones);
 
 	for (unsigned i = 0; i < mNumBones; ++i)
 	{
-		transforms[i] = mBoneInfo[i].mFinalTransformation;
+		mTransforms[i] = mBoneInfo[i].mFinalTransformation;
 	}
 }
 
@@ -201,7 +219,7 @@ void Model::readNodeHeirarchy(float animationTime, const aiNode* node, const glm
 	{
 		unsigned boneIndex = mBoneMap[nodeName];
 		mBoneInfo[boneIndex].mFinalTransformation = mGlobalInverseTransform * globalTransformation *
-		                                            mBoneInfo[boneIndex].mOffset;
+													mBoneInfo[boneIndex].mOffset;
 	}
 
 	for (unsigned i = 0; i < node->mNumChildren; ++i)
@@ -333,16 +351,16 @@ void updateBonePose(float time)
 
 std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
 {
-    std::vector<Texture> textures;
-    for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
-    {
-        aiString str;
-        mat->GetTexture(type, i, &str);
-        Texture texture;
-        texture.mId = Utility::textureFromFile(str.C_Str(), mDirectory);
-        texture.mType = typeName;
-        texture.mPath = mDirectory + "/" + str.C_Str();
-        textures.push_back(texture);
-    }
-    return textures;
+	std::vector<Texture> textures;
+	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
+	{
+		aiString str;
+		mat->GetTexture(type, i, &str);
+		Texture texture;
+		texture.mId = Utility::textureFromFile(str.C_Str(), mDirectory);
+		texture.mType = typeName;
+		texture.mPath = mDirectory + "/" + str.C_Str();
+		textures.push_back(texture);
+	}
+	return textures;
 }

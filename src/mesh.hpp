@@ -5,7 +5,7 @@
 #include "glm/glm.hpp"
 #include "glad/glad.h"
 
-//TODO rethink placement of constant and name maybe
+//This should match assimp config
 const unsigned NUM_BONES_PER_VERTEX = 4;
 
 struct Vertex

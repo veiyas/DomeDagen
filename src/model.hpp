@@ -57,8 +57,8 @@ private:
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
 
 	//TODO Description
-	void processBones(unsigned meshIndex, const aiMesh* mesh, Vertex& vertex);
-	void boneTransform(float time, std::vector<glm::mat4>& transforms);
+	void processBones(const aiMesh* mesh, std::vector<Vertex>& vertices);
+	void boneTransform(float time);
 	void readNodeHeirarchy(float animationTime, const aiNode* node, const glm::mat4& parentTransform);
 
 	void updateBonePose(float time);

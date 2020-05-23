@@ -25,22 +25,23 @@ void main() {
     boneTransform     += bones[boneIds[2]] * weights[2];
     boneTransform     += bones[boneIds[3]] * weights[3];
 
-    /*vec4 PosL = boneTransform * vec4(position, 1.0);
-    gl_Position = mvp * transformation * PosL;
-    TexCoord0 = TexCoord;
-    vec4 NormalL = BoneTransform * vec4(Normal, 0.0);
-    interpolatedNormal = (gWorld * normalMatrix).xyz;
-    fragPos = (gWorld * PosL).xyz;*/
+//    vec4 PosL = boneTransform * vec4(position, 1.0);
+//    gl_Position = mvp * transformation * PosL;
+//    TexCoord0 = TexCoord;
+//    vec4 NormalL = BoneTransform * vec4(Normal, 0.0);
+//    interpolatedNormal = (gWorld * normalMatrix).xyz;
+//    fragPos = (gWorld * PosL).xyz;
+//
 
-	/*fragPos = vec3(transformation * vec4(position, 1.0));
+	fragPos = vec3(transformation * vec4(position, 1.0));
     interpolatedNormal = normalMatrix * normal;
 	st = texCoord;
-	gl_Position = mvp * vec4(fragPos, 1.0);*/
-
-    vec4 bonePos = boneTransform * vec4(position, 1.0);
-    fragPos = vec3(transformation * bonePos);
-    vec4 boneNormal = boneTransform * vec4(normal, 0.0);
-    interpolatedNormal = (mat4(normalMatrix) * boneNormal).xyz;
-	st = texCoord;
 	gl_Position = mvp * vec4(fragPos, 1.0);
+
+//    vec4 bonePos = boneTransform * vec4(position, 1.0);
+//    fragPos = vec3(transformation * bonePos);
+//    vec4 boneNormal = boneTransform * vec4(normal, 0.0);
+//    interpolatedNormal = (mat4(normalMatrix) * boneNormal).xyz;
+//	st = texCoord;
+//	gl_Position = mvp * vec4(fragPos, 1.0);
 }

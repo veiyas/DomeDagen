@@ -175,7 +175,9 @@ void Player::render(const glm::mat4& mvp, const glm::mat4& v) const
 
 	//Bone stuff
 	auto transforms = mModel.getTransforms(); //TODO handle this in a way that avoids copying
-	//What happens if theres too many bones?
+	if (transforms.size() != 0)
+		std::cout << "yay!\n";
+
 	glUniformMatrix4fv(mBonesLoc, transforms.size(), GL_FALSE, reinterpret_cast<GLfloat *>(transforms.data()));
 
 	mShaderProgram.unbind();
