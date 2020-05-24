@@ -41,7 +41,7 @@ public:
 	void disableCollectible(const size_t index) { mPool[index].disable(); }
 
 	//Operator overloading to hide internal data
-	Collectible& operator[](const size_t i) { return mPool.at(i); }
+	Collectible& operator[](const size_t i) { return mPool[i]; }
 
 	//Accessors/Mutator
 	size_t getNumEnabled() const { return mNumEnabled; }

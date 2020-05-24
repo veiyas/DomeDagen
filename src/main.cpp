@@ -67,10 +67,10 @@ int main(int argc, char** argv)
 	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
-	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
-	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
+	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
 
 	config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
@@ -156,7 +156,7 @@ void draw2D(const RenderData& data)
 		*text::FontManager::instance().font("SGCTFont", bigFontSize),
 		text::Alignment::TopCenter,
 		screenRes.x / 2,
-		screenRes.y / 1.2,
+		screenRes.y / 2,
 		glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
 		"%s", "Leaderboard"
 		);
@@ -167,7 +167,7 @@ void draw2D(const RenderData& data)
 		*text::FontManager::instance().font("SGCTFont", 12),
 		text::Alignment::TopCenter,
 		screenRes.x / 2,
-		screenRes.y / 1.2 - bigFontSize,
+		screenRes.y / 2 - bigFontSize,
 		glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
 		"%s", leaderboardString.c_str()
 		);

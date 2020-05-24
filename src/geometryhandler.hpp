@@ -27,14 +27,11 @@ public:
 	~GeometryHandler() { mModel = nullptr; }
 
 	//Get model pointer index
-	int getModelPointerIndex() {
-		return mModelSlot;
-	}
-	//Set new model from int pointer
-	void setModelFromInt(const int index) {
-		mModel = nullptr;
-		mModel = &ModelManager::instance().getModel(index);
-	}
+	int getModelPointerIndex(){return mModelSlot;}
+
+	//Set new model from slot index in ModelManager
+	void setModelFromInt(const int index)
+	{mModel = &ModelManager::instance().getModel(index);}
 	
 	//Shader matrix locations
 	GLint mTransMatrixLoc = -1;

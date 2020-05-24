@@ -71,7 +71,7 @@ void CollectiblePool::enableCollectible(const glm::vec3& pos)
 	if (mFirstAvailable == nullptr)
 		return;
 
-	Collectible& newCollectible = *mFirstAvailable; //VS shows a wrong warning here
+	Collectible& newCollectible = *mFirstAvailable;
 	mFirstAvailable = newCollectible.getNext();
 
 	newCollectible.setPosition(pos);
@@ -83,12 +83,6 @@ void CollectiblePool::enableCollectible(const glm::vec3& pos)
 void CollectiblePool::disableCollectibleAndSwap(const size_t index)
 {
 	ZoneScoped;
-	/*
-	
-		This swap code is hella good for performance
-		Unfortunately it doesn't play well with node sync
-
-	*/
 	std::swap(mPool[index], mPool[mNumEnabled - 1]);
 
 	auto& lastEnabledElement = mPool[index];
@@ -105,11 +99,6 @@ void CollectiblePool::disableCollectibleAndSwap(const size_t index)
 	if (mNumEnabled > 1)
 		mPool[mNumEnabled - 2].setNext(&disabledElement);	
 	mFirstAvailable = &disabledElement;
-
-	//auto& disabledElement = mPool[index];
-	//disabledElement.disable();
-	//disabledElement.setNext(mFirstAvailable);
-	//mFirstAvailable = &disabledElement;
 
 	--mNumEnabled;
 }
