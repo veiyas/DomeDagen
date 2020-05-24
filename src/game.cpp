@@ -114,7 +114,7 @@ void Game::addPlayer()
 
 void Game::addPlayer(const glm::vec3& pos)
 {
-	mPlayers.push_back(Player{ "diver", 50.f, pos, 0.f, "Player " + std::to_string(mUniqueId), 0.5 });
+	mPlayers.push_back(Player{ "diver", DOMERADIUS, pos, 0.f, "Player " + std::to_string(mUniqueId), 0.5 });
 	++mUniqueId;
 }
 
