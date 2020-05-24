@@ -188,7 +188,7 @@ private:
 		{
 			std::random_device randomDevice;
 			gen = std::mt19937(randomDevice());
-			rng = std::uniform_real_distribution<>(-1.45f, 1.45f);
+			rng = std::uniform_real_distribution<>(-1.5f, 1.5f);
 		}
 
 		//RNG stuff		

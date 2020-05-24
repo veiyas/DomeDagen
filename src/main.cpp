@@ -121,11 +121,10 @@ int main(int argc, char** argv)
 
 void draw(const RenderData& data)
 {
+	ZoneScoped;
 	Game::instance().setMVP(data.modelViewProjectionMatrix);
 	Game::instance().setV(data.viewMatrix);
 
-	glClearColor(20.0/255.0, 157.0/255.0, 190.0/255.0, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_CULL_FACE); // TODO This should really be enabled but the normals of the
 	                          // background object are flipped atm
@@ -133,11 +132,14 @@ void draw(const RenderData& data)
 
 	Game::instance().render();
 
-	GLenum err;
-	while ((err = glGetError()) != GL_NO_ERROR)
-	{
-		sgct::Log::Error("GL Error: 0x%x", err);
-	}
+	//{
+	//	ZoneScopedN("OpenGL error catching");
+	//	GLenum err;
+	//	while ((err = glGetError()) != GL_NO_ERROR)
+	//	{
+	//		sgct::Log::Error("GL Error: 0x%x", err);
+	//	}
+	//}
 }
 
 void draw2D(const RenderData& data)
