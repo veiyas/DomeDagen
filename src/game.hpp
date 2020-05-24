@@ -159,6 +159,9 @@ private:
 	//Collision detection in mInteractObjects, bubble style
 	void detectCollisions();
 
+	//Spawn Collectibles
+	void spawnCollectibles(float currentFrameTime);
+
 	//Set object data from inputted data
 	void setDecodedPlayerData(const std::vector<SyncableData>& newState);
 	void setDecodedCollectibleData(const std::vector<SyncableData>& newState);
@@ -178,4 +181,29 @@ private:
 
 	const glm::mat4& getMVP() { return mMvp; };
 	const glm::mat4& getV() { return mV; };
+
+	struct PositionGenerator
+	{
+		void init()
+		{
+			std::random_device randomDevice;
+			gen = std::mt19937(randomDevice());
+			rng = std::uniform_real_distribution<>(-1.45f, 1.45f);
+		}
+
+		//RNG stuff		
+		std::mt19937 gen;
+		std::uniform_real_distribution<> rng;
+
+		//State stuff
+		bool hasSpawnedThisInterval = false;
+		unsigned spawnTime = 4;
+
+		glm::vec3 generatePos()
+		{
+			ZoneScoped;
+			return glm::vec3(1.5f + rng(gen), rng(gen), 0.f);
+		}
+
+	} mPosGenerator;
 };

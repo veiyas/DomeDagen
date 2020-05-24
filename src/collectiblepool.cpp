@@ -38,7 +38,7 @@ void CollectiblePool::render(const glm::mat4& mvp, const glm::mat4& v) const
 	ZoneScoped;
 	if (mPool.size() > 0)
 	{
-		auto const& collectibleShader = sgct::ShaderManager::instance().shaderProgram("collectible");
+		auto const& collectibleShader = mPool[0].mShaderProgram;
 		collectibleShader.bind();
 		for (size_t i = 0; i < mNumEnabled; i++)
 		{

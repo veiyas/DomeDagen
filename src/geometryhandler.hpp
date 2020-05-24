@@ -42,6 +42,7 @@ public:
 
 	//Reference to shader in shader pool
 	const sgct::ShaderProgram& mShaderProgram;
+	const sgct::ShaderProgram& getShader() { return mShaderProgram; }
 
 	//POINTER to model in model pool (references are not swappable)
 	//Needs to be swappable for collectible pooling

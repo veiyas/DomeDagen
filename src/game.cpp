@@ -6,13 +6,14 @@ unsigned int Game::mUniqueId = 0;
 
 Game::Game()
 	: mMvp{ glm::mat4{1.f} }, mLastFrameTime{ -1 }, mLastSyncedPlayer{ 0 }
-{	
+{
 	for (const std::string& shaderName : allShaderNames)
-		loadShader(shaderName);	
+		loadShader(shaderName);
 }
 
 void Game::detectCollisions()
 {
+	ZoneScoped;
 	if (mPlayers.size() > 0 && mCollectPool.getNumEnabled() > 0)
 	{
 		for (size_t i = 0; i < mPlayers.size(); i++)
@@ -47,6 +48,21 @@ void Game::detectCollisions()
 	}
 }
 
+void Game::spawnCollectibles(float currentFrameTime)
+{
+	if ((int)currentFrameTime % mPosGenerator.spawnTime == 0 && !mPosGenerator.hasSpawnedThisInterval)
+	{
+		for (size_t i = 0; i < mPlayers.size(); i++)
+		{
+			mCollectPool.enableCollectible(mPosGenerator.generatePos());
+		}
+		mPosGenerator.hasSpawnedThisInterval = true;
+	}
+
+	if ((int)currentFrameTime % mPosGenerator.spawnTime == 1)
+		mPosGenerator.hasSpawnedThisInterval = false;
+}
+
 void Game::init()
 {
 	mInstance = new Game{};	
@@ -54,6 +70,7 @@ void Game::init()
 	mInstance->mCollectPool.init();
 	mInstance->mPlayers.reserve(mMAXPLAYERS);	
 	mInstance->setBackground(new BackgroundObject());
+	mInstance->mPosGenerator.init();
 }
 
 Game& Game::instance()
@@ -124,9 +141,6 @@ void Game::addPlayer(std::tuple<unsigned int, std::string>&& inputTuple)
 	mPlayers.emplace_back(std::get<1>(inputTuple));
 }
 
-//DEBUGGING PURPOSES, TODO BETTER SOLUTION
-bool outputted = false;
-int spawnTime = 4;
 void Game::update()
 {
 	ZoneScoped;
@@ -139,25 +153,9 @@ void Game::update()
 	}
 
 	float currentFrameTime = static_cast<float>(sgct::Engine::getTime());
-
 	float deltaTime = currentFrameTime - mLastFrameTime;
 	
-	//DEBUGGING PURPOSES, TODO BETTER SOLUTION
-	std::random_device randomDevice;
-	std::mt19937 gen(randomDevice());
-	std::uniform_real_distribution<> rng(-1.5f, 1.5f);
-
-	if ((int)currentFrameTime % spawnTime == 0 && !outputted)
-	{
-		for (size_t i = 0; i < mPlayers.size(); i++)
-		{
-			mCollectPool.enableCollectible(glm::vec3(1.5f + rng(gen), rng(gen), 0.f));
-		}		
-		outputted = true;
-	}
-
-	if ((int)currentFrameTime % spawnTime == 1 || (int)currentFrameTime % 2 == 2)
-		outputted = false;
+	spawnCollectibles(currentFrameTime);
 
 	//Update players
 	for (auto& player : mPlayers)

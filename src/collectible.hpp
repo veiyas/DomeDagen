@@ -10,7 +10,9 @@ struct CollectibleData
 
 class Collectible : public GameObject, private GeometryHandler
 {
-public:	
+public:
+	//Give collectiblepool access to privates
+	friend class CollectiblePool;
 	Collectible();
 	//Ctor used to load all collectibles into vector in Game class
 	Collectible(const std::string objectModelName);
@@ -39,10 +41,6 @@ public:
 	Collectible* getNext();	
 
 	const bool isEnabled() const { return mEnabled; }
-
-	//Give collectiblepool access to privates
-	friend class CollectiblePool;
-
 private:
 	//Is this collectible active in the game?
 	bool mEnabled;
