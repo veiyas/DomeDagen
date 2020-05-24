@@ -105,6 +105,7 @@ wsServer.on('request', function (req) {
             //console.log(`Colour 2: ${colourTwo}`);
             connection.send(`B ${colourTwo}`);
 
+            // Receive points and send to website
           } else if (temp[0] === 'P') {
             var points = temp.substring(2);
             console.log(`POINTS: ${points}`);

@@ -295,7 +295,6 @@ void messageReceived(const void* data, size_t length)
             Log::Info("Points: %s", points.c_str());
 
             //const int playerPoints = 150;
-            wsHandler->tick();
             wsHandler->queueMessage("P " + std::to_string(playerPoints));
         }
 	}
