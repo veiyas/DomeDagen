@@ -181,13 +181,13 @@ void initOGL(GLFWwindow*)
 	/**********************************/
 	/*			 Debug Area			  */
 	/**********************************/
-	//if (Engine::instance().isMaster())
-	//{
-	//	for (size_t i = 0; i < 10; i++)
-	//	{
-	//		Game::instance().addPlayer(glm::vec3(0.f + 0.3f * i));
-	//	}
-	//}
+	if (Engine::instance().isMaster())
+	{
+		for (size_t i = 0; i < 10; i++)
+		{
+			Game::instance().addPlayer(glm::vec3(0.f + 0.3f * i));
+		}
+	}
 }
 
 void keyboard(Key key, Modifier modifier, Action action, int)

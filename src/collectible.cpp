@@ -1,4 +1,5 @@
 #include "collectible.hpp"
+#include "constants.hpp"
 
 Collectible::Collectible()
 	:Collectible{"can1"}
@@ -7,7 +8,7 @@ Collectible::Collectible()
 }
 
 Collectible::Collectible(const std::string objectModelName)
-	:GameObject{ GameObject::COLLECTIBLE, 50.f, glm::vec3(1.f, 0.f, 0.f), 0.f, COLLECTIBLESCALE }
+	:GameObject{ GameObject::COLLECTIBLE, DOMERADIUS, glm::vec3(1.f, 0.f, 0.f), 0.f, COLLECTIBLESCALE }
 	,GeometryHandler{ "collectible", objectModelName }
 	,mEnabled{false}, mNext{nullptr}
 {
