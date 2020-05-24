@@ -17,7 +17,7 @@ out vec3 light;
 
 void main() {
 	fragPos = vec3(transformation * vec4(position, 1.0));
-    interpolatedNormal = normalMatrix * normal;
+	interpolatedNormal = normalMatrix * normal;
 	st = texCoord;
 	gl_Position = mvp * vec4(fragPos, 1.0);
 }

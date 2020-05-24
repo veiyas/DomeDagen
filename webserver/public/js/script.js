@@ -1,6 +1,6 @@
 
 var serverAddress;
-
+var returningPlayerUserName ="";
 //Request server adress when document is loaded
 $($.ajax({
   url: '/config',
@@ -43,7 +43,7 @@ function initialize() {
     log('Connection is closed');
   }
 
-  socket.onmessage = function() {
+  socket.onmessage = function(event) {
     if (event.data === "Connected") log(event.data);
 
     // Receive player-colours
@@ -67,11 +67,27 @@ function initialize() {
     screens.set(screen.id, screen)
   });
 
+  if (checkCookie()) {
+    setCurrentScreen('returningPlayerScreen');
+    var usernameParagraph = document.getElementById("returnUserName");
+    var x = document.createElement("P");
+    var t = document.createTextNode(returningPlayerUserName);
+    x.appendChild(t);
+    usernameParagraph.appendChild(x);
+  } else {
+    setCurrentScreen('welcomeScreen');
+    /*var connectButton = document.querySelector('#connect');
+    connectButton.addEventListener('click', () => {
+      connected = true; // Mock connection state, should probably be handled in conjunction with the back-end
+      setCurrentScreen('gameRunningScreen');
+    })*/
+  }
   // Set up event listeners
   var connectButton = document.querySelector('#connect');
   connectButton.addEventListener('click', () => {
     connected = true; // Mock connection state, should probably be handled in conjunction with the back-end
 
+    // setCurrentScreen('gameRunningScreen');
     setCurrentScreen('waitingScreen');
     handleInformationMessages();
   })
@@ -92,16 +108,31 @@ function setCurrentScreen(screenID) {
   }
 }
 
-// Send client's name to server
+// Send client's name to server and create a cookie
 function sendName() {
   // TODO Add input validation (no spaces, char limit, etc)
   // Should ofc be validated server-side as well
   name = document.getElementById("lname").value.trim();
-  if (socket.readyState === WebSocket.OPEN)
-  {
+  setCookie("username", name, 30);
+  if (socket.readyState === WebSocket.OPEN) {
     var stringToSend = `N ${name}`;
     socket.send(stringToSend);
   }
+  //go to gamescreen
+  connected = true; // Mock connection state, should probably be handled in conjunction with the back-end
+  setCurrentScreen('gameRunningScreen');
+
+}
+
+// For returning user
+function returnConnection() {
+  if (socket.readyState === WebSocket.OPEN) {
+    var stringToSend = `E ${returningPlayerUserName}`;
+    socket.send(stringToSend);
+  }
+  // Go to gamescreen
+  connected = true; // Mock connection state, should probably be handled in conjunction with the back-end
+  setCurrentScreen('gameRunningScreen');
 }
 
 // Enable the connect button if and only if the user has entered something
@@ -122,4 +153,114 @@ function handleTextInputChange() {
     connectButton.disabled = true;
     connectButton.classList.add('disabled');
   }
+}
+
+const leftBtn = document.getElementById('turnLeft');
+const rightBtn = document.getElementById('turnRight');
+
+var leftIsPressed = false;
+var rightIsPressed = false;
+
+// Handle buttons when using mouse
+leftBtn.addEventListener('mousedown', (event) => {
+  leftIsPressed = true;
+  sendSteeringData();
+});
+leftBtn.addEventListener('mouseup', (event) => {
+  leftIsPressed = false;
+  sendSteeringData();
+});
+rightBtn.addEventListener('mousedown', (event) => {
+  rightIsPressed = true;
+  sendSteeringData();
+});
+rightBtn.addEventListener('mouseup', (event) => {
+  rightIsPressed = false
+  sendSteeringData();
+});
+
+// Handle buttons on touch devices
+leftBtn.addEventListener('touchstart', (event) => {
+  leftIsPressed = true;
+  sendSteeringData();
+  event.preventDefault();
+});
+leftBtn.addEventListener('touchend', (event) => {
+  leftIsPressed = false;
+  sendSteeringData();
+  event.preventDefault();
+});
+rightBtn.addEventListener('touchstart', (event) => {
+  rightIsPressed = true;
+  sendSteeringData();
+  event.preventDefault();
+});
+rightBtn.addEventListener('touchend', (event) => {
+  rightIsPressed = false
+  sendSteeringData();
+  event.preventDefault();
+});
+
+function sendSteeringData() {
+  if(connected && socket.readyState === WebSocket.OPEN) {
+    // console.log(direction);
+    let direction = 0;
+    if (rightIsPressed && leftIsPressed || (!rightIsPressed) && (!leftIsPressed)){
+      direction = 0;
+    } else if (rightIsPressed) {
+      direction = -1;
+    } else {
+      direction = 1;
+    }
+
+    socket.send(`C ${direction}`);
+  }
+}
+function checkCookie() {
+  var user = getCookie("username");
+  if (user != "") {
+    returningPlayerUserName = user;
+    return true;
+  } else {
+    /* user = document.getElementById("lname").value.trim();
+    if (user != "" && user != null) {
+      setCookie("username", user, 30);
+      console.log("New user");
+    }*/
+    return false;
+  }
+}
+
+// Set a cookie
+function setCookie(cname, cvalue, exdays) {
+  var d = new Date();
+  d.setTime(d.getTime() + (30*60*1000));
+  var expires = "expires="+ d.toUTCString();
+  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+// Delete a cookie
+function deleteCookie() {
+  if(getCookie("username")) {
+    document.cookie = returningPlayerUserName + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    returningPlayerUserName = "";
+  }
+  setCurrentScreen('welcomeScreen');
+}
+
+// Get a cookie
+function getCookie(cname) {
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  for (var i = 0; i < ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
 }

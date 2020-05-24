@@ -2,7 +2,6 @@
 
 <head>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-  <script type="text/javascript" src="./js/script.js"></script>
 
   <link rel="stylesheet" type="text/css" href="./css/main.css">
   <link rel="stylesheet" type="text/css" href="./css/welcomeScreen.css">
@@ -10,14 +9,16 @@
   <link rel="stylesheet" type="text/css" href="./css/gameRunningScreen.css">
   <link rel="stylesheet" type="text/css" href="./css/gameOverScreen.css">
   <link rel="stylesheet" type="text/css" href="./css/orientationPrompt.css">
-
+  <link rel="stylesheet" type="text/css" href="./css/returningPlayerScreen.css">
+  
   <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Roboto&display=swap" rel="stylesheet">
-
+  
   <meta name="viewport" content="user-scalable=no">
 </head>
 
 <body>
-
+  <div id="emptyEntryScreen" class="screen"></div>
+  
   <div class="hidden" id="promptBackground"></div>
   <div class="hidden" id="orientationPrompt">
     <div class="col padded">
@@ -49,6 +50,21 @@
         <button id="connect" class="disabled" disabled="true" onclick="sendName()">Connect</button>
       </div>
     </div>
+    <div id="debug-output">Debug info</div>
+  </div>
+  
+  <div id="returningPlayerScreen" class="screen">
+    <div class="row centered">
+      <h1>Welcome back</h1>
+    </div>
+    <div class="row">
+      <div class="col">
+        <p>do you want to continue as <div id="returnUserName"></div></p>
+        <button id="returnConnect" onclick="returnConnection()">Yes</button>
+        <button id="returnDontConnect" onclick="deleteCookie()">No</button>
+      </div>
+    </div>
+    <!-- Add connection to get name in input, in initialize() function -->
     <div id="debug-output">Debug info</div>
   </div>
 
@@ -89,14 +105,9 @@
           <div class="playerColours" id="secondaryColour"></div>
         </div>
       </div>
-      <!-- <div id="steeringInstruction">
-        Animation or similar graphic to show steering controls
-        <p>Tilt to steer</p>
-      </div>
-      <button>Hold to swim</button> -->
     </div>
-    <canvas id="joystickArea">
-    </canvas>
+    <button class="buttonControls" id="turnLeft">Left</button>
+    <button class="buttonControls" id="turnRight">Right</button>
   </div>
 
   <div class="screen" id="gameOverScreen">
@@ -109,7 +120,7 @@
     </div>
   </div>
 
-  <script type="text/javascript" src="./js/joystick.js"></script>
+  <script type="text/javascript" src="./js/script.js"></script>
   <script type="text/javascript" src="./js/playerColours.js"></script>
   <script type="text/javascript" src="./js/gameInformation.js"></script>
 
