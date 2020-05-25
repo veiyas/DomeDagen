@@ -107,9 +107,8 @@ wsServer.on('request', function (req) {
 
             // Receive points and send to website
           } else if (temp[0] === 'P') {
-            var points = temp.substring(2);
-            console.log(`POINTS: ${points}`);
-            connection.send(`P ${points}`);
+            var pointsId = temp.substring(2, 4);
+            var points = temp.substring(5);
           }
         }
       });
@@ -131,7 +130,7 @@ wsServer.on('request', function (req) {
             gameSocket.send(`N ${uniqueId} ${temp[1]}`);
             // Send only ID to receive colors
             gameSocket.send(`I ${uniqueId}`);
-            gameSocket.send(`P ${uniqueId}`);
+            //gameSocket.send(`P ${uniqueId}`);
             uniqueId++;
           }
 
