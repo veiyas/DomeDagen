@@ -62,7 +62,7 @@ const std::string rootDir = Utility::findRootDir();
 int main(int argc, char** argv)
 {
 	std::vector<std::string> arg(argv + 1, argv + argc);
-	Configuration config = sgct::parseArguments(arg);	
+	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
 	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";

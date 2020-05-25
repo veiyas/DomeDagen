@@ -57,6 +57,7 @@ void Game::init()
 	mInstance->printLoadedAssets();
 	BackgroundObject* background = new BackgroundObject();
 	mInstance->setBackground(background);
+	mInstance->mIdPoints.reserve(mMAXPLAYERS);
 }
 
 Game& Game::instance()
@@ -174,6 +175,14 @@ std::vector<std::byte> Game::getEncodedData()
 	return allEncodedData;
 }
 
+void Game::sendPointsToServer(std::unique_ptr<WebSocketHandler>& ws)
+{
+	//Iterate over mIdPoints to get id's and new points
+	//Send these to server through ws
+
+	mIdPoints.clear();
+}
+
 std::vector<SyncableData> Game::getSyncableData()
 {
 	std::vector<SyncableData> tempData;
@@ -247,7 +256,7 @@ void Game::setSyncableData(const std::vector<SyncableData> newState) //Copy atm 
 	if (newPlayerStates.size() > 0)
 		setDecodedPlayerData(newPlayerStates);
 	if (newCollectibleStates.size() > 0)
-		setDecodedCollectibleData(newCollectibleStates);
+		setDecodedCollectibleData(newCollectibleStates);	
 }
 
 void Game::setDecodedCollectibleData(const std::vector<SyncableData>& newState)

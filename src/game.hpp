@@ -27,6 +27,7 @@
 #include "collectiblepool.hpp"
 #include "utility.hpp"
 #include "backgroundobject.hpp"
+#include "websockethandler.h"
 
 //Because sgct can't handle syncting separate vectors all sync data gets put in one vector
 //This needs a master type to handle all syncable objects
@@ -92,6 +93,9 @@ public:
 	//Get and encode object data for syncing
 	std::vector<std::byte> getEncodedData();
 
+	//Update point data on phone
+	void sendPointsToServer(std::unique_ptr<WebSocketHandler>& ws);
+
 	//Set the turn speed of player player with id id
 	void updateTurnSpeed(std::tuple<unsigned int, float>&& input);    
    
@@ -127,6 +131,9 @@ private:
 	//Track all loaded shaders' names
 	std::vector<std::string> mShaderNames;
 
+	//Container to store player id and new points for server update
+	std::vector<std::pair<unsigned, int>> mIdPoints;
+
 	//MVP matrix used for rendering
 	glm::mat4 mMvp;
 
@@ -140,7 +147,6 @@ private:
 	float mLastFrameTime;
 
 	static constexpr double collisionDistance = 0.2f; //TODO make this object specific
-	
 
 	BackgroundObject *mBackground; //Holds pointer to the background
 
