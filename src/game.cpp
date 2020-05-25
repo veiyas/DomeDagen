@@ -129,6 +129,12 @@ void Game::render() const
 void Game::addPlayer()
 {
 	mPlayers.emplace_back();
+	++mUniqueId;
+}
+
+void Game::addCollectible()
+{
+	mCollectPool.enableCollectible(mPosGenerator.generatePos());
 }
 
 void Game::addPlayer(const glm::vec3& pos)

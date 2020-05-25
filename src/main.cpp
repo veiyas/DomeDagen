@@ -65,7 +65,7 @@ int main(int argc, char** argv)
 	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
-	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
 	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
@@ -118,7 +118,6 @@ int main(int argc, char** argv)
 }
 
 void draw(const RenderData& data)
-
 {	
 	if (isGameStarted) {
 		Game::instance().setMVP(data.modelViewProjectionMatrix);
@@ -131,16 +130,12 @@ void draw(const RenderData& data)
 
 		Game::instance().render();
 
+		//GLenum err;
+		//while ((err = glGetError()) != GL_NO_ERROR)
 		//{
-		//	ZoneScopedN("OpenGL error catching");
-		//	GLenum err;
-		//	while ((err = glGetError()) != GL_NO_ERROR)
-		//	{
-		//		sgct::Log::Error("GL Error: 0x%x", err);
-		//	}
+		//	sgct::Log::Error("GL Error: 0x%x", err);
 		//}
 	}
-
 }
 
 void draw2D(const RenderData& data)
@@ -198,13 +193,13 @@ void initOGL(GLFWwindow*)
 	/**********************************/
 	/*			 Debug Area			  */
 	/**********************************/
-	if (Engine::instance().isMaster())
-	{
-		for (size_t i = 0; i < 50; i++)
-		{
-			Game::instance().addPlayer(glm::vec3(0.f + 0.3f * i));
-		}
-	}
+	//if (Engine::instance().isMaster())
+	//{
+	//	for (size_t i = 0; i < 50; i++)
+	//	{
+	//		Game::instance().addPlayer(glm::vec3(0.f + 0.3f * i));
+	//	}
+	//}
 }
 
 void keyboard(Key key, Modifier modifier, Action action, int)
@@ -223,6 +218,12 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 	if (key == Key::G && action == Action::Press) {
 		Engine::instance().setStatsGraphVisibility(false);
 		areStatsVisible = false;
+	}
+	if (key == Key::R && action == Action::Press) {
+		Game::instance().addPlayer();
+	}
+	if (key == Key::F && action == Action::Press) {
+		Game::instance().addCollectible();
 	}
 	if (key == Key::Space && modifier == Modifier::Shift && action == Action::Release)
 	{

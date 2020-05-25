@@ -68,8 +68,9 @@ public:
 	//Set view matrix
 	void setV(const glm::mat4& v) { mV = v; }
 
-	//Mostly used for debugging
+	//Used for debugging
 	void addPlayer();
+	void addCollectible();
 
 	void addPlayer(const glm::vec3& pos);
 

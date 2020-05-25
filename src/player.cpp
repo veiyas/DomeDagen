@@ -16,7 +16,8 @@ Player::Player()
 	  GeometryHandler("player", "diver"),
 	  mName{ "temp" },
 	  mPlayerColours{ mColourSelector.getNextPair() },
-	  mConstraint{ mFOV, mTILT }
+	  mConstraint{ mFOV, mTILT },
+	  mSpeed{0.5f}
 {
 	sgct::Log::Info("Player with name=\"%s\" created", mName.c_str());
 	setShaderData();
