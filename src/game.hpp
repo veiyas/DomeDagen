@@ -131,7 +131,8 @@ private:
 	//Track all loaded shaders' names
 	std::vector<std::string> mShaderNames;
 
-	//Container to store player id and new points for server update
+	//Container to store player id and new points
+	//Data sent to server to update score on each player's phone
 	std::vector<std::pair<unsigned, int>> mIdPoints;
 
 	//MVP matrix used for rendering

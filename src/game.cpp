@@ -44,6 +44,7 @@ void Game::detectCollisions()
 				{
 					mPlayers[i].addPoints();
 					mCollectPool.disableCollectible(j);
+					mIdPoints.push_back(std::make_pair(i, mPlayers[i].getPoints()));
 				}
 			}
 		}
@@ -54,10 +55,10 @@ void Game::init()
 {
 	mInstance = new Game{};
 	mInstance->mPlayers.reserve(mMAXPLAYERS);
+	mInstance->mIdPoints.reserve(mMAXPLAYERS);
 	mInstance->printLoadedAssets();
 	BackgroundObject* background = new BackgroundObject();
 	mInstance->setBackground(background);
-	mInstance->mIdPoints.reserve(mMAXPLAYERS);
 }
 
 Game& Game::instance()
