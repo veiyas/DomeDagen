@@ -288,11 +288,7 @@ void Game::setDecodedCollectibleData(const std::vector<SyncableData>& newState)
 		mCollectPool[i].setCollectibleData(currentState.mPositionData, currentState.mCollectData.mModelIndex);
 	}
 
-	//Disable rest of elements
-	for (size_t i = newState.size(); i < CollectiblePool::mMAXNUMCOLLECTIBLES; i++)
-	{
-		mCollectPool.disableCollectible(i);
-	}
+	//No need to disable any unactive elements as nodes only render
 }
 
 void Game::renderPlayers() const
