@@ -180,7 +180,12 @@ void Game::sendPointsToServer(std::unique_ptr<WebSocketHandler>& ws)
 {
 	//Iterate over mIdPoints to get id's and new points
 	//Send these to server through ws
-
+    for (size_t i = 0; i < mIdPoints.size(); i++)
+    {
+        std::string playerId = std::to_string(mIdPoints[i].first);
+        std::string points = std::to_string(mIdPoints[i].second);
+        ws->queueMessage("P " + playerId + "   " + points);
+    }
 	mIdPoints.clear();
 }
 
