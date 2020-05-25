@@ -3,6 +3,7 @@
 #include "gameobject.hpp"
 #include "geometryhandler.hpp"
 
+
 struct CollectibleData
 {
 	int mModelIndex;

@@ -60,15 +60,15 @@ const std::string rootDir = Utility::findRootDir();
 			MAIN
 *****************************/
 int main(int argc, char** argv)
-{
+{	
 	std::vector<std::string> arg(argv + 1, argv + argc);
 	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
-	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
-	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
+	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
 
 	config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
@@ -119,7 +119,7 @@ int main(int argc, char** argv)
 
 void draw(const RenderData& data)
 {	
-	if (isGameStarted) {
+	if (isGameStarted && !isGameEnded) {
 		Game::instance().setMVP(data.modelViewProjectionMatrix);
 		Game::instance().setV(data.viewMatrix);
 
@@ -140,10 +140,14 @@ void draw(const RenderData& data)
 
 void draw2D(const RenderData& data)
 {
-	static constexpr int bigFontSize = 24;
+	if (isGameStarted && !isGameEnded)
+		return;
+
+	static constexpr int bigFontSize = 12;
+	static constexpr int smallFontSize = 6;
 
 	const std::string leaderboardString = Game::instance().getLeaderboard();
-	const glm::ivec2& screenRes = data.window.finalFBODimensions();
+	const glm::ivec2& screenRes = data.window.framebufferResolution();
 	if (!isGameStarted) {
 		text::print(
 			data.window,
@@ -166,7 +170,7 @@ void draw2D(const RenderData& data)
 		*text::FontManager::instance().font("SGCTFont", bigFontSize),
 		text::Alignment::TopCenter,
 		screenRes.x / 2,
-		screenRes.y / 2,
+		screenRes.y / 1.05,
 		glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
 		"%s", "Leaderboard"
 		);
@@ -174,10 +178,10 @@ void draw2D(const RenderData& data)
 	text::print(
 		data.window,
 		data.viewport,
-		*text::FontManager::instance().font("SGCTFont", 12),
+		*text::FontManager::instance().font("SGCTFont", smallFontSize),
 		text::Alignment::TopCenter,
 		screenRes.x / 2,
-		screenRes.y / 2 - bigFontSize,
+		screenRes.y / 1.05 - bigFontSize,
 		glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
 		"%s", leaderboardString.c_str()
 		);
@@ -193,13 +197,13 @@ void initOGL(GLFWwindow*)
 	/**********************************/
 	/*			 Debug Area			  */
 	/**********************************/
-	//if (Engine::instance().isMaster())
-	//{
-	//	for (size_t i = 0; i < 50; i++)
-	//	{
-	//		Game::instance().addPlayer(glm::vec3(0.f + 0.3f * i));
-	//	}
-	//}
+	if (Engine::instance().isMaster())
+	{
+		for (size_t i = 0; i < 50; i++)
+		{
+			Game::instance().addPlayer(glm::vec3(0.f + 0.3f * i));
+		}
+	}
 }
 
 void keyboard(Key key, Modifier modifier, Action action, int)
@@ -223,7 +227,10 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 		Game::instance().addPlayer();
 	}
 	if (key == Key::F && action == Action::Press) {
-		Game::instance().addCollectible();
+		for (size_t i = 0; i < 100; i++)
+		{
+			Game::instance().addCollectible();
+		}		
 	}
 	if (key == Key::Space && modifier == Modifier::Shift && action == Action::Release)
 	{
@@ -255,9 +262,8 @@ void preSync()
 	// the computed state is serialized and deserialized in the encode/decode calls
 
 	//Run game simulation on master only
-	if (Engine::instance().isMaster())
+	if (Engine::instance().isMaster() && !isGameEnded && isGameStarted)
 	{
-		
 		wsHandler->tick();
 		Game::instance().update();
 		if (Game::instance().hasGameEnded()) {
@@ -267,7 +273,7 @@ void preSync()
 }
 
 std::vector<std::byte> encode()
-{	
+{
 	std::vector<std::byte> output;
 
 	serializeObject(output, isGameEnded);
@@ -282,7 +288,7 @@ std::vector<std::byte> encode()
 
 void decode(const std::vector<std::byte>& data, unsigned int pos)
 {
-	if (!Game::exists()) //No point in syncing data if no instance of Game exist yet
+	if (!Game::exists() || isGameEnded) //No point in syncing data if no Game isnt running
 		return;
   
 	deserializeObject(data, pos, isGameEnded);
@@ -300,10 +306,14 @@ void cleanup()
 void postSyncPreDraw()
 {
 	//Sync gameobjects' state on clients only
-	if (!Engine::instance().isMaster() && Game::exists() && gameObjectStates.size() > 0)
+	if (!Engine::instance().isMaster() && Game::exists())
 	{
 		Engine::instance().setStatsGraphVisibility(areStatsVisible);
-		Game::instance().setSyncableData(std::move(gameObjectStates));
+
+		if (isGameEnded || !isGameStarted)
+			return;
+		else
+			Game::instance().setSyncableData(std::move(gameObjectStates));
 	}
 }
 
