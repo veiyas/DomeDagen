@@ -109,6 +109,15 @@ wsServer.on('request', function (req) {
           } else if (temp[0] === 'P') {
             var pointsId = temp.substring(2, 4);
             var points = temp.substring(5);
+
+            // console.log(`ID: ${uniqueId - 1}`);
+            // console.log(`PointsID: ${pointsId}`);
+            // console.log(`POINTS: ${points}`);
+            
+            if (pointsId == (uniqueId - 1)) {
+              console.log(`POINTS: ${points}`);
+              connection.send(`P ${points}`);
+            }
           }
         }
       });
