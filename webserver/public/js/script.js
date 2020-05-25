@@ -17,6 +17,7 @@ var socket;
 var screens = new Map();
 const nameLimit = 20;
 var connected = false;
+var gameStarted = false;
 
 function log(msg) {
     document.getElementById('debug-output').innerHTML = msg;
@@ -60,9 +61,15 @@ function initialize() {
       }
       setPlayerColours(primary, secondary);
     }
+    
     if (event.data[0] == 'T'){
       var time = event.data.substring(2);
       log("TIME: " + time);
+    }
+
+    // Receive start signal
+    if (event.data === 'start') {
+      gameStarted = true;
     }
   }
 

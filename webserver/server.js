@@ -26,7 +26,6 @@ console.log(config.serverAddress);
 const port = config.serverPort;
 const gameAddress = config.gameAddress;
 
-
 app.use(express.static(__dirname + '/public'));
 
 app.get('/', function (req, res) {
@@ -104,10 +103,12 @@ wsServer.on('request', function (req) {
             var colourTwo = [valOne, valTwo, valThree];
             //console.log(`Colour 2: ${colourTwo}`);
             connection.send(`B ${colourTwo}`);
-          }else if (temp[0] === 'T') {
+          } else if (temp[0] === 'T') {
             var time = temp.substring(1, 4);
             //console.log(`Colour 2: ${colourTwo}`);
             connection.send(`T ${colourTwo}`);
+          } else if (temp[0] === 'start') {
+            connection.send('start')
           }
         }
       });

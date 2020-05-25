@@ -20,10 +20,12 @@ function displayNextMessage() {
             messageElement.innerHTML = gameInformationMessages[currentMessage++];
             messageElement.style.opacity=1;
         }, 500);
-    } else {
+    } else if (gameStarted) {
         clearInterval(displayNextMessage);
         document.querySelector('#orientationPrompt').classList.remove('hidden');
         document.querySelector('#promptBackground').classList.remove('hidden');
         setCurrentScreen('gameRunningScreen');
+    } else {
+        currentMessage = 0;
     }
 }
