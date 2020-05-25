@@ -79,7 +79,7 @@ void Collectible::setNext(Collectible* node)
 	mNext = node;
 }
 
-Collectible* Collectible::getNext()
+Collectible* Collectible::getNext() const
 {
 	return mNext;
 }

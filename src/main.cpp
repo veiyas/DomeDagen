@@ -127,7 +127,7 @@ void draw(const RenderData& data)
 
 	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_CULL_FACE); // TODO This should really be enabled but the normals of the
-	                          // background object are flipped atm
+							  // background object are flipped atm
 	glCullFace(GL_BACK);
 
 	Game::instance().render();
@@ -314,27 +314,27 @@ void messageReceived(const void* data, size_t length)
 		if (msgType == 'C') {
 			Game::instance().updateTurnSpeed(Utility::getTurnSpeed(iss));
 		}
-        
-        // If first slot is 'D', player to be deleted has been sent
-        if (msgType == 'D') {
-            unsigned int playerId;
-            iss >> playerId;
-            Game::instance().disablePlayer(playerId);
-        }
-        
-        // If first slot is 'I', player's ID has been sent
-        if (msgType == 'I') {
-            unsigned int playerId;
-            iss >> playerId;
-            // Send colour information back to server
-            std::pair<glm::vec3, glm::vec3> colours = Game::instance().getPlayerColours(playerId);
-            std::string colourOne = glm::to_string(colours.first);
-            std::string colourTwo = glm::to_string(colours.second);
-            
+		
+		// If first slot is 'D', player to be deleted has been sent
+		if (msgType == 'D') {
+			unsigned int playerId;
+			iss >> playerId;
+			Game::instance().disablePlayer(playerId);
+		}
+		
+		// If first slot is 'I', player's ID has been sent
+		if (msgType == 'I') {
+			unsigned int playerId;
+			iss >> playerId;
+			// Send colour information back to server
+			std::pair<glm::vec3, glm::vec3> colours = Game::instance().getPlayerColours(playerId);
+			std::string colourOne = glm::to_string(colours.first);
+			std::string colourTwo = glm::to_string(colours.second);
+			
 //            Log::Info("Player colour 1: %s", colourOne.c_str());
 //            Log::Info("Player colour 2: %s", colourTwo.c_str());
-            wsHandler->queueMessage("A " + colourOne);
-            wsHandler->queueMessage("B " + colourTwo);
-        }
+			wsHandler->queueMessage("A " + colourOne);
+			wsHandler->queueMessage("B " + colourTwo);
+		}
 	}
 }

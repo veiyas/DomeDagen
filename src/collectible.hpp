@@ -38,7 +38,7 @@ public:
 	void setNext(Collectible* node);
 
 	//Get next node
-	Collectible* getNext();	
+	Collectible* getNext() const;
 
 	const bool isEnabled() const { return mEnabled; }
 private:
