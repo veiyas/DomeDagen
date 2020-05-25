@@ -151,13 +151,13 @@ void initOGL(GLFWwindow*)
 	/**********************************/
 	/*			 Debug Area			  */
 	/**********************************/
-	if (Engine::instance().isMaster())
-	{
-		for (size_t i = 0; i < 1; i++)
-		{
-			Game::instance().addPlayer(glm::vec3(0.f + 0.2f*i));
-		}
-	}
+//	if (Engine::instance().isMaster())
+//	{
+//		for (size_t i = 0; i < 1; i++)
+//		{
+//			Game::instance().addPlayer(glm::vec3(0.f + 0.2f*i));
+//		}
+//	}
 }
 
 void keyboard(Key key, Modifier modifier, Action action, int)
@@ -193,6 +193,7 @@ void preSync()
 	{
 		wsHandler->tick();
 		Game::instance().update();
+        Game::instance().sendPointsToServer(wsHandler);
 	}
 }
 
