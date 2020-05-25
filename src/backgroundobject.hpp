@@ -5,6 +5,7 @@
 #include <tuple>
 
 #include "sgct/log.h"
+#include "sgct/profiling.h"
 
 #include "gameobject.hpp"
 #include "geometryhandler.hpp"

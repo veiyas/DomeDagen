@@ -49,26 +49,9 @@ Collectible& Collectible::operator=(Collectible&& src) noexcept
 
 void Collectible::render(const glm::mat4& mvp, const glm::mat4& v) const
 {
-	//ZoneScoped;
-	if (mEnabled)
-	{
-		mShaderProgram.bind();
-
-		glm::vec3 cameraPos = glm::vec3((inverse(v))[3]);
-		glUniform3fv(mCameraPosLoc, 1, glm::value_ptr(cameraPos));
-
-		glm::mat4 transformation = getTransformation();
-		glm::mat3 normalMatrix(glm::transpose(glm::inverse(transformation)));
-
-		glUniformMatrix3fv(mNormalMatrixLoc, 1, GL_FALSE, glm::value_ptr(normalMatrix));
-		glUniformMatrix4fv(mMvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(mvp));
-		glUniformMatrix4fv(mViewMatrixLoc, 1, GL_FALSE, glm::value_ptr(v));
-		glUniformMatrix4fv(mTransMatrixLoc, 1, GL_FALSE, glm::value_ptr(transformation));
-
-		this->renderModel();
-
-		mShaderProgram.unbind();
-	}
+	glUniformMatrix4fv(mMvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(mvp));
+	glUniformMatrix4fv(mTransMatrixLoc, 1, GL_FALSE, glm::value_ptr(getTransformation()));
+	this->renderModel();
 }
 
 void Collectible::update(float deltaTime)
@@ -76,19 +59,19 @@ void Collectible::update(float deltaTime)
 	setModelRotation(getModelRotation() * glm::quat(deltaTime * 1.2f * glm::vec3(1.f, 1.f, 1.f)));
 }
 
-CollectibleData Collectible::getCollectibleData(unsigned index) const
+CollectibleData Collectible::getCollectibleData(unsigned index)
 {
 	CollectibleData temp;
 
-	temp.mIndex = index;
+	temp.mModelIndex = getModelPointerIndex();
 
 	return temp;
 }
 
-void Collectible::setCollectibleData(const PositionData& newPosData)
+void Collectible::setCollectibleData(const PositionData& newPosData, const int modelIndex)
 {
 	setPositionData(newPosData);
-
+	setModelFromInt(modelIndex);
 	enable();
 }
 
@@ -97,7 +80,7 @@ void Collectible::setNext(Collectible* node)
 	mNext = node;
 }
 
-Collectible* Collectible::getNext()
+Collectible* Collectible::getNext() const
 {
 	return mNext;
 }

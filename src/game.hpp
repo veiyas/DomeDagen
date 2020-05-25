@@ -87,9 +87,6 @@ public:
 	//Update all gameobjects
 	void update();
 
-	//Get and encode object data for syncing
-	std::vector<std::byte> getEncodedData();
-
 	//Get leaderboard string
 	//Only gets called at end of game
 	std::string getLeaderboard() const;
@@ -136,6 +133,9 @@ private:
 	//Track all loaded shaders' names
 	std::vector<std::string> mShaderNames;
 
+	//Track all collected collectibles for sync to nodes efficiently
+	//std::vector<size_t
+
 	//MVP matrix used for rendering
 	glm::mat4 mMvp;
 
@@ -150,7 +150,6 @@ private:
 
 	static constexpr double collisionDistance = 0.1f; //TODO make this object specific
 	
-
 	BackgroundObject *mBackground; //Holds pointer to the background
 
 //Functions
@@ -159,6 +158,9 @@ private:
 
 	//Collision detection in mInteractObjects, bubble style
 	void detectCollisions();
+
+	//Spawn Collectibles
+	void spawnCollectibles(float currentFrameTime);
 
 	//Set object data from inputted data
 	void setDecodedPlayerData(const std::vector<SyncableData>& newState);
@@ -179,4 +181,29 @@ private:
 
 	const glm::mat4& getMVP() { return mMvp; };
 	const glm::mat4& getV() { return mV; };
+
+	struct PositionGenerator
+	{
+		void init()
+		{
+			std::random_device randomDevice;
+			gen = std::mt19937(randomDevice());
+			rng = std::uniform_real_distribution<>(-1.5f, 1.5f);
+		}
+
+		//RNG stuff		
+		std::mt19937 gen;
+		std::uniform_real_distribution<> rng;
+
+		//State stuff
+		bool hasSpawnedThisInterval = false;
+		unsigned spawnTime = 4;
+
+		glm::vec3 generatePos()
+		{
+			ZoneScoped;
+			return glm::vec3(1.5f + rng(gen), rng(gen), 0.f);
+		}
+
+	} mPosGenerator;
 };

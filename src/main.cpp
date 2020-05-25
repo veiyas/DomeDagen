@@ -65,10 +65,10 @@ int main(int argc, char** argv)
 	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
-	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
-	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
+	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
 
 	config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
@@ -118,24 +118,26 @@ int main(int argc, char** argv)
 }
 
 void draw(const RenderData& data)
-{	
+{
+	ZoneScoped;
 	Game::instance().setMVP(data.modelViewProjectionMatrix);
 	Game::instance().setV(data.viewMatrix);
 
-	glClearColor(20.0/255.0, 157.0/255.0, 190.0/255.0, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_CULL_FACE); // TODO This should really be enabled but the normals of the
-	                          // background object are flipped atm
+							  // background object are flipped atm
 	glCullFace(GL_BACK);
 
 	Game::instance().render();
 
-	GLenum err;
-	while ((err = glGetError()) != GL_NO_ERROR)
-	{
-		sgct::Log::Error("GL Error: 0x%x", err);
-	}
+	//{
+	//	ZoneScopedN("OpenGL error catching");
+	//	GLenum err;
+	//	while ((err = glGetError()) != GL_NO_ERROR)
+	//	{
+	//		sgct::Log::Error("GL Error: 0x%x", err);
+	//	}
+	//}
 }
 
 void draw2D(const RenderData& data)
@@ -154,7 +156,7 @@ void draw2D(const RenderData& data)
 		*text::FontManager::instance().font("SGCTFont", bigFontSize),
 		text::Alignment::TopCenter,
 		screenRes.x / 2,
-		screenRes.y / 2.5,
+		screenRes.y / 2,
 		glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
 		"%s", "Leaderboard"
 		);
@@ -165,7 +167,7 @@ void draw2D(const RenderData& data)
 		*text::FontManager::instance().font("SGCTFont", 12),
 		text::Alignment::TopCenter,
 		screenRes.x / 2,
-		screenRes.y / 2.5 - bigFontSize,
+		screenRes.y / 2 - bigFontSize,
 		glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
 		"%s", leaderboardString.c_str()
 		);
@@ -175,6 +177,7 @@ void initOGL(GLFWwindow*)
 {
 	ModelManager::init();
 	Game::init();
+	assert(std::is_pod<SyncableData>());
 
 	/**********************************/
 	/*			 Debug Area			  */
@@ -240,11 +243,9 @@ std::vector<std::byte> encode()
 {	
 	std::vector<std::byte> output;
 
-	//Sync if game has ended yet
-	serializeObject(output, Game::instance().hasGameEnded());
-	//Sync if stats window is visible
+	serializeObject(output, isGameEnded);
 	serializeObject(output, areStatsVisible);
-	//For some reason all game state has to to be put in one vector to avoid sgct syncing bugs
+	//For some reason everything has to to be put in one vector to avoid sgct syncing bugs
 	serializeObject(output, Game::instance().getSyncableData());
 
 	return output;
@@ -254,10 +255,9 @@ void decode(const std::vector<std::byte>& data, unsigned int pos)
 {
 	if (!Game::exists()) //No point in syncing data if no instance of Game exist yet
 		return;
+  
 	deserializeObject(data, pos, isGameEnded);
 	deserializeObject(data, pos, areStatsVisible);
-
-	//For some reason all game state has to to be put in one vector to avoid sgct syncing bugs
 	deserializeObject(data, pos, gameObjectStates);
 }
 
@@ -311,6 +311,7 @@ void messageReceived(const void* data, size_t length)
 		if (msgType == 'C') {
 			Game::instance().updateTurnSpeed(Utility::getTurnSpeed(iss));
 		}
+
         
         // If first slot is 'D', player to be deleted has been sent
         if (msgType == 'D') {
@@ -336,11 +337,11 @@ void messageReceived(const void* data, size_t length)
             std::pair<glm::vec3, glm::vec3> colours = Game::instance().getPlayerColours(playerId);
             std::string colourOne = glm::to_string(colours.first);
             std::string colourTwo = glm::to_string(colours.second);
-            
+
 //            Log::Info("Player colour 1: %s", colourOne.c_str());
 //            Log::Info("Player colour 2: %s", colourTwo.c_str());
-            wsHandler->queueMessage("A " + colourOne);
-            wsHandler->queueMessage("B " + colourTwo);
-        }
+			wsHandler->queueMessage("A " + colourOne);
+			wsHandler->queueMessage("B " + colourTwo);
+		}
 	}
 }
