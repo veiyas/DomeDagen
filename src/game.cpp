@@ -26,30 +26,31 @@ void Game::detectCollisions()
 				auto playerQuat = mPlayers[i].getPosition();
 				auto collectibleQuat = mCollectPool[j].getPosition();
 
-			for (size_t j = 0; j < CollectiblePool::mMAXNUMCOLLECTIBLES; j++)
-			{
-				if (!mCollectPool[j].isEnabled())
-					continue;
-				
-				glm::quat collectibleQuat = mCollectPool[j].getPosition();
-				glm::quat deltaQuat = glm::normalize(glm::inverse(playerQuat) * collectibleQuat);
-
-				//Collision detection by comparing how small the angle between the objects are
-				//TODO Algot "Quat Guru" Sandahl needs to review this part
-				//From https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
-				auto sinxPart = 2.f * (deltaQuat.w * deltaQuat.x + deltaQuat.y * deltaQuat.z);
-				auto cosxPart = 1.f - 2.f * (deltaQuat.x*deltaQuat.x + deltaQuat.y*deltaQuat.y);
-				auto xAngle = std::atan2(sinxPart, cosxPart);
-				
-				auto sinyPart = 2.f * (deltaQuat.w * deltaQuat.y - deltaQuat.z * deltaQuat.x);
-				auto yAngle = std::asin(sinyPart);
-
-				if (std::abs(xAngle) <= collisionDistance && std::abs(yAngle) <= collisionDistance)
+				for (size_t j = 0; j < CollectiblePool::mMAXNUMCOLLECTIBLES; j++)
 				{
-					mPlayers[i].addPoints();
-					mCollectPool.disableCollectibleAndSwap(j);
-				}
+					if (!mCollectPool[j].isEnabled())
+						continue;
 
+					glm::quat collectibleQuat = mCollectPool[j].getPosition();
+					glm::quat deltaQuat = glm::normalize(glm::inverse(playerQuat) * collectibleQuat);
+
+					//Collision detection by comparing how small the angle between the objects are
+					//TODO Algot "Quat Guru" Sandahl needs to review this part
+					//From https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+					auto sinxPart = 2.f * (deltaQuat.w * deltaQuat.x + deltaQuat.y * deltaQuat.z);
+					auto cosxPart = 1.f - 2.f * (deltaQuat.x * deltaQuat.x + deltaQuat.y * deltaQuat.y);
+					auto xAngle = std::atan2(sinxPart, cosxPart);
+
+					auto sinyPart = 2.f * (deltaQuat.w * deltaQuat.y - deltaQuat.z * deltaQuat.x);
+					auto yAngle = std::asin(sinyPart);
+
+					if (std::abs(xAngle) <= collisionDistance && std::abs(yAngle) <= collisionDistance)
+					{
+						mPlayers[i].addPoints();
+						mCollectPool.disableCollectibleAndSwap(j);
+					}
+
+				}
 			}
 		}
 	}
@@ -295,21 +296,6 @@ void Game::setDecodedCollectibleData(const std::vector<SyncableData>& newState)
 	}
 
 	//No need to disable any unactive elements as nodes only render
-}
-
-void Game::renderPlayers() const
-{
-	ZoneScoped;
-	if (mPlayers.size() > 0)
-	{
-		auto const& playerShader = sgct::ShaderManager::instance().shaderProgram("player");
-		playerShader.bind();
-
-		for (const Player& p : mPlayers)
-			p.render(mMvp, mV);
-
-		playerShader.unbind();
-	}
 }
 
 void Game::renderPlayers() const
