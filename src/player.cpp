@@ -4,14 +4,15 @@
 #include<iostream>
 
 #include"balljointconstraint.hpp"
+#include"constants.hpp"
 
-const float Player::mFOV = 170.0f;
+const float Player::mFOV = 163.0f;
 const float Player::mTILT = 27.0f;
 
 Player::ColourSelector Player::mColourSelector = Player::ColourSelector{ };
 
 Player::Player()
-	: GameObject{ GameObject::PLAYER, 50.f, glm::quat(glm::vec3(0.f)), 0.f, PLAYERSCALE },
+	: GameObject{ GameObject::PLAYER, DOMERADIUS, glm::quat(glm::vec3(0.f)), 0.f, PLAYERSCALE },
 	  GeometryHandler("player", "diver"),
 	  mName{ "temp" },
 	  mPlayerColours{ mColourSelector.getNextPair() },
@@ -22,7 +23,7 @@ Player::Player()
 }
 
 Player::Player(const std::string name)
-	: GameObject{ GameObject::PLAYER, 50.f, glm::quat(glm::vec3(0.f)), 0.f, PLAYERSCALE },
+	: GameObject{ GameObject::PLAYER, DOMERADIUS, glm::quat(glm::vec3(0.f)), 0.f, PLAYERSCALE },
 	  GeometryHandler("player", "diver"),
 	  mName{ name },
 	  mPlayerColours{ mColourSelector.getNextPair() },
@@ -176,7 +177,8 @@ void Player::render(const glm::mat4& mvp, const glm::mat4& v) const
 	glUniformMatrix4fv(mMvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(mvp));
 	glUniformMatrix4fv(mViewMatrixLoc, 1, GL_FALSE, glm::value_ptr(v));
 	glUniformMatrix4fv(mTransMatrixLoc, 1, GL_FALSE, glm::value_ptr(transformation));
-	this->renderModel();
+
+	renderModel();
 }
 
 void Player::setShaderData()

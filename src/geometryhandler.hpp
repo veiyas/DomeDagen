@@ -49,7 +49,7 @@ public:
 	Model* mModel;
 	int mModelSlot = -1;
 
-	//Render model
+	//Render geometry and texture
 	void renderModel() const { mModel->render(); };
 
 	//Set shader data

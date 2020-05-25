@@ -10,21 +10,19 @@
 #include <sstream>
 #include <random>
 #include <glm/gtx/string_cast.hpp>
-
 #include "sgct/sgct.h"
+
+#include "sgct/profiling.h"
 
 #include "websockethandler.h"
 #include "utility.hpp"
 #include "game.hpp"
-#include "sceneobject.hpp"
-#include "player.hpp"
 #include "modelmanager.hpp"
-#include "backgroundobject.hpp"
 
 namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
 
-	//Vars to catch sync data
+	//Variables to catch sync data
 	bool isGameEnded = false;
 	bool areStatsVisible = false;
 
@@ -148,9 +146,9 @@ void draw2D(const RenderData& data)
 		return;
 	static constexpr int bigFontSize = 24;
 
-	std::string leaderboardString = Game::instance().getLeaderboard();
-	glm::ivec2 screenRes = data.window.resolution();
-
+	const std::string leaderboardString = Game::instance().getLeaderboard();
+	const glm::ivec2& screenRes = data.window.resolution();
+	
 	//Leaderboard header
 	text::print(
 		data.window,
@@ -242,7 +240,7 @@ void preSync()
 }
 
 std::vector<std::byte> encode()
-{
+{	
 	std::vector<std::byte> output;
 
 	serializeObject(output, isGameEnded);
@@ -257,10 +255,9 @@ void decode(const std::vector<std::byte>& data, unsigned int pos)
 {
 	if (!Game::exists()) //No point in syncing data if no instance of Game exist yet
 		return;
-
+  
 	deserializeObject(data, pos, isGameEnded);
 	deserializeObject(data, pos, areStatsVisible);
-	//For some reason everything has to to be put in one vector to avoid sgct syncing bugs
 	deserializeObject(data, pos, gameObjectStates);
 }
 
@@ -314,23 +311,33 @@ void messageReceived(const void* data, size_t length)
 		if (msgType == 'C') {
 			Game::instance().updateTurnSpeed(Utility::getTurnSpeed(iss));
 		}
-		
-		// If first slot is 'D', player to be deleted has been sent
-		if (msgType == 'D') {
-			unsigned int playerId;
-			iss >> playerId;
-			Game::instance().disablePlayer(playerId);
-		}
-		
-		// If first slot is 'I', player's ID has been sent
-		if (msgType == 'I') {
-			unsigned int playerId;
-			iss >> playerId;
-			// Send colour information back to server
-			std::pair<glm::vec3, glm::vec3> colours = Game::instance().getPlayerColours(playerId);
-			std::string colourOne = glm::to_string(colours.first);
-			std::string colourTwo = glm::to_string(colours.second);
-			
+
+        
+        // If first slot is 'D', player to be deleted has been sent
+        if (msgType == 'D') {
+            unsigned int playerId;
+            iss >> playerId;
+            Log::Info("Player disabled: %s", message.c_str());
+            Game::instance().disablePlayer(playerId);
+        }
+        
+        // If first slot is 'E', player to be enabled has been sent
+        if (msgType == 'E') {
+            Log::Info("Player enabled: %s", message.c_str());
+            unsigned int playerId;
+            iss >> playerId;
+            Game::instance().enablePlayer(playerId);
+        }
+        
+        // If first slot is 'I', player's ID has been sent
+        if (msgType == 'I') {
+            unsigned int playerId;
+            iss >> playerId;
+            // Send colour information back to server
+            std::pair<glm::vec3, glm::vec3> colours = Game::instance().getPlayerColours(playerId);
+            std::string colourOne = glm::to_string(colours.first);
+            std::string colourTwo = glm::to_string(colours.second);
+
 //            Log::Info("Player colour 1: %s", colourOne.c_str());
 //            Log::Info("Player colour 2: %s", colourTwo.c_str());
 			wsHandler->queueMessage("A " + colourOne);

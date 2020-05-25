@@ -26,7 +26,13 @@ void Game::detectCollisions()
 				auto playerQuat = mPlayers[i].getPosition();
 				auto collectibleQuat = mCollectPool[j].getPosition();
 
-				auto deltaQuat = glm::normalize(glm::inverse(playerQuat) * collectibleQuat);
+			for (size_t j = 0; j < CollectiblePool::mMAXNUMCOLLECTIBLES; j++)
+			{
+				if (!mCollectPool[j].isEnabled())
+					continue;
+				
+				glm::quat collectibleQuat = mCollectPool[j].getPosition();
+				glm::quat deltaQuat = glm::normalize(glm::inverse(playerQuat) * collectibleQuat);
 
 				//Collision detection by comparing how small the angle between the objects are
 				//TODO Algot "Quat Guru" Sandahl needs to review this part
@@ -43,6 +49,7 @@ void Game::detectCollisions()
 					mPlayers[i].addPoints();
 					mCollectPool.disableCollectibleAndSwap(j);
 				}
+
 			}
 		}
 	}
@@ -125,7 +132,7 @@ void Game::addPlayer()
 
 void Game::addPlayer(const glm::vec3& pos)
 {
-	mPlayers.push_back(Player{ "diver", 50.f, pos, 0.f, "Player " + std::to_string(mUniqueId), 0.5 });
+	mPlayers.push_back(Player{ "diver", DOMERADIUS, pos, 0.f, "Player " + std::to_string(mUniqueId), 0.5 });
 	++mUniqueId;
 }
 
@@ -288,6 +295,21 @@ void Game::setDecodedCollectibleData(const std::vector<SyncableData>& newState)
 	}
 
 	//No need to disable any unactive elements as nodes only render
+}
+
+void Game::renderPlayers() const
+{
+	ZoneScoped;
+	if (mPlayers.size() > 0)
+	{
+		auto const& playerShader = sgct::ShaderManager::instance().shaderProgram("player");
+		playerShader.bind();
+
+		for (const Player& p : mPlayers)
+			p.render(mMvp, mV);
+
+		playerShader.unbind();
+	}
 }
 
 void Game::renderPlayers() const
