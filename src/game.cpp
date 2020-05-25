@@ -142,6 +142,10 @@ void Game::update()
 	float currentFrameTime = static_cast<float>(sgct::Engine::getTime());
 
 	float deltaTime = currentFrameTime - mLastFrameTime;
+	this->mTotalTime += deltaTime;
+	if (mTotalTime > mMaxTime && mGameIsStarted ) {
+		this->endGame();
+	}
 	
 	//DEBUGGING PURPOSES, TODO BETTER SOLUTION
 	std::random_device randomDevice;
@@ -292,6 +296,12 @@ void Game::setSyncableData(const std::vector<SyncableData> newState) //Copy atm 
 		setDecodedPlayerData(newPlayerStates);
 	if (newCollectibleStates.size() > 0)
 		setDecodedCollectibleData(newCollectibleStates);
+}
+
+void Game::startGame()
+{
+	this->mTotalTime = 0;
+	this->mGameIsStarted = true;
 }
 
 void Game::setDecodedCollectibleData(const std::vector<SyncableData>& newState)
