@@ -130,55 +130,58 @@ bool outputted = false;
 int spawnTime = 4;
 void Game::update()
 {
-	ZoneScoped;
-	if (mGameIsEnded)
-		return;
-	if (mLastFrameTime == -1) //First update?
-	{
-		mLastFrameTime = static_cast<float>(sgct::Engine::getTime());
-		return;
-	}
+	if (mGameIsStarted) {
 
-	float currentFrameTime = static_cast<float>(sgct::Engine::getTime());
-
-	float deltaTime = currentFrameTime - mLastFrameTime;
-	this->mTotalTime += deltaTime;
-	if (mTotalTime > mMaxTime && mGameIsStarted ) {
-		this->endGame();
-	}
-	
-	//DEBUGGING PURPOSES, TODO BETTER SOLUTION
-	std::random_device randomDevice;
-	std::mt19937 gen(randomDevice());
-	std::uniform_real_distribution<> rng(-1.5f, 1.5f);
-
-	if ((int)currentFrameTime % spawnTime == 0 && !outputted)
-	{
-		for (size_t i = 0; i < mPlayers.size() / 2; i++)
+		ZoneScoped;
+		if (mGameIsEnded)
+			return;
+		if (mLastFrameTime == -1) //First update?
 		{
-			mCollectPool.enableCollectible(glm::vec3(1.5f + rng(gen), rng(gen), 0.f));
-		}		
-		outputted = true;
+			mLastFrameTime = static_cast<float>(sgct::Engine::getTime());
+			return;
+		}
+
+		float currentFrameTime = static_cast<float>(sgct::Engine::getTime());
+
+		float deltaTime = currentFrameTime - mLastFrameTime;
+		this->mTotalTime += deltaTime;
+		if (mTotalTime > mMaxTime && mGameIsStarted) {
+			this->endGame();
+		}
+
+		//DEBUGGING PURPOSES, TODO BETTER SOLUTION
+		std::random_device randomDevice;
+		std::mt19937 gen(randomDevice());
+		std::uniform_real_distribution<> rng(-1.5f, 1.5f);
+
+		if ((int)currentFrameTime % spawnTime == 0 && !outputted)
+		{
+			for (size_t i = 0; i < mPlayers.size() / 2; i++)
+			{
+				mCollectPool.enableCollectible(glm::vec3(1.5f + rng(gen), rng(gen), 0.f));
+			}
+			outputted = true;
+		}
+
+		if ((int)currentFrameTime % spawnTime == 1 || (int)currentFrameTime % 2 == 2)
+			outputted = false;
+
+		//Update players
+		for (auto& player : mPlayers)
+			player.update(deltaTime);
+
+		//for (size_t i = 0; i < CollectiblePool::mMAXNUMCOLLECTIBLES && mCollectPool[i].isEnabled(); i++)
+		for (size_t i = 0; i < CollectiblePool::mMAXNUMCOLLECTIBLES; i++)
+		{
+			mCollectPool[i].update(deltaTime);
+		}
+
+		//TODO Update other type of objects
+
+		detectCollisions();
+
+		mLastFrameTime = currentFrameTime;
 	}
-
-	if ((int)currentFrameTime % spawnTime == 1 || (int)currentFrameTime % 2 == 2)
-		outputted = false;
-
-	//Update players
-	for (auto& player : mPlayers)
-		player.update(deltaTime);
-
-	//for (size_t i = 0; i < CollectiblePool::mMAXNUMCOLLECTIBLES && mCollectPool[i].isEnabled(); i++)
-	for (size_t i = 0; i < CollectiblePool::mMAXNUMCOLLECTIBLES; i++)
-	{
-		mCollectPool[i].update(deltaTime);
-	}
-
-	//TODO Update other type of objects
-
-	detectCollisions();
-	
-	mLastFrameTime = currentFrameTime;
 }
 
 std::vector<std::byte> Game::getEncodedData()
@@ -302,6 +305,13 @@ void Game::startGame()
 {
 	this->mTotalTime = 0;
 	this->mGameIsStarted = true;
+}
+
+float Game::getPassedTime()
+{
+	float var = this->mTotalTime/this->mMaxTime;
+	float value = (int)(var * 100 + .5);
+	return (float)value / 100;
 }
 
 void Game::setDecodedCollectibleData(const std::vector<SyncableData>& newState)

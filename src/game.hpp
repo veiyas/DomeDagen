@@ -117,6 +117,7 @@ public:
 
 	//start timer
 	void startGame();
+	float getPassedTime();
 
 private:
 //Members

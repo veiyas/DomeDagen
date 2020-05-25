@@ -317,7 +317,8 @@ void messageReceived(const void* data, size_t length)
 {
 	std::string_view msg = std::string_view(reinterpret_cast<const char*>(data), length);
 	//Log::Info("Message received: %s", msg.data());
-
+	std::string timePassed = std::to_string(Game::instance().getPassedTime());
+	wsHandler->queueMessage("T " + timePassed);
 	std::string message = msg.data();
 
 	if (!message.empty())
@@ -368,5 +369,7 @@ void messageReceived(const void* data, size_t length)
             wsHandler->queueMessage("A " + colourOne);
             wsHandler->queueMessage("B " + colourTwo);
         }
+		
 	}
+
 }
