@@ -60,6 +60,10 @@ function initialize() {
       }
       setPlayerColours(primary, secondary);
     }
+    if (event.data[0] == 'T'){
+      var time = event.data.substring(2);
+      log("TIME: " + time);
+    }
   }
 
   // Push all screens into a map of [screen ID, screen]

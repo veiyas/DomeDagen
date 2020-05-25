@@ -104,6 +104,10 @@ wsServer.on('request', function (req) {
             var colourTwo = [valOne, valTwo, valThree];
             //console.log(`Colour 2: ${colourTwo}`);
             connection.send(`B ${colourTwo}`);
+          }else if (temp[0] === 'T') {
+            var time = temp.substring(1, 4);
+            //console.log(`Colour 2: ${colourTwo}`);
+            connection.send(`T ${colourTwo}`);
           }
         }
       });

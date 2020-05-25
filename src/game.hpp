@@ -112,6 +112,10 @@ public:
 	std::vector<SyncableData> getSyncableData();
 	void setSyncableData(const std::vector<SyncableData> newState);
 
+	//start timer
+	void startGame();
+	float getPassedTime();
+
 private:
 //Members
 	//Singleton instance of game
@@ -151,6 +155,9 @@ private:
 	static constexpr double collisionDistance = 0.1f; //TODO make this object specific
 	
 	BackgroundObject *mBackground; //Holds pointer to the background
+
+	float mTotalTime = 0, mMaxTime = 15;//seconds
+	bool mGameIsStarted = false;
 
 //Functions
 	//Constructor

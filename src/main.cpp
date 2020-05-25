@@ -23,7 +23,7 @@ namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
 
 	//Variables to catch sync data
-	bool isGameEnded = false;
+	bool isGameEnded = false, isGameStarted = false;
 	bool areStatsVisible = false;
 
 	//Container for deserialized game state info
@@ -98,7 +98,7 @@ int main(int argc, char** argv)
 	if (Engine::instance().isMaster()) {
 		wsHandler = std::make_unique<WebSocketHandler>(
 			"localhost",
-			81,
+			8080,
 			connectionEstablished,
 			connectionClosed,
 			messageReceived
@@ -118,17 +118,22 @@ int main(int argc, char** argv)
 }
 
 void draw(const RenderData& data)
-{
-	ZoneScoped;
-	Game::instance().setMVP(data.modelViewProjectionMatrix);
-	Game::instance().setV(data.viewMatrix);
 
-	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE); // TODO This should really be enabled but the normals of the
-							  // background object are flipped atm
-	glCullFace(GL_BACK);
+{	
+	if (isGameStarted) {
+		Game::instance().setMVP(data.modelViewProjectionMatrix);
+		Game::instance().setV(data.viewMatrix);
 
-	Game::instance().render();
+		glClearColor(20.0 / 255.0, 157.0 / 255.0, 190.0 / 255.0, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+		//glEnable(GL_CULL_FACE); // TODO This should really be enabled but the normals of the
+								  // background object are flipped atm
+		glCullFace(GL_BACK);
+
+
+		Game::instance().render();
+
 
 	//{
 	//	ZoneScopedN("OpenGL error catching");
@@ -138,16 +143,29 @@ void draw(const RenderData& data)
 	//		sgct::Log::Error("GL Error: 0x%x", err);
 	//	}
 	//}
+
 }
 
 void draw2D(const RenderData& data)
 {
-	if (!isGameEnded)
-		return;
 	static constexpr int bigFontSize = 24;
 
 	const std::string leaderboardString = Game::instance().getLeaderboard();
 	const glm::ivec2& screenRes = data.window.resolution();
+	if (!isGameStarted) {
+		text::print(
+			data.window,
+			data.viewport,
+			*text::FontManager::instance().font("SGCTFont", bigFontSize),
+			text::Alignment::TopCenter,
+			screenRes.x / 2,
+			screenRes.y / 2.5,
+			glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
+			"%s", "Connect now"
+		);
+	}
+	
+	if (isGameEnded) {
 	
 	//Leaderboard header
 	text::print(
@@ -171,6 +189,7 @@ void draw2D(const RenderData& data)
 		glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
 		"%s", leaderboardString.c_str()
 		);
+	}
 }
 
 void initOGL(GLFWwindow*)
@@ -224,6 +243,12 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 	{
 		Game::instance().rotateAllPlayers(-0.1f);
 	}
+
+	if (key == Key::I && (action == Action::Press || action == Action::Repeat))
+	{
+		isGameStarted = true;
+		Game::instance().startGame();
+	}
 }
 
 void preSync()
@@ -234,8 +259,12 @@ void preSync()
 	//Run game simulation on master only
 	if (Engine::instance().isMaster())
 	{
+		
 		wsHandler->tick();
 		Game::instance().update();
+		if (Game::instance().hasGameEnded()) {
+			isGameEnded = true;
+		}
 	}
 }
 
@@ -291,7 +320,8 @@ void messageReceived(const void* data, size_t length)
 {
 	std::string_view msg = std::string_view(reinterpret_cast<const char*>(data), length);
 	//Log::Info("Message received: %s", msg.data());
-
+	std::string timePassed = std::to_string(Game::instance().getPassedTime());
+	wsHandler->queueMessage("T " + timePassed);
 	std::string message = msg.data();
 
 	if (!message.empty())
@@ -340,8 +370,10 @@ void messageReceived(const void* data, size_t length)
 
 //            Log::Info("Player colour 1: %s", colourOne.c_str());
 //            Log::Info("Player colour 2: %s", colourTwo.c_str());
-			wsHandler->queueMessage("A " + colourOne);
-			wsHandler->queueMessage("B " + colourTwo);
-		}
+
+			    wsHandler->queueMessage("A " + colourOne);
+			    wsHandler->queueMessage("B " + colourTwo);
+		  }
 	}
+
 }
