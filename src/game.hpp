@@ -156,7 +156,7 @@ private:
 	
 	BackgroundObject *mBackground; //Holds pointer to the background
 
-	float mTotalTime = 0, mMaxTime = 15;//seconds
+	float mTotalTime = 0, mMaxTime = 600000;//seconds
 	bool mGameIsStarted = false;
 
 //Functions

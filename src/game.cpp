@@ -170,24 +170,6 @@ void Game::update()
 			this->endGame();
 		}
 
-		//DEBUGGING PURPOSES, TODO BETTER SOLUTION
-		std::random_device randomDevice;
-		std::mt19937 gen(randomDevice());
-		std::uniform_real_distribution<> rng(-1.5f, 1.5f);
-
-		if ((int)currentFrameTime % spawnTime == 0 && !outputted)
-		{
-			for (size_t i = 0; i < mPlayers.size() / 2; i++)
-			{
-				mCollectPool.enableCollectible(glm::vec3(1.5f + rng(gen), rng(gen), 0.f));
-			}
-			outputted = true;
-		}
-
-		if ((int)currentFrameTime % spawnTime == 1 || (int)currentFrameTime % 2 == 2)
-			outputted = false;
-
-
 		//Update players
 		for (auto& player : mPlayers)
 			player.update(deltaTime);

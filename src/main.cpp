@@ -65,7 +65,7 @@ int main(int argc, char** argv)
 	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
-	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
 	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
@@ -124,25 +124,22 @@ void draw(const RenderData& data)
 		Game::instance().setMVP(data.modelViewProjectionMatrix);
 		Game::instance().setV(data.viewMatrix);
 
-		glClearColor(20.0 / 255.0, 157.0 / 255.0, 190.0 / 255.0, 1.0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 		//glEnable(GL_CULL_FACE); // TODO This should really be enabled but the normals of the
 								  // background object are flipped atm
 		glCullFace(GL_BACK);
 
-
 		Game::instance().render();
 
-
-	//{
-	//	ZoneScopedN("OpenGL error catching");
-	//	GLenum err;
-	//	while ((err = glGetError()) != GL_NO_ERROR)
-	//	{
-	//		sgct::Log::Error("GL Error: 0x%x", err);
-	//	}
-	//}
+		//{
+		//	ZoneScopedN("OpenGL error catching");
+		//	GLenum err;
+		//	while ((err = glGetError()) != GL_NO_ERROR)
+		//	{
+		//		sgct::Log::Error("GL Error: 0x%x", err);
+		//	}
+		//}
+	}
 
 }
 
@@ -151,7 +148,7 @@ void draw2D(const RenderData& data)
 	static constexpr int bigFontSize = 24;
 
 	const std::string leaderboardString = Game::instance().getLeaderboard();
-	const glm::ivec2& screenRes = data.window.resolution();
+	const glm::ivec2& screenRes = data.window.finalFBODimensions();
 	if (!isGameStarted) {
 		text::print(
 			data.window,
@@ -203,7 +200,7 @@ void initOGL(GLFWwindow*)
 	/**********************************/
 	if (Engine::instance().isMaster())
 	{
-		for (size_t i = 0; i < 10; i++)
+		for (size_t i = 0; i < 50; i++)
 		{
 			Game::instance().addPlayer(glm::vec3(0.f + 0.3f * i));
 		}
@@ -274,6 +271,8 @@ std::vector<std::byte> encode()
 
 	serializeObject(output, isGameEnded);
 	serializeObject(output, areStatsVisible);
+	serializeObject(output, isGameStarted);
+
 	//For some reason everything has to to be put in one vector to avoid sgct syncing bugs
 	serializeObject(output, Game::instance().getSyncableData());
 
@@ -287,6 +286,7 @@ void decode(const std::vector<std::byte>& data, unsigned int pos)
   
 	deserializeObject(data, pos, isGameEnded);
 	deserializeObject(data, pos, areStatsVisible);
+	deserializeObject(data, pos, isGameStarted);
 	deserializeObject(data, pos, gameObjectStates);
 }
 
