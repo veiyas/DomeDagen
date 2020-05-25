@@ -284,7 +284,6 @@ void Game::setDecodedCollectibleData(const std::vector<SyncableData>& newState)
 	for (size_t i = 0; i < newState.size(); i++)
 	{
 		const SyncableData& currentState = newState[i];
-		mCollectPool.setNumEnabled(newState.size());
 		mCollectPool[i].setCollectibleData(currentState.mPositionData, currentState.mCollectData.mModelIndex);
 	}
 
