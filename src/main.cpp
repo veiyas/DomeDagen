@@ -310,9 +310,9 @@ void postSyncPreDraw()
 	{
 		Engine::instance().setStatsGraphVisibility(areStatsVisible);
 
-		if (isGameEnded || !isGameStarted)
+		if (!isGameStarted || isGameEnded)
 			return;
-		else
+		else if(gameObjectStates.size() > 0 && !isGameEnded)
 			Game::instance().setSyncableData(std::move(gameObjectStates));
 	}
 }
