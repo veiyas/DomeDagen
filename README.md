@@ -1,7 +1,8 @@
-# SGCT-Networked-Application
-A basic template to create an SGCT application that opens a WebSocket to listen to input coming through a single connection.
+# DomeDagen
 
-To clone this repository, don't forget to recurse submodules: `git clone --recurse-submodules https://github.com/alexanderbock/SGCT-Networked-Application.git` or the dependent libraries will not work correctly.
+A multi-player game made for the dome at Visualiseringscenter C. Using [SGCT-Networked-Application](https://github.com/alexanderbock/SGCT-Networked-Application).
+
+To clone this repository, don't forget to recurse submodules: `git clone --recurse-submodules https://github.com/Lrssn/DomeDagen.git` or the dependent libraries will not work correctly.
 
 # Getting started
 1. Execute `npm install` in the `webserver` folder
@@ -25,4 +26,12 @@ Currently, the server and application addresses are encoded in several places th
     } 
     ```
 
-2. The application's `src/main.cpp` creates a `WebSocketHandler`, whose constructor requires the IP address and port of the webserver.
+2. The ip and port at which the game application will try to connect to to the webserver is set in `config.ini` in the root directory, ex:
+
+    ```ini
+    [Network]
+    ip = localhost
+    port = 81
+    ```
+
+    

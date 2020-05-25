@@ -18,6 +18,7 @@
 #include "utility.hpp"
 #include "game.hpp"
 #include "modelmanager.hpp"
+#include "inireader.h"
 
 namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
@@ -65,12 +66,26 @@ int main(int argc, char** argv)
 	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
-	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
-	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
+	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
 
 	config::Cluster cluster = sgct::loadCluster(config.configFilename);
+
+	//Handle configs not directly related to sgct
+	Ini gameConfig;
+	try
+	{
+		gameConfig = readIni(rootDir + "/config.ini");
+	}
+	catch (const std::runtime_error & e)
+	{
+		Log::Error("%s", e.what());
+		return EXIT_FAILURE;
+	}
+	IniGroup networkConfig = gameConfig["Network"];
+
 
 	//Provide functions to engine handles
 	Engine::Callbacks callbacks;
@@ -97,15 +112,15 @@ int main(int argc, char** argv)
 
 	if (Engine::instance().isMaster()) {
 		wsHandler = std::make_unique<WebSocketHandler>(
-			"localhost",
-			8080,
+			networkConfig["ip"],
+			std::stoi(networkConfig["port"]),
 			connectionEstablished,
 			connectionClosed,
 			messageReceived
 		);
 		constexpr const int MessageSize = 1024;
 		wsHandler->connect("example-protocol", MessageSize);
-	}	
+	}
 	/**********************************/
 	/*			 Test Area			  */
 	/**********************************/
