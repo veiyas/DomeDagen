@@ -21,7 +21,7 @@ uniform vec3 lightPos = vec3(0.0, -100.0, 100.0);
 void main() {
 	vec3 lightDir = normalize(lightPos - fragPos);
 
-	float tex = vec4(texture(tex, st)).r;
+	vec4 tex = vec4(texture(tex, st));
 
 	// Diffuse light
 	vec3 nNormal = normalize(interpolatedNormal);

@@ -36,6 +36,7 @@ void BackgroundObject::setObjectData(const ObjectData& newState)
 
 void BackgroundObject::render(const glm::mat4& mvp, const glm::mat4& v) const
 {
+	ZoneScoped;
 	if (!mEnabled)
 		return;
 

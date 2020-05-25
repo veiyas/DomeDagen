@@ -118,6 +118,7 @@ int main(int argc, char** argv)
 }
 
 void draw(const RenderData& data)
+
 {	
 	if (isGameStarted) {
 		Game::instance().setMVP(data.modelViewProjectionMatrix);
@@ -130,14 +131,18 @@ void draw(const RenderData& data)
 								  // background object are flipped atm
 		glCullFace(GL_BACK);
 
+
 		Game::instance().render();
 
-		GLenum err;
-		while ((err = glGetError()) != GL_NO_ERROR)
-		{
-			sgct::Log::Error("GL Error: 0x%x", err);
-		}
-	}
+
+	//{
+	//	ZoneScopedN("OpenGL error catching");
+	//	GLenum err;
+	//	while ((err = glGetError()) != GL_NO_ERROR)
+	//	{
+	//		sgct::Log::Error("GL Error: 0x%x", err);
+	//	}
+	//}
 
 }
 
@@ -169,7 +174,7 @@ void draw2D(const RenderData& data)
 		*text::FontManager::instance().font("SGCTFont", bigFontSize),
 		text::Alignment::TopCenter,
 		screenRes.x / 2,
-		screenRes.y / 2.5,
+		screenRes.y / 2,
 		glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
 		"%s", "Leaderboard"
 		);
@@ -180,7 +185,7 @@ void draw2D(const RenderData& data)
 		*text::FontManager::instance().font("SGCTFont", 12),
 		text::Alignment::TopCenter,
 		screenRes.x / 2,
-		screenRes.y / 2.5 - bigFontSize,
+		screenRes.y / 2 - bigFontSize,
 		glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
 		"%s", leaderboardString.c_str()
 		);
@@ -191,6 +196,7 @@ void initOGL(GLFWwindow*)
 {
 	ModelManager::init();
 	Game::init();
+	assert(std::is_pod<SyncableData>());
 
 	/**********************************/
 	/*			 Debug Area			  */
@@ -266,11 +272,9 @@ std::vector<std::byte> encode()
 {	
 	std::vector<std::byte> output;
 
-	//Sync if game has ended yet
-	serializeObject(output, Game::instance().hasGameEnded());
-	//Sync if stats window is visible
+	serializeObject(output, isGameEnded);
 	serializeObject(output, areStatsVisible);
-	//For some reason all game state has to to be put in one vector to avoid sgct syncing bugs
+	//For some reason everything has to to be put in one vector to avoid sgct syncing bugs
 	serializeObject(output, Game::instance().getSyncableData());
 
 	return output;
@@ -280,10 +284,9 @@ void decode(const std::vector<std::byte>& data, unsigned int pos)
 {
 	if (!Game::exists()) //No point in syncing data if no instance of Game exist yet
 		return;
+  
 	deserializeObject(data, pos, isGameEnded);
 	deserializeObject(data, pos, areStatsVisible);
-
-	//For some reason all game state has to to be put in one vector to avoid sgct syncing bugs
 	deserializeObject(data, pos, gameObjectStates);
 }
 
@@ -338,6 +341,7 @@ void messageReceived(const void* data, size_t length)
 		if (msgType == 'C') {
 			Game::instance().updateTurnSpeed(Utility::getTurnSpeed(iss));
 		}
+
         
         // If first slot is 'D', player to be deleted has been sent
         if (msgType == 'D') {
@@ -363,13 +367,13 @@ void messageReceived(const void* data, size_t length)
             std::pair<glm::vec3, glm::vec3> colours = Game::instance().getPlayerColours(playerId);
             std::string colourOne = glm::to_string(colours.first);
             std::string colourTwo = glm::to_string(colours.second);
-            
+
 //            Log::Info("Player colour 1: %s", colourOne.c_str());
 //            Log::Info("Player colour 2: %s", colourTwo.c_str());
-            wsHandler->queueMessage("A " + colourOne);
-            wsHandler->queueMessage("B " + colourTwo);
-        }
-		
+
+			    wsHandler->queueMessage("A " + colourOne);
+			    wsHandler->queueMessage("B " + colourTwo);
+		  }
 	}
 
 }

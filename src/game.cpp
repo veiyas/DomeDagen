@@ -6,46 +6,69 @@ unsigned int Game::mUniqueId = 0;
 
 Game::Game()
 	: mMvp{ glm::mat4{1.f} }, mLastFrameTime{ -1 }, mLastSyncedPlayer{ 0 }
-{	
+{
 	for (const std::string& shaderName : allShaderNames)
-		loadShader(shaderName);	
+		loadShader(shaderName);
 }
 
 void Game::detectCollisions()
 {
+	ZoneScoped;
 	if (mPlayers.size() > 0 && mCollectPool.getNumEnabled() > 0)
 	{
 		for (size_t i = 0; i < mPlayers.size(); i++)
 		{
-			glm::quat playerQuat = mPlayers[i].getPosition();
-
 			for (size_t j = 0; j < CollectiblePool::mMAXNUMCOLLECTIBLES; j++)
 			{
 				if (!mCollectPool[j].isEnabled())
 					continue;
-				
-				glm::quat collectibleQuat = mCollectPool[j].getPosition();
-				glm::quat deltaQuat = glm::normalize(glm::inverse(playerQuat) * collectibleQuat);
 
-				//Collision detection by comparing how small the angle between the objects are
-				//TODO Algot "Quat Guru" Sandahl needs to review this part
-				//From https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
-				auto sinxPart = 2.f * (deltaQuat.w * deltaQuat.x + deltaQuat.y * deltaQuat.z);
-				auto cosxPart = 1.f - 2.f * (deltaQuat.x*deltaQuat.x + deltaQuat.y*deltaQuat.y);
-				auto xAngle = std::atan2(sinxPart, cosxPart);
-				
-				auto sinyPart = 2.f * (deltaQuat.w * deltaQuat.y - deltaQuat.z * deltaQuat.x);
-				auto yAngle = std::asin(sinyPart);
+				auto playerQuat = mPlayers[i].getPosition();
+				auto collectibleQuat = mCollectPool[j].getPosition();
 
-				if (std::abs(xAngle) <= collisionDistance && std::abs(yAngle) <= collisionDistance)
+				for (size_t j = 0; j < CollectiblePool::mMAXNUMCOLLECTIBLES; j++)
 				{
-					mPlayers[i].addPoints();
-					mCollectPool.disableCollectible(j);
-				}
+					if (!mCollectPool[j].isEnabled())
+						continue;
 
+					glm::quat collectibleQuat = mCollectPool[j].getPosition();
+					glm::quat deltaQuat = glm::normalize(glm::inverse(playerQuat) * collectibleQuat);
+
+					//Collision detection by comparing how small the angle between the objects are
+					//TODO Algot "Quat Guru" Sandahl needs to review this part
+					//From https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+					auto sinxPart = 2.f * (deltaQuat.w * deltaQuat.x + deltaQuat.y * deltaQuat.z);
+					auto cosxPart = 1.f - 2.f * (deltaQuat.x * deltaQuat.x + deltaQuat.y * deltaQuat.y);
+					auto xAngle = std::atan2(sinxPart, cosxPart);
+
+					auto sinyPart = 2.f * (deltaQuat.w * deltaQuat.y - deltaQuat.z * deltaQuat.x);
+					auto yAngle = std::asin(sinyPart);
+
+					if (std::abs(xAngle) <= collisionDistance && std::abs(yAngle) <= collisionDistance)
+					{
+						mPlayers[i].addPoints();
+						mCollectPool.disableCollectibleAndSwap(j);
+					}
+
+				}
 			}
 		}
 	}
+}
+
+void Game::spawnCollectibles(float currentFrameTime)
+{
+	if ((int)currentFrameTime % mPosGenerator.spawnTime == 0 && !mPosGenerator.hasSpawnedThisInterval)
+	{
+		for (size_t i = 0; i < mPlayers.size(); i++)
+		{
+			mCollectPool.enableCollectible(mPosGenerator.generatePos());
+		}
+		mPosGenerator.hasSpawnedThisInterval = true;
+	}
+
+	if ((int)currentFrameTime % mPosGenerator.spawnTime == 1)
+		mPosGenerator.hasSpawnedThisInterval = false;
 }
 
 void Game::init()
@@ -55,6 +78,7 @@ void Game::init()
 	mInstance->mCollectPool.init();
 	mInstance->mPlayers.reserve(mMAXPLAYERS);	
 	mInstance->setBackground(new BackgroundObject());
+	mInstance->mPosGenerator.init();
 }
 
 Game& Game::instance()
@@ -125,9 +149,6 @@ void Game::addPlayer(std::tuple<unsigned int, std::string>&& inputTuple)
 	mPlayers.emplace_back(std::get<1>(inputTuple));
 }
 
-//DEBUGGING PURPOSES, TODO BETTER SOLUTION
-bool outputted = false;
-int spawnTime = 4;
 void Game::update()
 {
 	if (mGameIsStarted) {
@@ -166,6 +187,7 @@ void Game::update()
 		if ((int)currentFrameTime % spawnTime == 1 || (int)currentFrameTime % 2 == 2)
 			outputted = false;
 
+
 		//Update players
 		for (auto& player : mPlayers)
 			player.update(deltaTime);
@@ -182,13 +204,7 @@ void Game::update()
 
 		mLastFrameTime = currentFrameTime;
 	}
-}
 
-std::vector<std::byte> Game::getEncodedData()
-{
-	std::vector<std::byte> allEncodedData;
-
-	return allEncodedData;
 }
 
 std::string Game::getLeaderboard() const
@@ -257,19 +273,16 @@ std::vector<SyncableData> Game::getSyncableData()
 	}
 
 	//Get enabled collectibles
-	for (size_t i = 0; i < CollectiblePool::mMAXNUMCOLLECTIBLES; i++)
+	for (size_t i = 0; i < mCollectPool.getNumEnabled(); i++)
 	{
-		if (mCollectPool[i].isEnabled())
-		{
-			SyncableData tempState;
-			Collectible& currentCollectible = mCollectPool[i];
+		SyncableData tempState;
+		Collectible& currentCollectible = mCollectPool[i];
 
-			tempState.mCollectData = currentCollectible.getCollectibleData(i);
-			tempState.mPositionData = currentCollectible.getPositionData();
-			tempState.mIsPlayer = false;
+		tempState.mCollectData = currentCollectible.getCollectibleData(i);
+		tempState.mPositionData = currentCollectible.getPositionData();
+		tempState.mIsPlayer = false;
 
-			tempData.push_back(tempState);
-		}
+		tempData.push_back(tempState);
 	}
 
 	return tempData;
@@ -320,23 +333,10 @@ void Game::setDecodedCollectibleData(const std::vector<SyncableData>& newState)
 	for (size_t i = 0; i < newState.size(); i++)
 	{
 		const SyncableData& currentState = newState[i];
-		mCollectPool[currentState.mCollectData.mIndex].setCollectibleData(currentState.mPositionData);
+		mCollectPool[i].setCollectibleData(currentState.mPositionData, currentState.mCollectData.mModelIndex);
 	}
 
-	//Disable rest of elements
-	//TODO this can probably be done faster
-	std::vector<size_t> enabledSlots;
-	enabledSlots.reserve(newState.size());
-	for (const auto& state : newState)
-	{
-		enabledSlots.push_back(state.mCollectData.mIndex);
-	}
-	for (size_t i = 0; i < CollectiblePool::mMAXNUMCOLLECTIBLES; i++)
-	{
-		bool isEnabled = std::binary_search(enabledSlots.begin(), enabledSlots.end(), i);
-		if (!isEnabled)
-			mCollectPool.disableCollectible(i);
-	}
+	//No need to disable any unactive elements as nodes only render
 }
 
 void Game::renderPlayers() const
