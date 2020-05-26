@@ -163,6 +163,8 @@ void Game::update()
 			this->endGame();
 		}
 
+		spawnCollectibles(currentFrameTime);
+
 		//Update players
 		for (auto& player : mPlayers)
 			player.update(deltaTime);

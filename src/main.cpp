@@ -23,6 +23,8 @@
 namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
 
+	IniGroup spawnDetails;
+
 	//Variables to catch sync data
 	bool isGameEnded = false, isGameStarted = false;
 	bool areStatsVisible = false;
@@ -85,7 +87,7 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 	IniGroup networkConfig = appConfig["Network"];
-
+	spawnDetails = appConfig["Spawn"];
 
 	//Provide functions to engine handles
 	Engine::Callbacks callbacks;
@@ -130,6 +132,24 @@ int main(int argc, char** argv)
 	Game::destroy();
 	Engine::destroy();
 	return EXIT_SUCCESS;
+}
+
+void initOGL(GLFWwindow*)
+{
+	ModelManager::init();
+	Game::init();
+	assert(std::is_pod<SyncableData>());
+
+	/**********************************/
+	/*			 Debug Area			  */
+	/**********************************/
+	if (Engine::instance().isMaster())
+	{
+		for (size_t i = 0; i < std::stoi(spawnDetails["numPlayers"]); i++)
+		{
+			Game::instance().addPlayer(glm::vec3(0.f + 0.3f * i));
+		}
+	}
 }
 
 void draw(const RenderData& data)
@@ -200,24 +220,6 @@ void draw2D(const RenderData& data)
 		glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
 		"%s", leaderboardString.c_str()
 		);
-	}
-}
-
-void initOGL(GLFWwindow*)
-{
-	ModelManager::init();
-	Game::init();
-	assert(std::is_pod<SyncableData>());
-
-	/**********************************/
-	/*			 Debug Area			  */
-	/**********************************/
-	if (Engine::instance().isMaster())
-	{
-		for (size_t i = 0; i < 50; i++)
-		{
-			Game::instance().addPlayer(glm::vec3(0.f + 0.3f * i));
-		}
 	}
 }
 

@@ -71,6 +71,7 @@ add_executable(${PROJECT_NAME}
   src/configs/simple.xml
   src/configs/six_nodes.xml
   src/configs/two_fisheye_nodes.xml
+  config.ini
 )
 target_include_directories(${PROJECT_NAME} PRIVATE
   src
