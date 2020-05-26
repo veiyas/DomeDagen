@@ -274,10 +274,11 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 
 	if (key == Key::I && (action == Action::Press || action == Action::Repeat))
 	{
+		wsHandler->queueMessage("U start");
+
 		isGameStarted = true;
 		Game::instance().startGame();
-		std::string timePassed = std::to_string(Game::instance().getPassedTime());
-		wsHandler->queueMessage("U start");
+		// std::string timePassed = std::to_string(Game::instance().getPassedTime());
 	}
 }
 
@@ -287,17 +288,18 @@ void preSync()
 	// the computed state is serialized and deserialized in the encode/decode calls
 
 	//Run game simulation on master only
-	if (Engine::instance().isMaster() && !isGameEnded && isGameStarted)
+	if (Engine::instance().isMaster())
 	{
-		wsHandler->tick();
-		Game::instance().update();
-		if (Game::instance().hasGameEnded()) {
-			if (!isGameEnded) {
-				wsHandler->queueMessage("U end");
-				isGameEnded = true;
+		if (!isGameEnded && isGameStarted) {
+			Game::instance().update();
+			if (Game::instance().hasGameEnded()) {
+				if (!isGameEnded) {
+					wsHandler->queueMessage("U end");
+					isGameEnded = true;
+				}
 			}
-			
 		}
+		wsHandler->tick();
 	}
 }
 
