@@ -4,13 +4,14 @@
 
 #include "sgct/log.h"
 #include "sgct/shadermanager.h"
+#include "sgct/profiling.h"
 
 #include "collectible.hpp"
 #include "constants.hpp"
 
 //Contain all collectibles with object pool design pattern
 //Game contains an instance of this class
-//Pool is stable partitioned with enabled objects in front
+//Pool is stable partitioned with enabled objects in front ACTUALLY this does not seem to be the case?
 class CollectiblePool
 {
 public:
@@ -28,13 +29,16 @@ public:
 	void render(const glm::mat4& mvp, const glm::mat4& v) const;
 	
 	//Get collectiblepool state
-	std::vector<CollectibleData> getPoolState() const;
+	std::vector<CollectibleData> getPoolState();
 
 	//Returns shared_ptr and points mFirstAvailable to next in list. O(1)!
 	void enableCollectible(const glm::vec3& pos);
 
-	//Deactivates object at index
-	void disableCollectible(const size_t index);
+	//Deactivates object at index and swaps to front (Used on master)
+	void disableCollectibleAndSwap(const size_t index);
+
+	//Simply deactivates element at index
+	void disableCollectible(const size_t index) { mPool[index].disable(); }
 
 	//Operator overloading to hide internal data
 	Collectible& operator[](const size_t i) { return mPool[i]; }

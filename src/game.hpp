@@ -5,21 +5,20 @@
 #include <fstream>
 #include <iostream>
 #include <map>
-#include <memory>
 #include <utility>
 #include <tuple>
 #include <cmath>
 #include <random>
-#include <mutex>
 #include <cstddef>
 
 #include "sgct/shareddata.h"
 #include "sgct/log.h"
+#include "sgct/profiling.h"
+#include "sgct/shadermanager.h"
+#include "sgct/shaderprogram.h"
+#include "sgct/engine.h"
 #include "glad/glad.h"
 #include "glm/packing.hpp"
-#include "sgct/shadermanager.h"
-#include <sgct/engine.h>
-#include "sgct/shaderprogram.h"
 #include "glm/matrix.hpp"
 
 #include "player.hpp"
@@ -69,8 +68,9 @@ public:
 	//Set view matrix
 	void setV(const glm::mat4& v) { mV = v; }
 
-	//Mostly used for debugging
+	//Used for debugging
 	void addPlayer();
+	void addCollectible();
 
 	void addPlayer(const glm::vec3& pos);
 
@@ -88,10 +88,8 @@ public:
 	//Update all gameobjects
 	void update();
 
-	//Get and encode object data for syncing
-	std::vector<std::byte> getEncodedData();
-
 	//Get leaderboard string
+	//Only gets called at end of game
 	std::string getLeaderboard() const;
 
 	//Check if game has ended
@@ -115,6 +113,10 @@ public:
 	std::vector<SyncableData> getSyncableData();
 	void setSyncableData(const std::vector<SyncableData> newState);
 
+	//start timer
+	void startGame();
+	float getPassedTime();
+
 private:
 //Members
 	//Singleton instance of game
@@ -136,6 +138,9 @@ private:
 	//Track all loaded shaders' names
 	std::vector<std::string> mShaderNames;
 
+	//Track all collected collectibles for sync to nodes efficiently
+	//std::vector<size_t
+
 	//MVP matrix used for rendering
 	glm::mat4 mMvp;
 
@@ -150,8 +155,10 @@ private:
 
 	static constexpr double collisionDistance = 0.1f; //TODO make this object specific
 	
-
 	BackgroundObject *mBackground; //Holds pointer to the background
+
+	float mTotalTime = 0, mMaxTime = 600000;//seconds
+	bool mGameIsStarted = false;
 
 //Functions
 	//Constructor
@@ -160,10 +167,14 @@ private:
 	//Collision detection in mInteractObjects, bubble style
 	void detectCollisions();
 
+	//Spawn Collectibles
+	void spawnCollectibles(float currentFrameTime);
+
 	//Set object data from inputted data
 	void setDecodedPlayerData(const std::vector<SyncableData>& newState);
 	void setDecodedCollectibleData(const std::vector<SyncableData>& newState);
 
+	void renderPlayers() const;
 
 	//Read shader into ShaderManager
 	void loadShader(const std::string& shaderName);
@@ -178,4 +189,29 @@ private:
 
 	const glm::mat4& getMVP() { return mMvp; };
 	const glm::mat4& getV() { return mV; };
+
+	struct PositionGenerator
+	{
+		void init()
+		{
+			std::random_device randomDevice;
+			gen = std::mt19937(randomDevice());
+			rng = std::uniform_real_distribution<>(-1.5f, 1.5f);
+		}
+
+		//RNG stuff		
+		std::mt19937 gen;
+		std::uniform_real_distribution<> rng;
+
+		//State stuff
+		bool hasSpawnedThisInterval = false;
+		unsigned spawnTime = 4;
+
+		glm::vec3 generatePos()
+		{
+			ZoneScoped;
+			return glm::vec3(1.5f + rng(gen), rng(gen), 0.f);
+		}
+
+	} mPosGenerator;
 };

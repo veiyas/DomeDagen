@@ -104,6 +104,10 @@ wsServer.on('request', function (req) {
             var colourTwo = [valOne, valTwo, valThree];
             //console.log(`Colour 2: ${colourTwo}`);
             connection.send(`B ${colourTwo}`);
+          }else if (temp[0] === 'T') {
+            var time = temp.substring(1, 4);
+            //console.log(`Colour 2: ${colourTwo}`);
+            connection.send(`T ${colourTwo}`);
           }
         }
       });
@@ -126,6 +130,14 @@ wsServer.on('request', function (req) {
             // Send only ID to receive colors
             gameSocket.send(`I ${uniqueId}`);
             uniqueId++;
+
+          } else if (temp[0] === "E") {
+              console.log("Enable player: " + temp);
+              const enableId = playerList.get(req.remoteAddress);
+              gameSocket.send(`E ${enableId}`);
+
+              // Send ID to receive colors
+              gameSocket.send(`I ${enableId}`);
           }
 
           // Testing if first slot has value "C", if so --> send rotation data
@@ -144,11 +156,10 @@ wsServer.on('request', function (req) {
         connectionArray.splice(addresses.indexOf(remoteAddress), 1);
         const id = playerList.get(remoteAddress);
 
-        // TODO Let the game know a player has disconnected
-        if (playerList.delete(remoteAddress)) {
-          gameSocket.send(`D ${id}`);
-          console.log(`Removed player ${id} with ip ${remoteAddress}`);
-        }
+        //if (playerList.delete(remoteAddress)) {
+        gameSocket.send(`D ${id}`);
+        console.log(`Disabled player ${id} with ip ${remoteAddress}`);
+      //  }
       });
     }
     // More connections form same device

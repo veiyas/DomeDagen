@@ -10,25 +10,24 @@
 #include <sstream>
 #include <random>
 #include <glm/gtx/string_cast.hpp>
-
 #include "sgct/sgct.h"
+
+#include "sgct/profiling.h"
 
 #include "websockethandler.h"
 #include "utility.hpp"
 #include "game.hpp"
-#include "sceneobject.hpp"
-#include "player.hpp"
 #include "modelmanager.hpp"
-#include "backgroundobject.hpp"
 
 namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
 
+	//Variables to catch sync data
+	bool isGameEnded = false, isGameStarted = false;
+	bool areStatsVisible = false;
+
 	//Container for deserialized game state info
 	std::vector<SyncableData> gameObjectStates;
-
-	//TEMPORARY used to control rotation of all players 
-	float updatedRotation{ 0 };
 } // namespace
 
 using namespace sgct;
@@ -99,7 +98,7 @@ int main(int argc, char** argv)
 	if (Engine::instance().isMaster()) {
 		wsHandler = std::make_unique<WebSocketHandler>(
 			"localhost",
-			81,
+			8080,
 			connectionEstablished,
 			connectionClosed,
 			messageReceived
@@ -119,36 +118,47 @@ int main(int argc, char** argv)
 }
 
 void draw(const RenderData& data)
-{
-	Game::instance().setMVP(data.modelViewProjectionMatrix);
-	Game::instance().setV(data.viewMatrix);
+{	
+	if (isGameStarted) {
+		Game::instance().setMVP(data.modelViewProjectionMatrix);
+		Game::instance().setV(data.viewMatrix);
 
+		glEnable(GL_DEPTH_TEST);
+		//glEnable(GL_CULL_FACE); // TODO This should really be enabled but the normals of the
+								  // background object are flipped atm
+		glCullFace(GL_BACK);
 
-	glClearColor(20.0/255.0, 157.0/255.0, 190.0/255.0, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE); // TODO This should really be enabled but the normals of the
-	                          // background object are flipped atm
-	glCullFace(GL_BACK);
+		Game::instance().render();
 
-	Game::instance().render();
-
-	GLenum err;
-	while ((err = glGetError()) != GL_NO_ERROR)
-	{
-		sgct::Log::Error("GL Error: 0x%x", err);
+		//GLenum err;
+		//while ((err = glGetError()) != GL_NO_ERROR)
+		//{
+		//	sgct::Log::Error("GL Error: 0x%x", err);
+		//}
 	}
 }
 
 void draw2D(const RenderData& data)
 {
-	if (!Game::instance().hasGameEnded())
-		return;
 	static constexpr int bigFontSize = 24;
 
-	std::string leaderboardString = Game::instance().getLeaderboard();
-	glm::ivec2 screenRes = data.window.resolution();
-
+	const std::string leaderboardString = Game::instance().getLeaderboard();
+	const glm::ivec2& screenRes = data.window.finalFBODimensions();
+	if (!isGameStarted) {
+		text::print(
+			data.window,
+			data.viewport,
+			*text::FontManager::instance().font("SGCTFont", bigFontSize),
+			text::Alignment::TopCenter,
+			screenRes.x / 2,
+			screenRes.y / 2.5,
+			glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
+			"%s", "Connect now"
+		);
+	}
+	
+	if (isGameEnded) {
+	
 	//Leaderboard header
 	text::print(
 		data.window,
@@ -156,7 +166,7 @@ void draw2D(const RenderData& data)
 		*text::FontManager::instance().font("SGCTFont", bigFontSize),
 		text::Alignment::TopCenter,
 		screenRes.x / 2,
-		screenRes.y / 1.2,
+		screenRes.y / 2,
 		glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
 		"%s", "Leaderboard"
 		);
@@ -167,23 +177,25 @@ void draw2D(const RenderData& data)
 		*text::FontManager::instance().font("SGCTFont", 12),
 		text::Alignment::TopCenter,
 		screenRes.x / 2,
-		screenRes.y / 1.2 - bigFontSize,
+		screenRes.y / 2 - bigFontSize,
 		glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
 		"%s", leaderboardString.c_str()
 		);
+	}
 }
 
 void initOGL(GLFWwindow*)
 {
 	ModelManager::init();
 	Game::init();
+	assert(std::is_pod<SyncableData>());
 
 	/**********************************/
 	/*			 Debug Area			  */
 	/**********************************/
 	//if (Engine::instance().isMaster())
 	//{
-	//	for (size_t i = 0; i < 10; i++)
+	//	for (size_t i = 0; i < 50; i++)
 	//	{
 	//		Game::instance().addPlayer(glm::vec3(0.f + 0.3f * i));
 	//	}
@@ -197,6 +209,21 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 	}
 	if (key == Key::Q && action == Action::Press) {
 		Game::instance().endGame();
+		isGameEnded = true;
+	}
+	if (key == Key::T && action == Action::Press) {
+		Engine::instance().setStatsGraphVisibility(true);
+		areStatsVisible = true;
+	}
+	if (key == Key::G && action == Action::Press) {
+		Engine::instance().setStatsGraphVisibility(false);
+		areStatsVisible = false;
+	}
+	if (key == Key::R && action == Action::Press) {
+		Game::instance().addPlayer();
+	}
+	if (key == Key::F && action == Action::Press) {
+		Game::instance().addCollectible();
 	}
 	if (key == Key::Space && modifier == Modifier::Shift && action == Action::Release)
 	{
@@ -214,6 +241,12 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 	{
 		Game::instance().rotateAllPlayers(-0.1f);
 	}
+
+	if (key == Key::I && (action == Action::Press || action == Action::Repeat))
+	{
+		isGameStarted = true;
+		Game::instance().startGame();
+	}
 }
 
 void preSync()
@@ -224,14 +257,22 @@ void preSync()
 	//Run game simulation on master only
 	if (Engine::instance().isMaster())
 	{
+		
 		wsHandler->tick();
 		Game::instance().update();
+		if (Game::instance().hasGameEnded()) {
+			isGameEnded = true;
+		}
 	}
 }
 
 std::vector<std::byte> encode()
-{
+{	
 	std::vector<std::byte> output;
+
+	serializeObject(output, isGameEnded);
+	serializeObject(output, areStatsVisible);
+	serializeObject(output, isGameStarted);
 
 	//For some reason everything has to to be put in one vector to avoid sgct syncing bugs
 	serializeObject(output, Game::instance().getSyncableData());
@@ -243,8 +284,10 @@ void decode(const std::vector<std::byte>& data, unsigned int pos)
 {
 	if (!Game::exists()) //No point in syncing data if no instance of Game exist yet
 		return;
-
-	//For some reason everything has to to be put in one vector to avoid sgct syncing bugs
+  
+	deserializeObject(data, pos, isGameEnded);
+	deserializeObject(data, pos, areStatsVisible);
+	deserializeObject(data, pos, isGameStarted);
 	deserializeObject(data, pos, gameObjectStates);
 }
 
@@ -259,6 +302,7 @@ void postSyncPreDraw()
 	//Sync gameobjects' state on clients only
 	if (!Engine::instance().isMaster() && Game::exists() && gameObjectStates.size() > 0)
 	{
+		Engine::instance().setStatsGraphVisibility(areStatsVisible);
 		Game::instance().setSyncableData(std::move(gameObjectStates));
 	}
 }
@@ -277,7 +321,8 @@ void messageReceived(const void* data, size_t length)
 {
 	std::string_view msg = std::string_view(reinterpret_cast<const char*>(data), length);
 	//Log::Info("Message received: %s", msg.data());
-
+	std::string timePassed = std::to_string(Game::instance().getPassedTime());
+	wsHandler->queueMessage("T " + timePassed);
 	std::string message = msg.data();
 
 	if (!message.empty())
@@ -297,12 +342,22 @@ void messageReceived(const void* data, size_t length)
 		if (msgType == 'C') {
 			Game::instance().updateTurnSpeed(Utility::getTurnSpeed(iss));
 		}
+
         
         // If first slot is 'D', player to be deleted has been sent
         if (msgType == 'D') {
             unsigned int playerId;
             iss >> playerId;
+            Log::Info("Player disabled: %s", message.c_str());
             Game::instance().disablePlayer(playerId);
+        }
+        
+        // If first slot is 'E', player to be enabled has been sent
+        if (msgType == 'E') {
+            Log::Info("Player enabled: %s", message.c_str());
+            unsigned int playerId;
+            iss >> playerId;
+            Game::instance().enablePlayer(playerId);
         }
         
         // If first slot is 'I', player's ID has been sent
@@ -313,11 +368,13 @@ void messageReceived(const void* data, size_t length)
             std::pair<glm::vec3, glm::vec3> colours = Game::instance().getPlayerColours(playerId);
             std::string colourOne = glm::to_string(colours.first);
             std::string colourTwo = glm::to_string(colours.second);
-            
+
 //            Log::Info("Player colour 1: %s", colourOne.c_str());
 //            Log::Info("Player colour 2: %s", colourTwo.c_str());
-            wsHandler->queueMessage("A " + colourOne);
-            wsHandler->queueMessage("B " + colourTwo);
-        }
+
+			    wsHandler->queueMessage("A " + colourOne);
+			    wsHandler->queueMessage("B " + colourTwo);
+		  }
 	}
+
 }

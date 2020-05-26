@@ -5,12 +5,14 @@
 
 struct CollectibleData
 {
-	unsigned int mIndex;
+	int mModelIndex;
 };
 
 class Collectible : public GameObject, private GeometryHandler
 {
-public:	
+public:
+	//Give collectiblepool access to privates
+	friend class CollectiblePool;
 	Collectible();
 	//Ctor used to load all collectibles into vector in Game class
 	Collectible(const std::string objectModelName);
@@ -29,20 +31,16 @@ public:
 	void setSpeed(float speed) override {};
 
 	//Sync methods
-	CollectibleData getCollectibleData(unsigned index) const;
-	void setCollectibleData(const PositionData& newPosData);
+	CollectibleData getCollectibleData(unsigned index);
+	void setCollectibleData(const PositionData& newPosData, const int modelIndex);
 
 	//Set next node in list
 	void setNext(Collectible* node);
 
 	//Get next node
-	Collectible* getNext();
+	Collectible* getNext() const;
 
 	const bool isEnabled() const { return mEnabled; }
-
-	//Give collectiblepool access to privates
-	friend class CollectiblePool;
-
 private:
 	//Is this collectible active in the game?
 	bool mEnabled;

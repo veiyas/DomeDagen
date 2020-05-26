@@ -1,11 +1,16 @@
 <?xml version="1.0" ?>
 <Cluster masterAddress="127.0.0.1">
+  <!--<Scene>
+    <Orientation yaw="0.0" pitch="0.0" roll="0.0" />
+    <Offset x="0.0" y="1.0" z="-3.0" />
+    <Scale value="1.0" />
+  </Scene>-->
   <Node address="127.0.0.1" port="00081">
     <Window fullScreen="false">
       <Stereo type="none" />
       <Pos x="900" y="30"/>
       <!-- 16:9 aspect ratio -->
-      <Size x="1024" y="1024" />
+      <Size x="1020" y="1020" />
       <!-- Frame buffer resolution
 			<Res x="4096" y="4096" /> -->
       <!--
@@ -22,7 +27,7 @@
         <Pos x="0.0" y="0.0" />
         <Size x="1.0" y="1.0" />
         <!--<FisheyeProjection fov="180" quality="1k" tilt="27.0">-->
-        <FisheyeProjection fov="180" quality="1k" tilt="27.0">
+        <FisheyeProjection fov="165" quality="1k" tilt="27.0">
           <Background r="0.1" g="0.1" b="0.1" a="1.0" />
         </FisheyeProjection>
       </Viewport>
