@@ -17,7 +17,7 @@
 </head>
 
 <body>
-  <div id="emptyEntryScreen" class="screen"></div>
+  <!-- <div id="emptyEntryScreen" class="screen"></div> -->
   
   <div class="hidden" id="promptBackground"></div>
   <div class="hidden" id="orientationPrompt">
@@ -25,12 +25,6 @@
       <div class="row centered padded">
         <p>Please reorient your device</p>
       </div>
-      <!-- <div class="row centered padded">
-        <img src="./img/landscape.png" alt="Landscape Orientation is okay" />
-      </div>
-      <div class="row centered padded">
-        <img src="./img/portrait.png" alt="Portrait Orientation is not okay" />
-      </div> -->
       <div class="row centered padded">
         <img src="./img/combined.png" alt="Hold your phone in landscape orientation">
       </div>
@@ -50,22 +44,24 @@
         <button id="connect" class="disabled" disabled="true" onclick="sendName()">Connect</button>
       </div>
     </div>
-    <div id="debug-output">Debug info</div>
+    <!-- <div id="debug-output">Debug info</div> -->
   </div>
   
   <div id="returningPlayerScreen" class="screen">
     <div class="row centered">
       <h1>Welcome back</h1>
     </div>
-    <div class="row">
-      <div class="col">
-        <p>do you want to continue as <div id="returnUserName"></div></p>
+    <div id="reconnectionContainer" class="col padded centered">
+      <div class="row centered">
+        <p>Do you want to continue as <span id="returnUserName"></span>?</p>
+      </div>
+      <div class="row centered">
         <button id="returnConnect" onclick="returnConnection()">Yes</button>
         <button id="returnDontConnect" onclick="deleteCookie()">No</button>
       </div>
     </div>
     <!-- Add connection to get name in input, in initialize() function -->
-    <div id="debug-output">Debug info</div>
+    <!-- <div id="debug-output">Debug info</div> -->
   </div>
 
   <div id="waitingScreen" class="screen">
@@ -106,8 +102,21 @@
         </div>
       </div>
     </div>
-    <button class="buttonControls" id="turnLeft">Left</button>
-    <button class="buttonControls" id="turnRight">Right</button>
+    <div class="col centered">
+      <div id="timeHeaderContainer" class="row centered">
+        <p>Time remaining</p>
+      </div>
+      <div id="timeBarContainer" class="row centered">
+        <img id="oxygenTank" src="./img/oxygenTank.svg" alt="Time Indicator">
+        <div id="timeBar"></div>
+      </div>
+    </div>
+    <button class="buttonControls" id="turnLeft">
+      <img src="./img/turnArrow.png" alt="Left">
+    </button>
+    <button class="buttonControls" id="turnRight">
+      <img src="./img/turnArrow.png" alt="Right">
+    </button>
   </div>
 
   <div class="screen" id="gameOverScreen">
@@ -123,6 +132,7 @@
   <script type="text/javascript" src="./js/script.js"></script>
   <script type="text/javascript" src="./js/playerColours.js"></script>
   <script type="text/javascript" src="./js/gameInformation.js"></script>
+  <script type="text/javascript" src="./js/timeBar.js"></script>
 
 </body>
 
