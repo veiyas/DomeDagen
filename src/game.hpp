@@ -30,12 +30,10 @@
 //This needs a master type to handle all syncable objects
 struct SyncableData
 {
-	PositionData mPositionData;
-
-	bool mIsPlayer;
 	PlayerData mPlayerData;
-
+	PositionData mPositionData;	
 	CollectibleData mCollectData;
+	bool mIsPlayer;
 };
 
 //Implemented as explicit singleton, handles pretty much everything

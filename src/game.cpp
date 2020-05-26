@@ -18,40 +18,27 @@ void Game::detectCollisions()
 	{
 		for (size_t i = 0; i < mPlayers.size(); i++)
 		{
-			for (size_t j = 0; j < CollectiblePool::mMAXNUMCOLLECTIBLES; j++)
+			glm::quat playerQuat = mPlayers[i].getPosition();
+			for (size_t j = 0; j < mCollectPool.getNumEnabled(); j++)
 			{
-				if (!mCollectPool[j].isEnabled())
-					continue;
+				glm::quat collectibleQuat = mCollectPool[j].getPosition();
+				glm::quat deltaQuat = glm::normalize(glm::inverse(playerQuat) * collectibleQuat);
 
-				auto playerQuat = mPlayers[i].getPosition();
-				auto collectibleQuat = mCollectPool[j].getPosition();
+				//Collision detection by comparing how small the angle between the objects are
+				//From https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+				auto sinxPart = 2.f * (deltaQuat.w * deltaQuat.x + deltaQuat.y * deltaQuat.z);
+				auto cosxPart = 1.f - 2.f * (deltaQuat.x * deltaQuat.x + deltaQuat.y * deltaQuat.y);
+				auto xAngle = std::atan2(sinxPart, cosxPart);
 
-				for (size_t j = 0; j < CollectiblePool::mMAXNUMCOLLECTIBLES; j++)
+				auto sinyPart = 2.f * (deltaQuat.w * deltaQuat.y - deltaQuat.z * deltaQuat.x);
+				auto yAngle = std::asin(sinyPart);
+
+				if (std::abs(xAngle) <= collisionDistance && std::abs(yAngle) <= collisionDistance)
 				{
-					if (!mCollectPool[j].isEnabled())
-						continue;
-
-					glm::quat collectibleQuat = mCollectPool[j].getPosition();
-					glm::quat deltaQuat = glm::normalize(glm::inverse(playerQuat) * collectibleQuat);
-
-					//Collision detection by comparing how small the angle between the objects are
-					//TODO Algot "Quat Guru" Sandahl needs to review this part
-					//From https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
-					auto sinxPart = 2.f * (deltaQuat.w * deltaQuat.x + deltaQuat.y * deltaQuat.z);
-					auto cosxPart = 1.f - 2.f * (deltaQuat.x * deltaQuat.x + deltaQuat.y * deltaQuat.y);
-					auto xAngle = std::atan2(sinxPart, cosxPart);
-
-					auto sinyPart = 2.f * (deltaQuat.w * deltaQuat.y - deltaQuat.z * deltaQuat.x);
-					auto yAngle = std::asin(sinyPart);
-
-					if (std::abs(xAngle) <= collisionDistance && std::abs(yAngle) <= collisionDistance)
-					{
-						mPlayers[i].addPoints();
-						mCollectPool.disableCollectibleAndSwap(j);
-					}
-
+					mPlayers[i].addPoints();
+					mCollectPool.disableCollectibleAndSwap(j);
 				}
-			}
+			}			
 		}
 	}
 }
@@ -175,6 +162,8 @@ void Game::update()
 		if (mTotalTime > mMaxTime && mGameIsStarted) {
 			this->endGame();
 		}
+
+		spawnCollectibles(currentFrameTime);
 
 		//Update players
 		for (auto& player : mPlayers)
