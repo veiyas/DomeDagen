@@ -1,9 +1,5 @@
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
-#
-#
-# @TODO: Change this project to the name of your project
-#
-#
+
 project("Domedagen")
 #
 # Add the libraries that this application depends on,
@@ -59,6 +55,8 @@ add_executable(${PROJECT_NAME}
   src/balljointconstraint.hpp
   src/balljointconstraint.cpp
   src/constants.hpp
+  src/inireader.cpp
+  src/inireader.h
   src/shaders/playervert.glsl
   src/shaders/playerfrag.glsl
   src/shaders/sceneobjectvert.glsl
@@ -73,6 +71,7 @@ add_executable(${PROJECT_NAME}
   src/configs/simple.xml
   src/configs/six_nodes.xml
   src/configs/two_fisheye_nodes.xml
+  config.ini
 )
 target_include_directories(${PROJECT_NAME} PRIVATE
   src

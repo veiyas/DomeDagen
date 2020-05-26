@@ -120,6 +120,10 @@ h1 {
     font-size: 8rem;
 }
 
+h2 {
+    font-family: var(--fontSerif);
+}
+
 @media screen and (min-aspect-ratio: 13/9) {
     h1 {
         font-size: 4rem;

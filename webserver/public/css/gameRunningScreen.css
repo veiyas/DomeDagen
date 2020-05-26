@@ -3,12 +3,13 @@
     background-size: cover;
     background-position: bottom center;
     display: none;
+    position: relative;
 }
 
 #gameRunningScreen p {
     color: var(--guiLight);
     font-size: 1.5rem;
-    
+
     /* padding: 10px; */
     /* left: 0; */
     /* position: absolute; */
@@ -16,7 +17,7 @@
 }
 
 /* Wrapping div to align score and colours */
-#gameRunningScreen > .row:first-of-type {
+#gameRunningScreen > div:first-of-type {
     height: 15vh;
     margin: 30px;
     justify-content: space-between;
@@ -25,7 +26,7 @@
 /* Show score in left corner */
 #scoreContainer {
     align-items: center;
-    background-color: #2423317e; /* Slightly ugly to copy the colour like this, but I wanted to add opacity to just the background colour */ 
+    background-color: #2423317e; /* Slightly ugly to copy the colour like this, but I wanted to add opacity to just the background colour */
     display: flex;
     padding: 0 20px;
     width: auto;
@@ -57,6 +58,91 @@
     width: 100%;
 }
 
+/* Time indicator elements */
+#gameRunningScreen > div:last-of-type {
+    height: 50%;
+    position: absolute;
+    top: 10%;
+}
+
+#oxygenTank {
+    height: 100%;
+    z-index: 2;
+}
+
+#timeHeaderContainer {
+    height: auto;
+}
+
+#timeHeaderContainer p {
+    margin-bottom: 20px;
+}
+
+#timeBarContainer {
+    position: relative;
+    width: fit-content;
+}
+
+#timeBar {
+    background-color: var(--oceanLight);
+    border-radius: 10%;
+    bottom: 3%;
+    height: 75%;
+    position: absolute;
+    transition: height 0.5s linear;
+    width: 30%;
+    z-index: 1;
+}
+
+/* Two button controls */
+.buttonControls {
+    position: absolute;
+    bottom: 5%;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+
+    border-radius: 100%;
+    border-style: solid;
+    border-width: 10px;
+    border-color: var(--oceanDark);
+    background-color: var(--oceanDark);
+    background: radial-gradient(circle, rgba(115,191,214,1) 0%, var(--oceanDark) 100%);
+    box-shadow: 0px 0px 50px var(--guiDark);
+    width: 50vh;
+    height: 50vh;
+}
+
+.buttonControls img {
+    width: 50%;
+    transform: translateY(-10%);
+}
+
+.buttonControls:before {
+    box-shadow: 0px 0px 10px var(--oceanDark) inset;
+    content: " ";
+    position: absolute;
+    z-index: 1;
+}
+
+.buttonControls:active {
+    background: radial-gradient(circle, var(--guiAccent) 0%, rgb(136, 118, 39) 100%);
+}
+
+#turnLeft {
+    left: -5%;
+}
+
+#turnRight {
+    right: -5%;
+}
+
+#turnRight img {
+    transform: scaleX(-1) translateY(-10%);
+}
+
 /* Old styling */
 #gameRunningScreen .row > button {
     background-color: var(--guiLightAccent);
@@ -64,7 +150,7 @@
     font-size: 2rem;
     padding: 20px;
     width: 20vw;
-    
+
     /* bottom: 0; */
     /* border-radius: 100%; */
     /* right: 0; */
@@ -80,5 +166,3 @@
     text-align: center;
     width: 50vw;
 }
-
-

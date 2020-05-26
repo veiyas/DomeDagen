@@ -10,25 +10,27 @@
 #include <sstream>
 #include <random>
 #include <glm/gtx/string_cast.hpp>
-
 #include "sgct/sgct.h"
+
+#include "sgct/profiling.h"
 
 #include "websockethandler.h"
 #include "utility.hpp"
 #include "game.hpp"
-#include "sceneobject.hpp"
-#include "player.hpp"
 #include "modelmanager.hpp"
-#include "backgroundobject.hpp"
+#include "inireader.h"
 
 namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
 
+	IniGroup spawnDetails;
+
+	//Variables to catch sync data
+	bool isGameEnded = false, isGameStarted = false;
+	bool areStatsVisible = false;
+
 	//Container for deserialized game state info
 	std::vector<SyncableData> gameObjectStates;
-
-	//TEMPORARY used to control rotation of all players 
-	float updatedRotation{ 0 };
 } // namespace
 
 using namespace sgct;
@@ -38,6 +40,7 @@ using namespace sgct;
 *****************************/
 void initOGL(GLFWwindow*);
 void draw(const RenderData& data);
+void draw2D(const RenderData& data);
 void cleanup();
 
 std::vector<std::byte> encode();
@@ -52,7 +55,7 @@ void connectionClosed();
 void messageReceived(const void* data, size_t length);
 
 /****************************
-		CONSTANTS 
+		CONSTANTS
 *****************************/
 const std::string rootDir = Utility::findRootDir();
 
@@ -65,12 +68,26 @@ int main(int argc, char** argv)
 	Configuration config = sgct::parseArguments(arg);
 
 	//Choose which config file (.xml) to open
-	//config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
+	config.configFilename = rootDir + "/src/configs/fisheye_testing.xml";
 	//config.configFilename = rootDir + "/src/configs/simple.xml";
 	//config.configFilename = rootDir + "/src/configs/six_nodes.xml";
-	config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
+	//config.configFilename = rootDir + "/src/configs/two_fisheye_nodes.xml";
 
 	config::Cluster cluster = sgct::loadCluster(config.configFilename);
+
+	//Handle configs not directly related to sgct
+	Ini appConfig;
+	try
+	{
+		appConfig = readIni(rootDir + "/config.ini");
+	}
+	catch (const std::runtime_error & e)
+	{
+		Log::Error("%s", e.what());
+		return EXIT_FAILURE;
+	}
+	IniGroup networkConfig = appConfig["Network"];
+	spawnDetails = appConfig["Spawn"];
 
 	//Provide functions to engine handles
 	Engine::Callbacks callbacks;
@@ -80,13 +97,14 @@ int main(int argc, char** argv)
 	callbacks.decode = decode;
 	callbacks.postSyncPreDraw = postSyncPreDraw;
 	callbacks.draw = draw;
+	callbacks.draw2D = draw2D;
 	callbacks.cleanup = cleanup;
 	callbacks.keyboard = keyboard;
 
 	//Initialize engine
 	try {
 		gameObjectStates.reserve(Game::mMAXPLAYERS*3);
-		Engine::create(cluster, callbacks, config);		
+		Engine::create(cluster, callbacks, config);
 	}
 	catch (const std::runtime_error & e) {
 		Log::Error("%s", e.what());
@@ -96,15 +114,15 @@ int main(int argc, char** argv)
 
 	if (Engine::instance().isMaster()) {
 		wsHandler = std::make_unique<WebSocketHandler>(
-			"localhost",
-			81,
+			networkConfig["ip"],
+			std::stoi(networkConfig["port"]),
 			connectionEstablished,
 			connectionClosed,
 			messageReceived
 		);
 		constexpr const int MessageSize = 1024;
 		wsHandler->connect("example-protocol", MessageSize);
-	}	
+	}
 	/**********************************/
 	/*			 Test Area			  */
 	/**********************************/
@@ -116,54 +134,120 @@ int main(int argc, char** argv)
 	return EXIT_SUCCESS;
 }
 
-void draw(const RenderData& data)
-{
-	Game::instance().setMVP(data.modelViewProjectionMatrix);
-	Game::instance().setV(data.viewMatrix);
-
-
-	glClearColor(20.0/255.0, 157.0/255.0, 190.0/255.0, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	//Background object
-	//Game::instance()
-	//glDisable(GL_DEPTH_TEST);
-
-	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE); // TODO This should really be enabled but the normals of the
-	                          // background object are flipped atm
-	glCullFace(GL_BACK);
-
-	Game::instance().render();
-
-	GLenum err;
-	while ((err = glGetError()) != GL_NO_ERROR)
-	{
-		sgct::Log::Error("GL Error: 0x%x", err);
-	}
-}
-
 void initOGL(GLFWwindow*)
 {
 	ModelManager::init();
 	Game::init();
+	assert(std::is_pod<SyncableData>());
 
 	/**********************************/
 	/*			 Debug Area			  */
 	/**********************************/
-//	if (Engine::instance().isMaster())
-//	{
-//		for (size_t i = 0; i < 1; i++)
-//		{
-//			Game::instance().addPlayer(glm::vec3(0.f + 0.2f*i));
-//		}
-//	}
+	if (Engine::instance().isMaster())
+	{
+		for (size_t i = 0; i < std::stoi(spawnDetails["numPlayers"]); i++)
+		{
+			Game::instance().addPlayer(glm::vec3(0.f + 0.3f * i));
+		}
+	}
+}
+
+void draw(const RenderData& data)
+{
+	if (isGameStarted && !isGameEnded) {
+		Game::instance().setMVP(data.modelViewProjectionMatrix);
+		Game::instance().setV(data.viewMatrix);
+
+		glEnable(GL_DEPTH_TEST);
+		//glEnable(GL_CULL_FACE); // TODO This should really be enabled but the normals of the
+								  // background object are flipped atm
+		glCullFace(GL_BACK);
+
+		Game::instance().render();
+
+		//GLenum err;
+		//while ((err = glGetError()) != GL_NO_ERROR)
+		//{
+		//	sgct::Log::Error("GL Error: 0x%x", err);
+		//}
+	}
+}
+
+void draw2D(const RenderData& data)
+{
+	if (isGameStarted && !isGameEnded)
+		return;
+
+	static constexpr int bigFontSize = 12;
+	static constexpr int smallFontSize = 6;
+
+	const std::string leaderboardString = Game::instance().getLeaderboard();
+	const glm::ivec2& screenRes = data.window.framebufferResolution();
+	if (!isGameStarted) {
+		text::print(
+			data.window,
+			data.viewport,
+			*text::FontManager::instance().font("SGCTFont", bigFontSize),
+			text::Alignment::TopCenter,
+			screenRes.x / 2,
+			screenRes.y / 2.5,
+			glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
+			"%s", "Connect now"
+		);
+	}
+
+	if (isGameEnded) {
+
+	//Leaderboard header
+	text::print(
+		data.window,
+		data.viewport,
+		*text::FontManager::instance().font("SGCTFont", bigFontSize),
+		text::Alignment::TopCenter,
+		screenRes.x / 2,
+		screenRes.y / 1.05,
+		glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
+		"%s", "Leaderboard"
+		);
+	//Actual leaderboard
+	text::print(
+		data.window,
+		data.viewport,
+		*text::FontManager::instance().font("SGCTFont", smallFontSize),
+		text::Alignment::TopCenter,
+		screenRes.x / 2,
+		screenRes.y / 1.05 - bigFontSize,
+		glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
+		"%s", leaderboardString.c_str()
+		);
+	}
 }
 
 void keyboard(Key key, Modifier modifier, Action action, int)
 {
 	if (key == Key::Esc && action == Action::Press) {
 		Engine::instance().terminate();
+	}
+	if (key == Key::Q && action == Action::Press) {
+		Game::instance().endGame();
+		isGameEnded = true;
+	}
+	if (key == Key::T && action == Action::Press) {
+		Engine::instance().setStatsGraphVisibility(true);
+		areStatsVisible = true;
+	}
+	if (key == Key::G && action == Action::Press) {
+		Engine::instance().setStatsGraphVisibility(false);
+		areStatsVisible = false;
+	}
+	if (key == Key::R && action == Action::Press) {
+		Game::instance().addPlayer();
+	}
+	if (key == Key::F && action == Action::Press) {
+		for (size_t i = 0; i < 100; i++)
+		{
+			Game::instance().addCollectible();
+		}
 	}
 	if (key == Key::Space && modifier == Modifier::Shift && action == Action::Release)
 	{
@@ -181,6 +265,12 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 	{
 		Game::instance().rotateAllPlayers(-0.1f);
 	}
+
+	if (key == Key::I && (action == Action::Press || action == Action::Repeat))
+	{
+		isGameStarted = true;
+		Game::instance().startGame();
+	}
 }
 
 void preSync()
@@ -189,17 +279,24 @@ void preSync()
 	// the computed state is serialized and deserialized in the encode/decode calls
 
 	//Run game simulation on master only
-	if (Engine::instance().isMaster())
+	if (Engine::instance().isMaster() && !isGameEnded && isGameStarted)
 	{
 		wsHandler->tick();
 		Game::instance().update();
-        Game::instance().sendPointsToServer(wsHandler);
+    Game::instance().sendPointsToServer(wsHandler);
+		if (Game::instance().hasGameEnded()) {
+			isGameEnded = true;
+		}
 	}
 }
 
 std::vector<std::byte> encode()
 {
 	std::vector<std::byte> output;
+
+	serializeObject(output, isGameEnded);
+	serializeObject(output, areStatsVisible);
+	serializeObject(output, isGameStarted);
 
 	//For some reason everything has to to be put in one vector to avoid sgct syncing bugs
 	serializeObject(output, Game::instance().getSyncableData());
@@ -209,10 +306,12 @@ std::vector<std::byte> encode()
 
 void decode(const std::vector<std::byte>& data, unsigned int pos)
 {
-	if (!Game::exists()) //No point in syncing data if no instance of Game exist yet
+	if (!Game::exists() || isGameEnded) //No point in syncing data if no Game isnt running
 		return;
 
-	//For some reason everything has to to be put in one vector to avoid sgct syncing bugs
+	deserializeObject(data, pos, isGameEnded);
+	deserializeObject(data, pos, areStatsVisible);
+	deserializeObject(data, pos, isGameStarted);
 	deserializeObject(data, pos, gameObjectStates);
 }
 
@@ -225,9 +324,14 @@ void cleanup()
 void postSyncPreDraw()
 {
 	//Sync gameobjects' state on clients only
-	if (!Engine::instance().isMaster() && Game::exists() && gameObjectStates.size() > 0)
+	if (!Engine::instance().isMaster() && Game::exists())
 	{
-		Game::instance().setSyncableData(std::move(gameObjectStates));
+		Engine::instance().setStatsGraphVisibility(areStatsVisible);
+
+		if (!isGameStarted || isGameEnded)
+			return;
+		else if(gameObjectStates.size() > 0 && !isGameEnded)
+			Game::instance().setSyncableData(std::move(gameObjectStates));
 	}
 }
 
@@ -245,7 +349,8 @@ void messageReceived(const void* data, size_t length)
 {
 	std::string_view msg = std::string_view(reinterpret_cast<const char*>(data), length);
 	//Log::Info("Message received: %s", msg.data());
-
+	std::string timePassed = std::to_string(Game::instance().getPassedTime());
+	wsHandler->queueMessage("T " + timePassed);
 	std::string message = msg.data();
 
 	if (!message.empty())
@@ -265,14 +370,24 @@ void messageReceived(const void* data, size_t length)
 		if (msgType == 'C') {
 			Game::instance().updateTurnSpeed(Utility::getTurnSpeed(iss));
 		}
-        
+
+
         // If first slot is 'D', player to be deleted has been sent
         if (msgType == 'D') {
             unsigned int playerId;
             iss >> playerId;
+            Log::Info("Player disabled: %s", message.c_str());
             Game::instance().disablePlayer(playerId);
         }
-        
+
+        // If first slot is 'E', player to be enabled has been sent
+        if (msgType == 'E') {
+            Log::Info("Player enabled: %s", message.c_str());
+            unsigned int playerId;
+            iss >> playerId;
+            Game::instance().enablePlayer(playerId);
+        }
+
         // If first slot is 'I', player's ID has been sent
         if (msgType == 'I') {
             unsigned int playerId;
@@ -281,11 +396,11 @@ void messageReceived(const void* data, size_t length)
             std::pair<glm::vec3, glm::vec3> colours = Game::instance().getPlayerColours(playerId);
             std::string colourOne = glm::to_string(colours.first);
             std::string colourTwo = glm::to_string(colours.second);
-            
+
             wsHandler->queueMessage("A " + colourOne + " " + std::to_string(playerId));
             wsHandler->queueMessage("B " + colourTwo + " " + std::to_string(playerId));
         }
-        
+
         // If first slot is 'P', player's ID has been sent
         if (msgType == 'P') {
             unsigned int playerId;
@@ -299,4 +414,5 @@ void messageReceived(const void* data, size_t length)
             wsHandler->queueMessage("P " + std::to_string(playerPoints));
         }
 	}
+
 }

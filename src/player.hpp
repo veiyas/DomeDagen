@@ -111,6 +111,8 @@ private:
 
 	// frans; Trying something with colors
 	std::pair<glm::vec3, glm::vec3> mPlayerColours;	
+	GLint mPrimaryColLoc = -1;
+	GLint mSecondaryColLoc = -1;
 
 	struct ColourSelector
 	{
@@ -152,4 +154,7 @@ private:
 	//Constants for initializing mConstraint
 	static const float mFOV;
 	static const float mTILT;
+
+	//Specializes setShaderData() from GeometryHandler
+	void setShaderData();
 };
