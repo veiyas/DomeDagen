@@ -104,11 +104,11 @@ wsServer.on('request', function (req) {
             //console.log(`Colour 2: ${colourTwo}`);
             connection.send(`B ${colourTwo}`);
           } else if (temp[0] === 'T') {
-            var time = temp.substring(1, 4);
+            var time = temp.substring(2, 6);
             //console.log(`Colour 2: ${colourTwo}`);
-            connection.send(`T ${colourTwo}`);
-          } else if (temp[0] === 'start') {
-            connection.send('start')
+            connection.send(`T ${time}`);
+          } else if (temp[0] === 'U') {
+            connection.send(temp);
           }
         }
       });

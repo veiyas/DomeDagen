@@ -120,6 +120,12 @@ int main(int argc, char** argv)
 void draw(const RenderData& data)
 {	
 	if (isGameStarted) {
+		if (!isGameEnded) {
+			if (Game::instance().shouldSendTime()) {
+				std::string timePassed = std::to_string(Game::instance().getPassedTime());
+				wsHandler->queueMessage("T " + timePassed);
+			}
+		}
 		Game::instance().setMVP(data.modelViewProjectionMatrix);
 		Game::instance().setV(data.viewMatrix);
 
@@ -246,6 +252,8 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 	{
 		isGameStarted = true;
 		Game::instance().startGame();
+		std::string timePassed = std::to_string(Game::instance().getPassedTime());
+		wsHandler->queueMessage("U start");
 	}
 }
 
@@ -261,7 +269,11 @@ void preSync()
 		wsHandler->tick();
 		Game::instance().update();
 		if (Game::instance().hasGameEnded()) {
-			isGameEnded = true;
+			if (!isGameEnded) {
+				wsHandler->queueMessage("U end");
+				isGameEnded = true;
+			}
+			
 		}
 	}
 }
@@ -321,8 +333,7 @@ void messageReceived(const void* data, size_t length)
 {
 	std::string_view msg = std::string_view(reinterpret_cast<const char*>(data), length);
 	//Log::Info("Message received: %s", msg.data());
-	std::string timePassed = std::to_string(Game::instance().getPassedTime());
-	wsHandler->queueMessage("T " + timePassed);
+
 	std::string message = msg.data();
 
 	if (!message.empty())

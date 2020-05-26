@@ -18,6 +18,7 @@ var screens = new Map();
 const nameLimit = 20;
 var connected = false;
 var gameStarted = false;
+var gameEnded = false;
 
 function log(msg) {
     document.getElementById('debug-output').innerHTML = msg;
@@ -68,8 +69,16 @@ function initialize() {
     }
 
     // Receive start signal
-    if (event.data === 'start') {
-      gameStarted = true;
+    if (event.data[0] == 'U') {
+      var option = event.data.substring(2);
+      if(option === 'start'){
+        
+        gameStarted = true;
+      }else if(option === 'end'){
+        gameEnded = true;
+        setCurrentScreen('endScreen');
+      }
+      log(option);
     }
   }
 
