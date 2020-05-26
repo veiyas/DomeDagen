@@ -74,17 +74,17 @@ int main(int argc, char** argv)
 	config::Cluster cluster = sgct::loadCluster(config.configFilename);
 
 	//Handle configs not directly related to sgct
-	Ini gameConfig;
+	Ini appConfig;
 	try
 	{
-		gameConfig = readIni(rootDir + "/config.ini");
+		appConfig = readIni(rootDir + "/config.ini");
 	}
 	catch (const std::runtime_error & e)
 	{
 		Log::Error("%s", e.what());
 		return EXIT_FAILURE;
 	}
-	IniGroup networkConfig = gameConfig["Network"];
+	IniGroup networkConfig = appConfig["Network"];
 
 
 	//Provide functions to engine handles
