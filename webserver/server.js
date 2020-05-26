@@ -122,6 +122,11 @@ wsServer.on('request', function (req) {
               //console.log(`POINTS for player ${pointsId}: ${points}`);
               connection.send(`P ${points}`);
             }
+
+          } else if (temp[0] === 'T') {
+            var time = temp.substring(1, 4);
+            //console.log(`Colour 2: ${colourTwo}`);
+            connection.send(`T ${colourTwo}`);
           }
         }
       });
