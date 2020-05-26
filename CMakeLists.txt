@@ -55,6 +55,8 @@ add_executable(${PROJECT_NAME}
   src/balljointconstraint.hpp
   src/balljointconstraint.cpp
   src/constants.hpp
+  src/inireader.cpp
+  src/inireader.h
   src/shaders/playervert.glsl
   src/shaders/playerfrag.glsl
   src/shaders/sceneobjectvert.glsl
