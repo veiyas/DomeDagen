@@ -282,8 +282,8 @@ void messageReceived(const void* data, size_t length)
             std::string colourOne = glm::to_string(colours.first);
             std::string colourTwo = glm::to_string(colours.second);
             
-            wsHandler->queueMessage("A " + colourOne);
-            wsHandler->queueMessage("B " + colourTwo);
+            wsHandler->queueMessage("A " + colourOne + " " + std::to_string(playerId));
+            wsHandler->queueMessage("B " + colourTwo + " " + std::to_string(playerId));
         }
         
         // If first slot is 'P', player's ID has been sent
