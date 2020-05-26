@@ -65,20 +65,19 @@ function initialize() {
     
     if (event.data[0] == 'T'){
       var time = event.data.substring(2);
-      log("TIME: " + time);
+      setTimeBarHeight(time);
     }
 
     // Receive start signal
     if (event.data[0] == 'U') {
       var option = event.data.substring(2);
       if(option === 'start'){
-        
         gameStarted = true;
       }else if(option === 'end'){
         gameEnded = true;
-        setCurrentScreen('endScreen');
+        setCurrentScreen('gameOverScreen');
       }
-      log(option);
+      // log(option);
     }
   }
 
@@ -108,8 +107,6 @@ function initialize() {
     setCurrentScreen('waitingScreen');
     handleInformationMessages();
   })
-
-  initTimeBar();
 }
 
 // Set the currently visible screen to the matching screenID argument.
@@ -144,15 +141,15 @@ function sendName() {
 }
 
 // For returning user
-function returnConnection() {
-  if (socket.readyState === WebSocket.OPEN) {
-    var stringToSend = `E ${returningPlayerUserName}`;
-    socket.send(stringToSend);
-  }
-  // Go to gamescreen
-  connected = true; // Mock connection state, should probably be handled in conjunction with the back-end
-  setCurrentScreen('gameRunningScreen');
-}
+// function returnConnection() {
+//   if (socket.readyState === WebSocket.OPEN) {
+//     var stringToSend = `E ${returningPlayerUserName}`;
+//     socket.send(stringToSend);
+//   }
+//   // Go to gamescreen
+//   connected = true; // Mock connection state, should probably be handled in conjunction with the back-end
+//   setCurrentScreen('gameRunningScreen');
+// }
 
 // Enable the connect button if and only if the user has entered something
 // into the input form.
