@@ -7,14 +7,16 @@ const gameInformationMessages = [
 ];
 var currentMessage = 0;
 var seenAll = 0;
+var messageInterval;
+
 function handleInformationMessages() {
-    setInterval(displayNextMessage, 1000);
+    messageInterval = setInterval(displayNextMessage, 1000);
 }
 
 function displayNextMessage() {
     var messageElement = document.querySelector('#gameInformation');
     if (gameStarted && seenAll === 1) {
-        clearInterval(displayNextMessage);
+        clearInterval(messageInterval);
         document.querySelector('#orientationPrompt').classList.remove('hidden');
         document.querySelector('#promptBackground').classList.remove('hidden');
         setCurrentScreen('gameRunningScreen');
