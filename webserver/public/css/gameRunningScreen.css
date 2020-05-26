@@ -97,7 +97,7 @@
 /* Two button controls */
 .buttonControls {
     position: absolute;
-    bottom: -10%;
+    bottom: 5%;
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
