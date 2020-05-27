@@ -6,8 +6,9 @@
 #include"balljointconstraint.hpp"
 #include"constants.hpp"
 
+// Note that these can be set by setConstraints(...)
 float Player::mFOV = 163.0f;
-float Player::mTILT = 27.0f;
+float Player::mTILT = 0.0f;
 
 Player::ColourSelector Player::mColourSelector = Player::ColourSelector{ };
 
