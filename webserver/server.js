@@ -83,28 +83,47 @@ wsServer.on('request', function (req) {
 
       connection.send('Connected');
 
-      // Receive colour-data from game and send to client
       gameSocket.on('message', function(msg) {
         if (msg.type === 'utf8') {
           var temp = msg.utf8Data;
+          const remotePlayerAddress = connection.socket.remoteAddress;
+          const idNumber = playerList.get(remotePlayerAddress);
+
+          // Receive colour-data from game and send to client
           if (temp[0] === 'A') {
             var valOne = temp.substring(7, 14) * 255;
             var valTwo = temp.substring(17, 24) * 255;
             var valThree = temp.substring(27, 34) * 255;
+            var playerColourId1 = temp.substring(36);
+            console.log(`PLAYERID: ${playerColourId1}`);
 
             var colourOne = [valOne, valTwo, valThree];
-            //console.log(`Colour 1: ${colourOne}`);
-            connection.send(`A ${colourOne}`);
+            if (playerColourId1 == idNumber) {
+              connection.send(`A ${colourOne}`);
+            }
 
           } else if (temp[0] === 'B') {
             var valOne = temp.substring(7, 14) * 255;
             var valTwo = temp.substring(17, 24) * 255;
             var valThree = temp.substring(27, 34) * 255;
+            var playerColourId2 = temp.substring(36);
 
             var colourTwo = [valOne, valTwo, valThree];
-            //console.log(`Colour 2: ${colourTwo}`);
-            connection.send(`B ${colourTwo}`);
-          }else if (temp[0] === 'T') {
+            if (playerColourId2 == idNumber) {
+              connection.send(`B ${colourTwo}`);
+            }
+
+            // Receive points from game and send to website
+          } else if (temp[0] === 'P') {
+            var pointsId = temp.substring(2, 4);
+            var points = temp.substring(5);
+
+            if (pointsId == idNumber) {
+              //console.log(`POINTS for player ${pointsId}: ${points}`);
+              connection.send(`P ${points}`);
+            }
+
+          } else if (temp[0] === 'T') {
             var time = temp.substring(1, 4);
             //console.log(`Colour 2: ${colourTwo}`);
             connection.send(`T ${colourTwo}`);
@@ -125,19 +144,10 @@ wsServer.on('request', function (req) {
 
             playerList.set(connection.socket.remoteAddress, uniqueId);
             console.log(playerList);
-            // gameSocket.send("N " + temp[1] + "|" + uniqueId);
             gameSocket.send(`N ${uniqueId} ${temp[1]}`);
             // Send only ID to receive colors
             gameSocket.send(`I ${uniqueId}`);
             uniqueId++;
-
-          } else if (temp[0] === "E") {
-              console.log("Enable player: " + temp);
-              const enableId = playerList.get(req.remoteAddress);
-              gameSocket.send(`E ${enableId}`);
-
-              // Send ID to receive colors
-              gameSocket.send(`I ${enableId}`);
           }
 
           // Testing if first slot has value "C", if so --> send rotation data
@@ -158,8 +168,8 @@ wsServer.on('request', function (req) {
 
         //if (playerList.delete(remoteAddress)) {
         gameSocket.send(`D ${id}`);
-        console.log(`Disabled player ${id} with ip ${remoteAddress}`);
-      //  }
+        console.log(`Removed player ${id} with ip ${remoteAddress}`);
+        //}
       });
     }
     // More connections form same device

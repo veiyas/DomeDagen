@@ -25,13 +25,14 @@
 #include "collectiblepool.hpp"
 #include "utility.hpp"
 #include "backgroundobject.hpp"
+#include "websockethandler.h"
 
 //Because sgct can't handle syncting separate vectors all sync data gets put in one vector
 //This needs a master type to handle all syncable objects
 struct SyncableData
 {
 	PlayerData mPlayerData;
-	PositionData mPositionData;	
+	PositionData mPositionData;
 	CollectibleData mCollectData;
 	bool mIsPlayer;
 };
@@ -55,7 +56,7 @@ public:
 	void operator=(Game const&) = delete;
 
 	//Print loaded assets (shaders, models)
-	void printLoadedAssets() const;    
+	void printLoadedAssets() const;
 
 	//Render objects
 	void render() const;
@@ -79,7 +80,7 @@ public:
 	//Add player from server request
 	void addPlayer(std::tuple<unsigned int, std::string>&& inputTuple);
 
-	//enable/disable player 
+	//enable/disable player
 	void enablePlayer(unsigned id);
 	void disablePlayer(unsigned id);
 
@@ -92,16 +93,19 @@ public:
 
 	//Check if game has ended
 	bool hasGameEnded() const { return mGameIsEnded; }
-	
+
 	//End the game (stop updating state)
 	void endGame() { mGameIsEnded = true; }
 
+	//Update point data on phone
+	void sendPointsToServer(std::unique_ptr<WebSocketHandler>& ws);
+
 	//Set the turn speed of player player with id id
-	void updateTurnSpeed(std::tuple<unsigned int, float>&& input);    
-   
+	void updateTurnSpeed(std::tuple<unsigned int, float>&& input);
+
 	//DEBUGGING TOOL: apply orientation to all GameObjects
 	void rotateAllPlayers(float deltaOrientation);
-    
+
     //Get and return player-colours
     std::pair<glm::vec3, glm::vec3> getPlayerColours(unsigned id);
 
@@ -136,8 +140,9 @@ private:
 	//Track all loaded shaders' names
 	std::vector<std::string> mShaderNames;
 
-	//Track all collected collectibles for sync to nodes efficiently
-	//std::vector<size_t
+	//Container to store player id and new points
+	//Data sent to server to update score on each player's phone
+	std::vector<std::pair<unsigned, int>> mIdPoints;
 
 	//MVP matrix used for rendering
 	glm::mat4 mMvp;
@@ -152,7 +157,7 @@ private:
 	float mLastFrameTime;
 
 	static constexpr double collisionDistance = 0.1f; //TODO make this object specific
-	
+
 	BackgroundObject *mBackground; //Holds pointer to the background
 
 	float mTotalTime = 0, mMaxTime = 600000;//seconds
@@ -197,7 +202,7 @@ private:
 			rng = std::uniform_real_distribution<>(-1.5f, 1.5f);
 		}
 
-		//RNG stuff		
+		//RNG stuff
 		std::mt19937 gen;
 		std::uniform_real_distribution<> rng;
 

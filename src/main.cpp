@@ -55,7 +55,7 @@ void connectionClosed();
 void messageReceived(const void* data, size_t length);
 
 /****************************
-		CONSTANTS 
+		CONSTANTS
 *****************************/
 const std::string rootDir = Utility::findRootDir();
 
@@ -63,7 +63,7 @@ const std::string rootDir = Utility::findRootDir();
 			MAIN
 *****************************/
 int main(int argc, char** argv)
-{	
+{
 	std::vector<std::string> arg(argv + 1, argv + argc);
 	Configuration config = sgct::parseArguments(arg);
 
@@ -104,7 +104,7 @@ int main(int argc, char** argv)
 	//Initialize engine
 	try {
 		gameObjectStates.reserve(Game::mMAXPLAYERS*3);
-		Engine::create(cluster, callbacks, config);		
+		Engine::create(cluster, callbacks, config);
 	}
 	catch (const std::runtime_error & e) {
 		Log::Error("%s", e.what());
@@ -153,7 +153,7 @@ void initOGL(GLFWwindow*)
 }
 
 void draw(const RenderData& data)
-{	
+{
 	if (isGameStarted && !isGameEnded) {
 		Game::instance().setMVP(data.modelViewProjectionMatrix);
 		Game::instance().setV(data.viewMatrix);
@@ -195,9 +195,9 @@ void draw2D(const RenderData& data)
 			"%s", "Connect now"
 		);
 	}
-	
+
 	if (isGameEnded) {
-	
+
 	//Leaderboard header
 	text::print(
 		data.window,
@@ -247,7 +247,7 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 		for (size_t i = 0; i < 100; i++)
 		{
 			Game::instance().addCollectible();
-		}		
+		}
 	}
 	if (key == Key::Space && modifier == Modifier::Shift && action == Action::Release)
 	{
@@ -283,6 +283,7 @@ void preSync()
 	{
 		wsHandler->tick();
 		Game::instance().update();
+        Game::instance().sendPointsToServer(wsHandler);
 		if (Game::instance().hasGameEnded()) {
 			isGameEnded = true;
 		}
@@ -307,7 +308,7 @@ void decode(const std::vector<std::byte>& data, unsigned int pos)
 {
 	if (!Game::exists() || isGameEnded) //No point in syncing data if no Game isnt running
 		return;
-  
+
 	deserializeObject(data, pos, isGameEnded);
 	deserializeObject(data, pos, areStatsVisible);
 	deserializeObject(data, pos, isGameStarted);
@@ -370,7 +371,7 @@ void messageReceived(const void* data, size_t length)
 			Game::instance().updateTurnSpeed(Utility::getTurnSpeed(iss));
 		}
 
-        
+
         // If first slot is 'D', player to be deleted has been sent
         if (msgType == 'D') {
             unsigned int playerId;
@@ -378,7 +379,7 @@ void messageReceived(const void* data, size_t length)
             Log::Info("Player disabled: %s", message.c_str());
             Game::instance().disablePlayer(playerId);
         }
-        
+
         // If first slot is 'E', player to be enabled has been sent
         if (msgType == 'E') {
             Log::Info("Player enabled: %s", message.c_str());
@@ -386,7 +387,7 @@ void messageReceived(const void* data, size_t length)
             iss >> playerId;
             Game::instance().enablePlayer(playerId);
         }
-        
+
         // If first slot is 'I', player's ID has been sent
         if (msgType == 'I') {
             unsigned int playerId;
@@ -396,12 +397,8 @@ void messageReceived(const void* data, size_t length)
             std::string colourOne = glm::to_string(colours.first);
             std::string colourTwo = glm::to_string(colours.second);
 
-//            Log::Info("Player colour 1: %s", colourOne.c_str());
-//            Log::Info("Player colour 2: %s", colourTwo.c_str());
-
-			    wsHandler->queueMessage("A " + colourOne);
-			    wsHandler->queueMessage("B " + colourTwo);
-		  }
+            wsHandler->queueMessage("A " + colourOne + " " + std::to_string(playerId));
+            wsHandler->queueMessage("B " + colourTwo + " " + std::to_string(playerId));
+        }
 	}
-
 }
