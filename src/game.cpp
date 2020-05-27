@@ -141,7 +141,7 @@ void Game::addPlayer(const PlayerData& newPlayerData, const PositionData& newPos
 void Game::addPlayer(std::tuple<unsigned int, std::string>&& inputTuple)
 {
 	assert(std::get<0>(inputTuple) == mPlayers.size() && "Player creation desync (id out of bounds: mPlayers)");
-	mPlayers.emplace_back(std::get<1>(inputTuple));
+	mPlayers.emplace_back(std::get<1>(inputTuple), mPosGenerator.generatePos());
 }
 
 void Game::update()

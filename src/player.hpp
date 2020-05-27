@@ -48,7 +48,7 @@ public:
 	Player();
 
 	//Used for creating from tuple (server requested)
-	Player(const std::string name);
+	Player(const std::string name, const glm::quat& pos);
 
 	//Big ctor
 	Player(const std::string & objectModelName, float radius, 
@@ -99,6 +99,9 @@ public:
 	void setPoints(int points) { mPoints = points; };
 	void setIsAlive(bool isAlive) { mIsAlive = isAlive; };
 	void setTurnSpeed(float turnSpeed) override { mTurnSpeed = turnSpeed; };
+
+	//Static methods
+	static void setConstraints(float fov, float tilt) { mFOV = fov, mTILT = tilt; }
 
 private:
 	//Player information/data
@@ -152,8 +155,8 @@ private:
 	bool mEnabled = true;
 
 	//Constants for initializing mConstraint
-	static const float mFOV;
-	static const float mTILT;
+	static float mFOV;
+	static float mTILT;
 
 	//Specializes setShaderData() from GeometryHandler
 	void setShaderData();
