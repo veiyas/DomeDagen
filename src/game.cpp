@@ -402,12 +402,6 @@ std::pair<glm::vec3, glm::vec3> Game::getPlayerColours(unsigned id)
     return mPlayers[id].getColours();
 }
 
-unsigned int Game::getPlayerPoints(unsigned id)
-{
-    assert(id < mPlayers.size() && "Player update points desync (id out of bounds mPlayers");
-    return mPlayers[id].getPoints();
-}
-
 void Game::loadShader(const std::string& shaderName)
 {
 	//Define path and strings to hold shaders

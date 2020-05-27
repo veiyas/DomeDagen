@@ -400,19 +400,5 @@ void messageReceived(const void* data, size_t length)
             wsHandler->queueMessage("A " + colourOne + " " + std::to_string(playerId));
             wsHandler->queueMessage("B " + colourTwo + " " + std::to_string(playerId));
         }
-
-        // If first slot is 'P', player's ID has been sent
-        if (msgType == 'P') {
-            unsigned int playerId;
-            iss >> playerId;
-            // Send colour information back to server
-            const int playerPoints = Game::instance().getPlayerPoints(playerId);
-            std::string points = std::to_string(playerPoints);
-            Log::Info("Points: %s", points.c_str());
-
-            //const int playerPoints = 150;
-            wsHandler->queueMessage("P " + std::to_string(playerPoints));
-        }
 	}
-
 }
