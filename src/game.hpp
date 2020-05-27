@@ -118,6 +118,7 @@ public:
 	//start timer
 	void startGame();
 	float getPassedTime();
+	bool shouldSendTime();
 
 private:
 //Members
@@ -160,7 +161,8 @@ private:
 
 	BackgroundObject *mBackground; //Holds pointer to the background
 
-	float mTotalTime = 0, mMaxTime = 600000;//seconds
+	float mTotalTime = 0, mMaxTime = 60;//seconds
+	float mLastTime = 0;
 	bool mGameIsStarted = false;
 
 //Functions

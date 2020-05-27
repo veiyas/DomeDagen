@@ -6,24 +6,28 @@ const gameInformationMessages = [
     "Good luck and have fun!"
 ];
 var currentMessage = 0;
+var seenAll = 0;
+var messageInterval;
 
 function handleInformationMessages() {
-    setInterval(displayNextMessage, 6000);
+    messageInterval = setInterval(displayNextMessage, 1000);
 }
 
 function displayNextMessage() {
     var messageElement = document.querySelector('#gameInformation');
-
-    if (currentMessage < gameInformationMessages.length) {
+    if (gameStarted && seenAll === 1) {
+        clearInterval(messageInterval);
+        document.querySelector('#orientationPrompt').classList.remove('hidden');
+        document.querySelector('#promptBackground').classList.remove('hidden');
+        setCurrentScreen('gameRunningScreen');
+    }else if (currentMessage < gameInformationMessages.length) {
         messageElement.style.opacity = 0;
         setTimeout(() => {
             messageElement.innerHTML = gameInformationMessages[currentMessage++];
             messageElement.style.opacity=1;
         }, 500);
     } else {
-        clearInterval(displayNextMessage);
-        document.querySelector('#orientationPrompt').classList.remove('hidden');
-        document.querySelector('#promptBackground').classList.remove('hidden');
-        setCurrentScreen('gameRunningScreen');
+        currentMessage = 0;
+        seenAll = 1;
     }
 }

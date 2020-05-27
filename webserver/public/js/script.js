@@ -17,6 +17,8 @@ var socket;
 var screens = new Map();
 const nameLimit = 20;
 var connected = false;
+var gameStarted = false;
+var gameEnded = false;
 
 function log(msg) {
     document.getElementById('debug-output').innerHTML = msg;
@@ -61,15 +63,27 @@ function initialize() {
       setPlayerColours(primary, secondary);
     }
 
+
     // Update points
     if (event.data[0] == 'P') {
       var points = event.data.substring(2);
       document.getElementById("currentScore").innerHTML = points;
     }
-
     if (event.data[0] == 'T'){
       var time = event.data.substring(2);
-      log("TIME: " + time);
+      setTimeBarHeight(time);
+    }
+
+    // Receive start signal
+    if (event.data[0] == 'U') {
+      var option = event.data.substring(2);
+      if(option === 'start'){
+        gameStarted = true;
+      }else if(option === 'end'){
+        gameEnded = true;
+        setCurrentScreen('gameOverScreen');
+      }
+      // log(option);
     }
   }
 
@@ -99,8 +113,6 @@ function initialize() {
     setCurrentScreen('waitingScreen');
     handleInformationMessages();
   })
-
-  initTimeBar();
 }
 
 // Set the currently visible screen to the matching screenID argument.
@@ -135,15 +147,15 @@ function sendName() {
 }
 
 // For returning user
-function returnConnection() {
-  if (socket.readyState === WebSocket.OPEN) {
-    var stringToSend = `E ${returningPlayerUserName}`;
-    socket.send(stringToSend);
-  }
-  // Go to gamescreen
-  connected = true; // Mock connection state, should probably be handled in conjunction with the back-end
-  setCurrentScreen('gameRunningScreen');
-}
+// function returnConnection() {
+//   if (socket.readyState === WebSocket.OPEN) {
+//     var stringToSend = `E ${returningPlayerUserName}`;
+//     socket.send(stringToSend);
+//   }
+//   // Go to gamescreen
+//   connected = true; // Mock connection state, should probably be handled in conjunction with the back-end
+//   setCurrentScreen('gameRunningScreen');
+// }
 
 // Enable the connect button if and only if the user has entered something
 // into the input form.

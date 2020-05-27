@@ -3,6 +3,7 @@
     background-image: url(../img/SeaChart.png);
     background-position: bottom right;
     background-size: cover;
+    justify-content: flex-start;
 }
 
 #gameOverScreen h1, #gameOverScreen h2, #gameOverScreen p {
@@ -11,7 +12,8 @@
 }
 
 #gameOverScreen h1 {
-    margin-bottom: 30px;
+    margin-bottom: 15px;
+    margin-top: 15px;
 }
 
 #finalScoreCard {
@@ -22,7 +24,6 @@
     flex-direction: column;
     height: 50vh;
     justify-content: space-evenly;
-    margin-top: 30px;
     outline-style: solid;
     outline-width: 0.4em;
     outline-offset: -0.4em;

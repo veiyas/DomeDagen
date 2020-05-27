@@ -318,6 +318,16 @@ float Game::getPassedTime()
 	return (float)value / 100;
 }
 
+bool Game::shouldSendTime()
+{
+	if (mTotalTime - mLastTime > 1) {
+		mLastTime = mTotalTime;
+		return true;
+		
+	}
+	return false;
+}
+
 void Game::setDecodedCollectibleData(const std::vector<SyncableData>& newState)
 {
 	mCollectPool.setNumEnabled(newState.size());
