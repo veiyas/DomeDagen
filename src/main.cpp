@@ -25,6 +25,8 @@ namespace {
 
 	IniGroup spawnDetails;
 
+	bool bypassModelMatrix;
+
 	//Variables to catch sync data
 	bool isGameEnded = false, isGameStarted = false;
 	bool areStatsVisible = false;
@@ -87,6 +89,10 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 	IniGroup networkConfig = appConfig["Network"];
+	IniGroup constraintConfig = appConfig["Constraint"];
+		bypassModelMatrix = constraintConfig["bypassModelMatrix"] == "true";
+		Player::setConstraints(std::stof(constraintConfig["fov"]),
+		                       std::stof(constraintConfig["tilt"]));
 	spawnDetails = appConfig["Spawn"];
 
 	//Provide functions to engine handles
@@ -155,8 +161,12 @@ void initOGL(GLFWwindow*)
 void draw(const RenderData& data)
 {	
 	if (isGameStarted && !isGameEnded) {
-		Game::instance().setMVP(data.modelViewProjectionMatrix);
 		Game::instance().setV(data.viewMatrix);
+
+		if (bypassModelMatrix)
+			Game::instance().setMVP(data.projectionMatrix * data.viewMatrix);
+		else
+			Game::instance().setMVP(data.modelViewProjectionMatrix);
 
 		glEnable(GL_DEPTH_TEST);
 		//glEnable(GL_CULL_FACE); // TODO This should really be enabled but the normals of the

@@ -6,8 +6,8 @@
 #include"balljointconstraint.hpp"
 #include"constants.hpp"
 
-const float Player::mFOV = 163.0f;
-const float Player::mTILT = 27.0f;
+float Player::mFOV = 163.0f;
+float Player::mTILT = 27.0f;
 
 Player::ColourSelector Player::mColourSelector = Player::ColourSelector{ };
 
@@ -23,8 +23,8 @@ Player::Player()
 	setShaderData();
 }
 
-Player::Player(const std::string name)
-	: GameObject{ GameObject::PLAYER, DOMERADIUS, glm::quat(glm::vec3(0.f)), 0.f, PLAYERSCALE },
+Player::Player(const std::string name, const glm::quat& pos)
+	: GameObject{ GameObject::PLAYER, DOMERADIUS, pos, 0.f, PLAYERSCALE },
 	  GeometryHandler("player", "diver"),
 	  mName{ name },
 	  mPlayerColours{ mColourSelector.getNextPair() },
