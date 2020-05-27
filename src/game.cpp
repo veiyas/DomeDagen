@@ -199,8 +199,7 @@ std::string Game::getLeaderboard() const
 	//Make pairs of each players name and points
 	for (const auto& player : mPlayers)
 	{
-		sortedPlayersAndPoints.push_back(
-			std::make_pair(player.getName(), player.getPoints()));
+		sortedPlayersAndPoints.push_back(std::make_pair(player.getName(), player.getPoints()));
 	}
 
 	//Sort decreasingly

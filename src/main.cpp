@@ -283,7 +283,7 @@ void preSync()
 	{
 		wsHandler->tick();
 		Game::instance().update();
-    Game::instance().sendPointsToServer(wsHandler);
+        Game::instance().sendPointsToServer(wsHandler);
 		if (Game::instance().hasGameEnded()) {
 			isGameEnded = true;
 		}

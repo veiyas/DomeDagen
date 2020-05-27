@@ -166,11 +166,10 @@ wsServer.on('request', function (req) {
         connectionArray.splice(addresses.indexOf(remoteAddress), 1);
         const id = playerList.get(remoteAddress);
 
-        // TODO Let the game know a player has disconnected
-        if (playerList.delete(remoteAddress)) {
-          gameSocket.send(`D ${id}`);
-          console.log(`Removed player ${id} with ip ${remoteAddress}`);
-        }
+        //if (playerList.delete(remoteAddress)) {
+        gameSocket.send(`D ${id}`);
+        console.log(`Removed player ${id} with ip ${remoteAddress}`);
+        //}
       });
     }
     // More connections form same device
