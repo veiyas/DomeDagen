@@ -155,12 +155,7 @@ void initOGL(GLFWwindow*)
 void draw(const RenderData& data)
 {	
 	if (isGameStarted) {
-		if (!isGameEnded) {
-			if (Game::instance().shouldSendTime()) {
-				std::string timePassed = std::to_string(Game::instance().getPassedTime());
-				wsHandler->queueMessage("T " + timePassed);
-			}
-		}
+		
 		Game::instance().setMVP(data.modelViewProjectionMatrix);
 		Game::instance().setV(data.viewMatrix);
 
@@ -291,6 +286,10 @@ void preSync()
 	if (Engine::instance().isMaster())
 	{
 		if (!isGameEnded && isGameStarted) {
+			if (Game::instance().shouldSendTime()) {
+				std::string timePassed = std::to_string(Game::instance().getPassedTime());
+				wsHandler->queueMessage("T " + timePassed);
+			}
 			Game::instance().update();
 			if (Game::instance().hasGameEnded()) {
 				if (!isGameEnded) {
