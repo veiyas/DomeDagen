@@ -36,7 +36,8 @@ void Game::detectCollisions()
 				if (std::abs(xAngle) <= collisionDistance && std::abs(yAngle) <= collisionDistance)
 				{
 					mPlayers[i].addPoints();
-					mCollectPool.disableCollectibleAndSwap(j);
+                    mCollectPool.disableCollectibleAndSwap(j);
+                    mIdPoints.push_back(std::make_pair(i, mPlayers[i].getPoints()));
 				}
 			}			
 		}
@@ -60,7 +61,8 @@ void Game::spawnCollectibles(float currentFrameTime)
 
 void Game::init()
 {
-	mInstance = new Game{};	
+	mInstance = new Game{};
+	mInstance->mIdPoints.reserve(mMAXPLAYERS);
 	mInstance->printLoadedAssets();
 	mInstance->mCollectPool.init();
 	mInstance->mPlayers.reserve(mMAXPLAYERS);	
@@ -139,7 +141,7 @@ void Game::addPlayer(const PlayerData& newPlayerData, const PositionData& newPos
 void Game::addPlayer(std::tuple<unsigned int, std::string>&& inputTuple)
 {
 	assert(std::get<0>(inputTuple) == mPlayers.size() && "Player creation desync (id out of bounds: mPlayers)");
-	mPlayers.emplace_back(std::get<1>(inputTuple));
+	mPlayers.emplace_back(std::get<1>(inputTuple), mPosGenerator.generatePos());
 }
 
 void Game::update()
@@ -197,8 +199,7 @@ std::string Game::getLeaderboard() const
 	//Make pairs of each players name and points
 	for (const auto& player : mPlayers)
 	{
-		sortedPlayersAndPoints.push_back(
-			std::make_pair(player.getName(), player.getPoints()));
+		sortedPlayersAndPoints.push_back(std::make_pair(player.getName(), player.getPoints()));
 	}
 
 	//Sort decreasingly
@@ -216,6 +217,19 @@ std::string Game::getLeaderboard() const
 	}
 
 	return output.str();
+}
+
+void Game::sendPointsToServer(std::unique_ptr<WebSocketHandler>& ws)
+{
+	//Iterate over mIdPoints to get id's and new points
+	//Send these to server through ws
+    for (size_t i = 0; i < mIdPoints.size(); i++)
+    {
+        std::string playerId = std::to_string(mIdPoints[i].first);
+        std::string points = std::to_string(mIdPoints[i].second);
+        ws->queueMessage("P " + playerId + "   " + points);
+    }
+	mIdPoints.clear();
 }
 
 std::vector<SyncableData> Game::getSyncableData()
@@ -288,7 +302,7 @@ void Game::setSyncableData(const std::vector<SyncableData> newState) //Copy atm 
 	if (newPlayerStates.size() > 0)
 		setDecodedPlayerData(newPlayerStates);
 	if (newCollectibleStates.size() > 0)
-		setDecodedCollectibleData(newCollectibleStates);
+		setDecodedCollectibleData(newCollectibleStates);	
 }
 
 void Game::startGame()

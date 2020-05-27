@@ -62,7 +62,13 @@ function initialize() {
       }
       setPlayerColours(primary, secondary);
     }
-    
+
+
+    // Update points
+    if (event.data[0] == 'P') {
+      var points = event.data.substring(2);
+      document.getElementById("currentScore").innerHTML = points;
+    }
     if (event.data[0] == 'T'){
       var time = event.data.substring(2);
       setTimeBarHeight(time);

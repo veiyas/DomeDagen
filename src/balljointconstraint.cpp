@@ -51,7 +51,7 @@ glm::quat BallJointConstraint::closestAllowedQuat(const glm::quat& q) const
 	float scale = sqrt(1.0f - pow(length(mPlanePos), 2));
 
 	//The projection of dir unto a plane with normal mPlanePos
-	const vec3 proj = dir - (dot(dir, mPlanePos) / pow(length(mPlanePos), 2)) * mPlanePos;
+	const vec3 proj = dir - (dot(dir, mPlanePos) / (float)pow(length(mPlanePos), 2)) * mPlanePos;
 
 	//Unit vector pointing at the new position
 	const vec3 newPos = (scale * normalize(proj)) + mPlanePos;
