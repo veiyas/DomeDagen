@@ -310,7 +310,6 @@ void preSync()
 					isGameEnded = true;
 				}
 			}
-
 		}
 		wsHandler->tick();
 	}
@@ -356,8 +355,14 @@ void postSyncPreDraw()
 
 		if (!isGameStarted || isGameEnded)
 			return;
-		else if(gameObjectStates.size() > 0 && !isGameEnded)
+		else if(gameObjectStates.size() > 0 && !isGameEnded) {
 			Game::instance().setSyncableData(std::move(gameObjectStates));
+		}
+	}
+	else
+	{
+		if (isGameStarted)
+			Game::instance().sendPointsToServer(wsHandler);
 	}
 }
 
