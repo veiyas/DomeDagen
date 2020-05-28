@@ -192,8 +192,8 @@ void draw2D(const RenderData& data)
 	if (isGameStarted && !isGameEnded)
 		return;
 
-	static constexpr int bigFontSize = 12;
-	static constexpr int smallFontSize = 6;
+	static constexpr int bigFontSize = 20;
+	static constexpr int smallFontSize = 14;
 
 	const std::string leaderboardString = Game::instance().getLeaderboard();
 	const glm::ivec2& screenRes = data.window.framebufferResolution();
@@ -219,7 +219,7 @@ void draw2D(const RenderData& data)
 		*text::FontManager::instance().font("SGCTFont", bigFontSize),
 		text::Alignment::TopCenter,
 		screenRes.x / 2,
-		screenRes.y / 1.05,
+		screenRes.y / 2,
 		glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
 		"%s", "Leaderboard"
 		);
@@ -230,7 +230,7 @@ void draw2D(const RenderData& data)
 		*text::FontManager::instance().font("SGCTFont", smallFontSize),
 		text::Alignment::TopCenter,
 		screenRes.x / 2,
-		screenRes.y / 1.05 - bigFontSize,
+		screenRes.y / 2 - bigFontSize,
 		glm::vec4{ 1.f, 0.5f, 0.f, 1.f },
 		"%s", leaderboardString.c_str()
 		);
