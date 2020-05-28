@@ -209,11 +209,14 @@ std::string Game::getLeaderboard() const
 			return a.second > b.second;
 		});
 
-	for (const pointPair& p : sortedPlayersAndPoints)
+	for (size_t i = 0; i < sortedPlayersAndPoints.size(); i++)
 	{
-		output << std::setw(20) << std::left << p.first;
-		output << " - " << std::setw(8) << std::right << p.second;
+		output << std::setw(20) << std::left << sortedPlayersAndPoints[i].first;
+		output << " - " << std::setw(8) << std::right << sortedPlayersAndPoints[i].second;
 		output << "\n";
+
+		if (i >= 10)
+			break;
 	}
 
 	return output.str();
