@@ -97,6 +97,9 @@ public:
 	//End the game (stop updating state)
 	void endGame() { mGameIsEnded = true; }
 
+	//Set game time
+	void setMaxTime(float time) { mMaxTime = time; }
+
 	//Update point data on phone
 	void sendPointsToServer(std::unique_ptr<WebSocketHandler>& ws);
 

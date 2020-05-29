@@ -24,6 +24,7 @@ namespace {
 	std::unique_ptr<WebSocketHandler> wsHandler;
 
 	IniGroup spawnDetails;
+	IniGroup gameConfig;
 
 	bool bypassModelMatrix;
 
@@ -94,6 +95,7 @@ int main(int argc, char** argv)
 		Player::setConstraints(std::stof(constraintConfig["fov"]),
 		                       std::stof(constraintConfig["tilt"]));
 	spawnDetails = appConfig["Spawn"];
+	gameConfig = appConfig["Game"];
 
 	//Provide functions to engine handles
 	Engine::Callbacks callbacks;
@@ -144,7 +146,7 @@ void initOGL(GLFWwindow*)
 {
 	ModelManager::init();
 	Game::init();
-	assert(std::is_pod<SyncableData>());
+	Game::instance().setMaxTime(std::stof(gameConfig["maxTime"]));
 
 	/**********************************/
 	/*			 Debug Area			  */
@@ -159,7 +161,6 @@ void initOGL(GLFWwindow*)
 }
 
 void draw(const RenderData& data)
-
 {	
 	if (isGameStarted) {
 		
@@ -258,7 +259,7 @@ void keyboard(Key key, Modifier modifier, Action action, int)
 		Game::instance().addPlayer();
 	}
 	if (key == Key::F && action == Action::Press) {
-		for (size_t i = 0; i < 100; i++)
+		for (size_t i = 0; i < 50; i++)
 		{
 			Game::instance().addCollectible();
 		}
