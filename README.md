@@ -31,7 +31,20 @@ Currently, the server and application addresses are encoded in several places th
     ```ini
     [Network]
     ip = localhost
+    port = 81[Network]
+    ip = localhost
     port = 81
+
+    [Spawn]
+    numPlayers = 0
+
+    [Game]
+    maxTime = 120
+
+    [Constraint]
+    bypassModelMatrix = false
+    fov = 163.0
+    tilt = 0.0
     ```
 
     
