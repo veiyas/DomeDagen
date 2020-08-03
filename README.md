@@ -1,6 +1,6 @@
 # DomeDagen
 
-A multi-player game made for the dome at Visualiseringscenter C. Using [SGCT-Networked-Application](https://github.com/alexanderbock/SGCT-Networked-Application).
+A multi-player game developed for the dome at Visualiseringscenter C as part of the education M.Sc. in Media Technology and Engineering, earning all contributors bachelor degrees. Using [SGCT-Networked-Application](https://github.com/alexanderbock/SGCT-Networked-Application).
 
 To clone this repository, don't forget to recurse submodules: `git clone --recurse-submodules https://github.com/veiyas/DomeDagen.git` or the dependent libraries will not work correctly.
 
